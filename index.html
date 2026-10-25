@@ -141,7 +141,7 @@ async function api(kind,path,params={},type='json'){
  const px=(cfg.proxy||'').trim().replace(/\/$/,'');
  const base=px?px+'/'+kind:(kind==='tfl'?'https://api.tfl.gov.uk':'https://bustimes.org');
  const u=new URL(base+path);for(const[k,v]of Object.entries(params))if(v!=null)u.searchParams.set(k,v);
- let r;try{r=await fetch(u,{cache:'no-store',signal:AbortSignal.timeout?AbortSignal.timeout(10000):undefined})}catch(e){logE(kind+' '+path+' network/CORS error');throw new ApiErr('net')}
+ let r;try{r=await fetch(u,{headers:{Accept:type==='text'?'text/html':'application/json'},cache:'no-store',signal:AbortSignal.timeout?AbortSignal.timeout(type==='text'?20000:10000):undefined})}catch(e){logE(kind+' '+path+' network/CORS error');throw new ApiErr('net')}
  if(r.status===429){logE(kind+' '+path+' 429');if(kind==='tfl')S.rate=true;throw new ApiErr('rate')}
  if(!r.ok){logE(kind+' '+path+' HTTP '+r.status);throw new ApiErr('http',String(r.status))}
  try{return type==='text'?await r.text():await r.json()}catch{logE(kind+' '+path+' invalid response');throw new ApiErr('format')}
@@ -739,7 +739,7 @@ export default {
    }
    if(m[1]==='tfl'&&env.TFL_KEY)u.searchParams.set('app_key',env.TFL_KEY);
    const dest=(m[1]==='tfl'?'https://api.tfl.gov.uk':'https://bustimes.org')+m[2]+u.search;
-   const html=m[1]==='bt'&&/^\/stops\/[^/]+\/departures\/?$/.test(m[2]);
+   const html=m[1]==='bt'&&/^\/(?:stops\/[^/]+\/departures\/?|vehicles\/[^/]+\/?|trips\/\d+\/block\/?)$/.test(m[2]);
    const r=await fetch(dest,{headers:{accept:html?'text/html':'application/json'}});
    return new Response(r.body,{status:r.status,headers:{...cors,'content-type':r.headers.get('content-type')||(html?'text/html':'application/json'),'cache-control':'no-store'}});
   }catch{return new Response('Upstream unavailable',{status:502,headers:cors})}
@@ -1062,6 +1062,9 @@ function modelAddRef(state,ref,evidence){
  if(!entry){entry={ref:{...ref},seen:false,upcoming:false,expected:false,predicted:false,vehicle:null};state.refs.set(key,entry)}
  else entry.ref={...entry.ref,...Object.fromEntries(Object.entries(ref).filter(([,v])=>v!=null&&v!==''))};
  for(const field of ['seen','upcoming','expected','predicted'])if(evidence[field])entry[field]=true;
+ for(const field of ['activeAt','trackedAt','journeyAt'])if(Number.isFinite(evidence[field]))entry[field]=Math.max(entry[field]||0,evidence[field]);
+ for(const field of ['upcomingAt','expectedAt'])if(Number.isFinite(evidence[field]))entry[field]=entry[field]?Math.min(entry[field],evidence[field]):evidence[field];
+ if(evidence.journeyAt&&evidence.journeyId&&(!entry.lastJourney||evidence.journeyAt>=entry.lastJourney.at))entry.lastJourney={id:evidence.journeyId,at:evidence.journeyAt};
 }
 function modelCurrent(state,ticket){return MODELS.routes[state.line]===state&&state.date===modelToday()&&state.ticket===ticket}
 function modelRebuild(state){
@@ -1072,16 +1075,71 @@ function modelRebuild(state){
   const key=modelTextKey(name);let group=groups.get(key);
   if(!group){group={name,seen:false,upcoming:false,expected:false,predicted:false,predictedAt:null,liveries:new Map()};groups.set(key,group)}
   for(const field of ['seen','upcoming','expected','predicted'])group[field]||=item[field];
-  if(item.predictedAt)group.predictedAt=group.predictedAt?Math.min(group.predictedAt,item.predictedAt):item.predictedAt;
+  modelMergeTiming(group,item);
   if(state.line==='6'){
    const livery=b6LiveryData(item.vehicle),label=String(livery?.name||'').trim();
    const background=b6LiveryPreviewCSS(item.vehicle);
    const lkey=label?'name:'+modelTextKey(label):background?'pattern:'+background:'unknown';
    if(!group.liveries.has(lkey))group.liveries.set(lkey,{label:label||(background?'Unlabelled livery':'Livery not supplied'),vehicle:item.vehicle,seen:false,predicted:false});
-   const variant=group.liveries.get(lkey);variant.seen||=item.seen;variant.predicted||=item.predicted;
+   const variant=group.liveries.get(lkey);variant.seen||=item.seen;variant.predicted||=item.predicted;modelMergeTiming(variant,item);
   }
  }
  state.groups=[...groups.values()].sort((a,b)=>a.name.localeCompare(b.name,'en',{numeric:true}));state.unknown=unknown;
+}
+function modelMergeTiming(target,item){
+ for(const field of ['activeAt','trackedAt','journeyAt'])if(item[field])target[field]=Math.max(target[field]||0,item[field]);
+ for(const field of ['predictedAt','upcomingAt','expectedAt'])if(item[field])target[field]=target[field]?Math.min(target[field],item[field]):item[field];
+ target.predictionStale||=item.predictionStale;
+}
+function modelTiming(item,line){
+ const now=Date.now(),parts=[];
+ const active=item.activeAt&&now-item.activeAt<=5*60000;
+ if(active)parts.push('Active now on '+line);
+ else if(item.trackedAt)parts.push('Active earlier · last tracked on '+line+' at '+fmtT(item.trackedAt));
+ else if(item.journeyAt)parts.push('Active earlier · last '+line+' journey started '+fmtT(item.journeyAt));
+ else if(item.seen)parts.push('Recorded earlier · time unavailable');
+ const next=[item.predictedAt,item.upcomingAt].filter(time=>time>now);
+ if(next.length)parts.push((item.predictionStale?'Previously predicted':'Predicted')+' on '+line+' at '+fmtT(Math.min(...next)));
+ else if(!active&&item.expectedAt>now)parts.push('Expected on '+line+' at '+fmtT(item.expectedAt));
+ else if(!parts.length)parts.push('Status unavailable');
+ return parts.join(' · ');
+}
+// Bustimes time-aware polylines store longitude, latitude, then Unix seconds.
+// Use the last actual position, never a scheduled end time, for earlier activity.
+function modelLastPosition(polyline){
+ if(typeof polyline!=='string'||!polyline.length)return null;
+ let index=0,dimension=0,seconds=0,last=null;
+ while(index<polyline.length){
+  let value=0,multiplier=1,byte;
+  do{
+   if(index>=polyline.length||multiplier>2**50)return null;
+   byte=polyline.charCodeAt(index++)-63;if(byte<0||byte>63)return null;
+   value+=(byte&31)*multiplier;multiplier*=32;
+  }while(byte>=32);
+  const delta=value%2?-(value+1)/2:value/2;
+  if(dimension===2){seconds+=delta;const time=seconds*1000;if(time<=Date.now()+30000)last=Math.max(last||0,time)}
+  dimension=(dimension+1)%3;
+ }
+ return dimension===0?last:null;
+}
+MODELS.activityCache=new Map();
+async function modelActivity(state,ticket,force){
+ const items=[...state.refs.values()].filter(item=>item.lastJourney);let index=0;
+ const worker=async()=>{while(index<items.length){
+  if(!modelCurrent(state,ticket))return;
+  const item=items[index++],id=item.lastJourney.id;
+  try{
+   const cached=MODELS.activityCache.get(id);
+   const detail=!force&&cached&&cached.until>Date.now()?cached.value:await api('bt','/api/vehiclejourneys/'+id+'/details/');
+   if(String(detail.id)!==String(id)||detail.date!==state.date||String(detail.route_name).trim()!==state.line)continue;
+   MODELS.activityCache.set(id,{value:detail,until:Date.now()+120000});
+   const time=modelLastPosition(detail.time_aware_polyline);
+   if(time&&time>=item.lastJourney.at&&londonKey(londonCalendar(time))===state.date){
+    item.trackedAt=Math.max(item.trackedAt||0,time);
+    if(!detail.next||Date.parse(detail.next.datetime)>Date.now())item.activeAt=Math.max(item.activeAt||0,time);
+   }
+  }catch{state.activityErrors=(state.activityErrors||0)+1}
+ }};await Promise.all([worker(),worker()]);
 }
 async function modelVehicle(ref){
  const key=ref.id!=null?'id:'+ref.id:modelRefKey(ref);if(!key)return null;
@@ -1123,7 +1181,7 @@ async function modelHistory(state,ticket){
    if(journey.date!==state.date||!journey.vehicle||(journey.route_name&&String(journey.route_name).trim()!==state.line))continue;
    const when=Date.parse(journey.datetime);
    if(Number.isFinite(when)&&londonKey(londonCalendar(when))!==state.date)continue;
-   modelAddRef(state,journey.vehicle,{seen:!Number.isFinite(when)||when<=Date.now(),upcoming:Number.isFinite(when)&&when>Date.now()});
+   modelAddRef(state,journey.vehicle,{seen:!Number.isFinite(when)||when<=Date.now(),upcoming:Number.isFinite(when)&&when>Date.now(),journeyAt:Number.isFinite(when)&&when<=Date.now()?when:null,journeyId:journey.id,upcomingAt:when>Date.now()?when:null});
   }
   state.progress=`Reading today's journeys · ${state.refs.size} distinct vehicles found`;
   if(S.view==='models'&&MODELS.selected===state.line&&page%5===0)renderModels();
@@ -1143,7 +1201,7 @@ async function modelExpected(state){
    const time=Date.parse(arrival.expectedArrival),stamp=Date.parse(arrival.timestamp);
    if(String(arrival.lineId||arrival.lineName).toLowerCase()!=='91'||!arrival.vehicleId||!Number.isFinite(time)||time<Date.now()||time>Date.now()+2*3600000||londonKey(londonCalendar(time))!==state.date)continue;
    if(Number.isFinite(stamp)&&(Date.now()-stamp>5*60000||stamp>Date.now()+30000))continue;
-   modelAddRef(state,{reg:arrival.vehicleId},{expected:true});
+   modelAddRef(state,{reg:arrival.vehicleId},{expected:true,expectedAt:time,activeAt:Number.isFinite(stamp)?stamp:null});
   }
  }else{
   const data=await api('bt','/vehicles.json',{service:state.serviceId});if(!Array.isArray(data))throw new ApiErr('format');
@@ -1153,7 +1211,7 @@ async function modelExpected(state){
    const serviceUrl=String(report.service?.url||'');
    if(serviceUrl&&!serviceUrl.replace(/\/$/,'').endsWith('/'+MODEL_ROUTES['6'].slug))continue;
    const vehicle=report.vehicle||{};
-   modelAddRef(state,{id:vehicle.id??report.vehicle_id,reg:b6Reg(report),slug:b6Slug(report)},{seen:true});
+   modelAddRef(state,{id:vehicle.id??report.vehicle_id,reg:b6Reg(report),slug:b6Slug(report)},{seen:true,trackedAt:time,activeAt:time});
   }
  }
 }
@@ -1161,10 +1219,11 @@ async function loadModels(line=MODELS.selected,force=false){
  if(!MODEL_ROUTES[line])return;
  const state=modelState(line);
  if(state.loading||(!force&&state.source===(cfg.proxy||'')&&Date.now()-state.checkedAt<120000))return;
- state.loading=true;state.source=cfg.proxy||'';state.historyError=null;state.expectedError=null;state.progress='Finding today’s journeys…';
+ state.loading=true;state.source=cfg.proxy||'';state.historyError=null;state.expectedError=null;state.activityErrors=0;state.progress='Finding today’s journeys…';
  const ticket=++state.ticket;
+ state.previousPredictions=[...state.refs.values()].filter(item=>item.predictedAt>Date.now()).map(item=>({...item,ref:{...item.ref}}));
  // Keep this day's recorded models while refreshing, but never retain old arrival predictions.
- for(const [key,item] of state.refs){if(!item.seen)state.refs.delete(key);else{item.expected=false;item.upcoming=false;item.predicted=false;item.predictedAt=null}}
+ for(const [key,item] of state.refs){if(!item.seen)state.refs.delete(key);else{item.expected=false;item.upcoming=false;item.predicted=false;item.predictedAt=null;item.activeAt=null;item.expectedAt=null;item.upcomingAt=null;item.predictionStale=false}}
  modelRebuild(state);if(S.view==='models')renderModels();
  try{
   await modelService(state);
@@ -1180,6 +1239,7 @@ async function loadModels(line=MODELS.selected,force=false){
    if(S.view==='models'&&MODELS.selected===line)renderModels();
   }};
   await Promise.all([worker(),worker(),worker()]);
+  if(modelCurrent(state,ticket)){state.progress='Checking last tracked times…';await modelActivity(state,ticket,force)}
   if(modelCurrent(state,ticket))await modelPredictedWorkings(state,ticket,force);
   if(modelCurrent(state,ticket)){modelRebuild(state);state.checkedAt=Date.now()}
  }catch(error){state.historyError=error?.kind||'unavailable';state.historyComplete=false;state.checkedAt=Date.now()}
@@ -1203,7 +1263,8 @@ function parseModelPredictions(html,state,tripIds=null){
   const time=/^(\d{1,2}:\d{2})(?::\d{2})?$/.exec(clock);if(!time)continue;
   if(tripIds){
    const href=cells[2].querySelector('a[href]')?.getAttribute('href')||'';
-   const id=/^\/trips\/(\d+)\/?(?:[?#]|$)/.exec(href)?.[1];
+   const url=new URL(href,'https://bustimes.org');
+   const id=url.origin==='https://bustimes.org'&&/^\/trips\/(\d+)\/?$/.exec(url.pathname)?.[1];
    if(!id||!tripIds.has(String(id)))continue;
   }
   for(const when of wallTimeMs(time[1],londonCalendar(Date.parse(state.date+'T12:00:00Z')))||[]){
@@ -1214,7 +1275,11 @@ function parseModelPredictions(html,state,tripIds=null){
 }
 async function predictionText(cache,key,path,date,force){
  const old=cache.get(key);if(!force&&old&&old.until>Date.now())return old.html;
- const html=await api('bt',path,{date},'text');
+ let html;
+ for(let attempt=0;attempt<2;attempt++){
+  try{html=await api('bt',path,{date},'text');if(!/<(?:html|table)\b/i.test(html)||/<title>[^<]*(?:Just a moment|Access denied)/i.test(html))throw new ApiErr('format','Proxy did not return a bustimes page');break}
+  catch(error){if(attempt===1)throw error}
+ }
  cache.set(key,{html,until:Date.now()+5*60000});return html;
 }
 async function modelFutureTrips(state,force){
@@ -1235,7 +1300,7 @@ async function modelFutureTrips(state,force){
 async function modelPredictedWorkings(state,ticket,force){
  state.predictionsChecked=false;state.predictionErrors=0;state.predictionDiscoveryError=false;
  const candidates=new Map();
- for(const item of state.refs.values()){
+ for(const item of [...state.refs.values(),...(state.previousPredictions||[])]){
   const ref={...item.ref,id:item.ref.id??item.vehicle?.id,slug:item.ref.slug||item.vehicle?.slug};
   if(ref.id||ref.slug)candidates.set(String(ref.id||ref.slug),ref);
  }
@@ -1258,9 +1323,12 @@ async function modelPredictedWorkings(state,ticket,force){
     try{
      const html=await predictionText(MODELS.blockCache,state.date+'/'+trip.id,'/trips/'+encodeURIComponent(trip.id)+'/block',state.date,force);
      const doc=new DOMParser().parseFromString(html,'text/html');
-     for(const link of doc.querySelectorAll('table a[href^="/vehicles/"]')){
-      const href=link.getAttribute('href'),match=/^\/vehicles\/(\d+)\?date=(\d{4}-\d{2}-\d{2})(?:#|$)/.exec(href||'');
-      if(match&&match[2]===state.date)candidates.set(match[1],{id:match[1]});
+     if(!doc.querySelector('table'))throw new ApiErr('format','Timetable block was not returned');
+     for(const link of doc.querySelectorAll('table a[href]')){
+      const url=new URL(link.getAttribute('href'),'https://bustimes.org'),match=/^\/vehicles\/([^/]+)\/?$/.exec(url.pathname);
+      if(url.origin!=='https://bustimes.org'||!match||url.searchParams.get('date')!==state.date)continue;
+      const identifier=decodeURIComponent(match[1]);
+      candidates.set(identifier,/^\d+$/.test(identifier)?{id:identifier}:{slug:identifier});
      }
     }catch{state.predictionErrors++}
    }};await Promise.all([worker(),worker()]);
@@ -1280,7 +1348,15 @@ async function modelPredictedWorkings(state,ticket,force){
     modelAddRef(state,fullRef,{predicted:true});const entry=state.refs.get(modelRefKey(fullRef));
     entry.vehicle=vehicle;entry.predictedAt=Math.min(...times);
    }
-  }catch{state.predictionErrors++}
+  }catch{
+   state.predictionErrors++;
+   const previous=(state.previousPredictions||[]).find(item=>(ref.id!=null&&String(item.vehicle?.id||item.ref.id)===String(ref.id))||(ref.slug&&(item.vehicle?.slug||item.ref.slug)===ref.slug));
+   if(previous?.predictedAt>Date.now()){
+    modelAddRef(state,previous.ref,{predicted:true});
+    const entry=state.refs.get(modelRefKey(previous.ref));
+    entry.vehicle=previous.vehicle;entry.predictedAt=previous.predictedAt;entry.predictionStale=true;
+   }
+  }
   done++;state.progress=`Checking predicted workings · ${done} of ${refs.length} buses`;modelRebuild(state);
   if(S.view==='models'&&MODELS.selected===state.line)renderModels();
  }};await Promise.all([worker(),worker()]);
@@ -1297,14 +1373,15 @@ function renderModels(){
  if(state.historyError)html+=`<div class="banner warn">${state.groups.length?'Today’s history is incomplete. Showing the reports available.':'Journey history could not be loaded.'} ${!cfg.proxy?'If your browser blocks bustimes.org, add your proxy in Settings.':''}<button class="ghost" data-go="settings">Settings</button></div>`;
  if(state.groups.length){
   html+='<div class="model-list">'+state.groups.map(group=>{
-   const evidence=[group.seen?'Recorded today':null,group.expected?'Expected soon':null,group.upcoming&&!group.predicted?'Upcoming journey reported':null,group.predicted?'Predicted later'+(group.predictedAt?' · from '+fmtT(group.predictedAt):''):null].filter(Boolean);
-   return `<article class="model-item"><h3>${esc(group.name)}</h3><p class="model-evidence">${evidence.join(' · ')}</p>${state.line==='6'?`<ul class="model-liveries" aria-label="Liveries for ${esc(group.name)}">${[...group.liveries.values()].sort((a,b)=>a.label.localeCompare(b.label)).map(livery=>`<li>${b6LiveryHTML(livery.vehicle,false)}<span>${esc(livery.label)}${!livery.seen&&livery.predicted?'<small class="predicted-livery">Predicted later</small>':''}</span></li>`).join('')}</ul>`:''}</article>`;
+   const evidence=modelTiming(group,state.line);
+   return `<article class="model-item"><h3>${esc(group.name)}</h3><p class="model-evidence">${esc(evidence)}</p>${state.line==='6'?`<ul class="model-liveries" aria-label="Liveries for ${esc(group.name)}">${[...group.liveries.values()].sort((a,b)=>a.label.localeCompare(b.label)).map(livery=>`<li>${b6LiveryHTML(livery.vehicle,false)}<span>${esc(livery.label)}<small class="predicted-livery">${esc(modelTiming(livery,state.line))}</small></span></li>`).join('')}</ul>`:''}</article>`;
   }).join('')+'</div>';
  }else if(!state.loading&&!state.historyError)html+='<p class="models-empty">No identified models have been reported on this route today.</p>';
  if(state.unknown&&!state.loading)html+=`<p class="models-status">${state.unknown} vehicle record${state.unknown===1?' is':'s are'} missing model information.</p>`;
+ if(state.activityErrors&&!state.loading)html+='<p class="models-status">Some GPS histories were unavailable; those entries show journey start times.</p>';
  if(state.expectedError&&!state.loading)html+=`<p class="models-status">${state.line==='91'?'Near-term arrival predictions':'The current tracking feed'} could not be checked.</p>`;
- if(state.predictionsChecked&&!state.loading&&(state.predictionErrors||state.predictionDiscoveryError))html+='<p class="models-status">Some predicted workings could not be checked; upcoming coverage is partial.</p>';
- html+=`<details class="models-coverage"><summary>About this list</summary><p>One entry per named bus model. ${state.line==='6'?'Each livery is listed once beneath its model. Livery names describe the vehicle record and may have changed since a journey.':''}</p><p>${state.historyComplete?'All pages of today’s available journey history have been checked.':'Journey history may be incomplete.'} Missing tracking or model records can leave buses out.</p><p>${state.line==='91'?'“Expected soon” means TfL currently predicts a bus on Route 91 within the next two hours. ':''}“Predicted later” comes from bustimes.org’s vehicle-page predictions, inferred from recent workings and timetable blocks. For Route 6, its timetable blocks are also checked for buses switching in from other routes. Predictions can change and are not operator-confirmed allocations; coverage can still be incomplete.</p><p>Today uses the Europe/London calendar date. Model names come from bustimes.org; different named variants remain separate.</p></details>`;
+ if(state.predictionsChecked&&!state.loading&&(state.predictionErrors||state.predictionDiscoveryError))html+='<p class="models-status">Some future buses could not be checked. If a livery is missing, refresh or update the proxy Worker from Settings; it must support vehicle and timetable-block pages.</p>';
+ html+=`<details class="models-coverage"><summary>About this list</summary><p>Build 25 Oct · model timings 2</p><p>One entry per named bus model. ${state.line==='6'?'Each livery is listed once beneath its model. Livery names describe the vehicle record and may have changed since a journey.':''}</p><p>${state.historyComplete?'All pages of today’s available journey history have been checked.':'Journey history may be incomplete.'} Missing tracking or model records can leave buses out.</p><p>Active now uses a report from the last five minutes (TfL arrivals for 91, GPS for 6). Earlier times use the last recorded position on that route; when it is unavailable, the last journey’s start is labelled explicitly. Times describe the latest bus of that model or livery. “Predicted later” comes from bustimes.org’s vehicle-page predictions, inferred from recent workings and timetable blocks. For Route 6, its timetable blocks are also checked for buses switching in from other routes. Predictions can change and are not operator-confirmed allocations; coverage can still be incomplete. If a refresh fails, an unexpired saved prediction is labelled “Previously predicted”.</p><p>Today uses the Europe/London calendar date. Model names come from bustimes.org; different named variants remain separate.</p></details>`;
  view.innerHTML=html;
 }
 
