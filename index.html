@@ -53,6 +53,10 @@ input[type=text],input[type=url],select{font:inherit;font-size:14px;color:var(--
 @media(min-width:720px){.departure-focus{padding:20px 2px 28px;min-height:223px}.leave-value{font-size:90px}}
 @media(max-width:360px){.departure-focus{padding:15px 2px 23px;min-height:192px}.leave-value{font-size:72px}.leave-message{font-size:41px}}
 
+
+.model-route-switch{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--surface);border-radius:9px;padding:4px;margin:0 0 24px}.model-route-switch button{display:flex;align-items:baseline;justify-content:center;gap:8px;background:transparent;padding:11px 9px;min-height:45px;border-radius:6px}.model-route-switch button[aria-pressed=true]{background:var(--glass);box-shadow:0 1px 3px #0001}.model-route-switch b{font-size:14px;font-weight:650}.model-route-switch span{font-size:11px;color:var(--mut)}.models-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 5px}.models-heading h2{font-size:19px}.models-heading button{border-radius:50%;background:transparent;font-size:23px;padding:0;width:40px;min-width:40px;min-height:40px}.models-status{color:var(--mut);font-size:11px;line-height:1.6;margin:4px 0 17px}.model-list{margin:12px 0 20px}.model-item{padding:19px 0;border-bottom:1px solid var(--line)}.model-item:first-child{padding-top:7px}.model-item h3{font-size:17px;font-weight:600;line-height:1.5;margin:0 0 5px}.model-evidence{font-size:11px;color:var(--mut);margin:0;line-height:1.6}.model-liveries{list-style:none;padding:0;margin:16px 0 0;display:flex;flex-direction:column;gap:12px}.model-liveries li{display:flex;align-items:center;gap:11px;font-size:12px;color:var(--ink)}.model-liveries .b6-livery-swatch{width:34px;height:24px}.models-coverage{border-top:1px solid var(--line);padding:16px 0;color:var(--mut);font-size:11px;line-height:1.7}.models-coverage summary{font-size:12px;cursor:pointer;min-height:30px}.models-empty{font-size:14px;color:var(--mut);padding:15px 0 25px}.tab{max-width:100px}nav.tabs{padding-left:max(4px,calc((100% - 660px)/2));padding-right:max(4px,calc((100% - 660px)/2))}
+@media(max-width:360px){.model-route-switch button{gap:6px}.model-route-switch b{font-size:13px}.model-route-switch span{font-size:10px}.model-item h3{font-size:16px}}
+
 </style>
 </head>
 <body>
@@ -74,6 +78,7 @@ input[type=text],input[type=url],select{font:inherit;font-size:14px;color:var(--
   <section class="view" id="view-explain" aria-label="Prediction explanation"></section>
   <section class="view" id="view-settings" aria-label="Settings and privacy"></section>
   <section class="view" id="view-pick" aria-label="Select your bus stop"></section>
+  <section class="view" id="view-models" aria-label="Today’s bus models"></section>
   <section class="view" id="view-bristol6" aria-label="Live Route 6 vehicles in Bristol"></section>
  </main>
  <footer class="f">TfL primary · bustimes.org backup<br>Always check the stop display before travelling.</footer>
@@ -103,6 +108,7 @@ input[type=text],input[type=url],select{font:inherit;font-size:14px;color:var(--
  <button class="tab" data-go="traffic"><svg viewBox="0 0 24 24"><path d="M12 3l10 18H2zM12 10v4M12 17.5v.5"/></svg>Traffic</button>
  <button class="tab" data-go="arrivals"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Arrivals</button>
  <button class="tab" data-go="bristol6" aria-label="Route 6 Bristol active vehicles"><span class="route6-tab-icon">6</span>Route 6</button>
+ <button class="tab" data-go="models" aria-label="Today’s bus models"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="6" rx="1.5"/><path d="M3 14h18M3 19h18M7 4v6"/></svg>Models</button>
 </nav>
 
 <script>
@@ -1035,6 +1041,166 @@ function renderBristol6(){
  v.innerHTML=html+proxyNotice+feedInfo;
 }
 
+/* ---------- Today's models: route-scoped journey history, not a guessed allocation list ---------- */
+const MODEL_ROUTES={
+ '91':{line:'91',city:'London',region:'L',slug:'91-crouch-end-hornsey-rise-nags-head-caledonian-ro'},
+ '6':{line:'6',city:'Bristol',region:'SW',slug:ROUTE6_SLUG}
+};
+const MODELS={selected:'91',routes:{},vehicleCache:new Map()};
+const modelToday=()=>londonKey(londonCalendar(Date.now()));
+const modelTextKey=text=>String(text||'').normalize('NFKC').toLowerCase().replace(/[^a-z0-9]/g,'');
+function modelState(line){
+ const date=modelToday(),old=MODELS.routes[line];
+ if(!old||old.date!==date)MODELS.routes[line]={line,date,serviceId:old?.serviceId||null,refs:new Map(),groups:[],loading:false,checkedAt:0,source:'',historyComplete:false,historyError:null,expectedError:null,unknown:0,progress:'',ticket:0};
+ return MODELS.routes[line];
+}
+function modelRefKey(ref){return ref?.reg?'reg:'+vehicleKey(ref.reg):ref?.id!=null?'id:'+ref.id:ref?.slug?'slug:'+ref.slug:null}
+function modelAddRef(state,ref,evidence){
+ const key=modelRefKey(ref);if(!key)return;
+ let entry=state.refs.get(key);
+ if(!entry){entry={ref:{...ref},seen:false,upcoming:false,expected:false,vehicle:null};state.refs.set(key,entry)}
+ else entry.ref={...entry.ref,...Object.fromEntries(Object.entries(ref).filter(([,v])=>v!=null&&v!==''))};
+ for(const field of ['seen','upcoming','expected'])if(evidence[field])entry[field]=true;
+}
+function modelCurrent(state,ticket){return MODELS.routes[state.line]===state&&state.date===modelToday()&&state.ticket===ticket}
+function modelRebuild(state){
+ const groups=new Map();let unknown=0;
+ for(const item of state.refs.values()){
+  const name=String(item.vehicle?.vehicle_type?.name||'').trim();
+  if(!name){unknown++;continue}
+  const key=modelTextKey(name);let group=groups.get(key);
+  if(!group){group={name,seen:false,upcoming:false,expected:false,liveries:new Map()};groups.set(key,group)}
+  for(const field of ['seen','upcoming','expected'])group[field]||=item[field];
+  if(state.line==='6'){
+   const livery=b6LiveryData(item.vehicle),label=String(livery?.name||'').trim();
+   const background=b6LiveryPreviewCSS(item.vehicle);
+   const lkey=label?'name:'+modelTextKey(label):background?'pattern:'+background:'unknown';
+   if(!group.liveries.has(lkey))group.liveries.set(lkey,{label:label||(background?'Unlabelled livery':'Livery not supplied'),vehicle:item.vehicle});
+  }
+ }
+ state.groups=[...groups.values()].sort((a,b)=>a.name.localeCompare(b.name,'en',{numeric:true}));state.unknown=unknown;
+}
+async function modelVehicle(ref){
+ const key=ref.id!=null?'id:'+ref.id:modelRefKey(ref);if(!key)return null;
+ const cached=MODELS.vehicleCache.get(key);
+ if(cached?.pending)return cached.pending;
+ if(cached&&cached.until>Date.now())return cached.value;
+ const known=vehicleRecords.get(vehicleKey(ref.reg));
+ if(known?.value&&known.until>Date.now()&&(ref.id==null||String(known.value.id)===String(ref.id)))return known.value;
+ const entry={};MODELS.vehicleCache.set(key,entry);
+ entry.pending=(async()=>{
+  try{
+   let vehicle;
+   if(ref.id!=null&&/^\d+$/.test(String(ref.id)))vehicle=await api('bt','/api/vehicles/'+encodeURIComponent(ref.id)+'/');
+   else if(ref.reg)vehicle=await vehicleRecord(ref.reg);
+   else if(ref.slug){const data=await api('bt','/api/vehicles/',{slug:ref.slug});vehicle=(Array.isArray(data)?data:data.results||[]).find(v=>v.slug===ref.slug)||null}
+   if(vehicle&&ref.id!=null&&String(vehicle.id)!==String(ref.id))throw new ApiErr('format','Vehicle record did not match');
+   entry.value=vehicle||null;entry.until=Date.now()+(vehicle?15*60000:60000);
+   if(vehicle?.reg)vehicleRecords.set(vehicleKey(vehicle.reg),{value:vehicle,until:entry.until});
+   return entry.value;
+  }catch{entry.value=null;entry.until=Date.now()+60000;return null}
+  finally{entry.pending=null}
+ })();return entry.pending;
+}
+async function modelService(state){
+ if(state.serviceId)return state.serviceId;
+ const route=MODEL_ROUTES[state.line],data=await api('bt','/api/services/',{slug:route.slug});
+ const service=(Array.isArray(data)?data:data.results||[]).find(v=>v.slug===route.slug&&String(v.line_name).trim()===route.line&&v.region_id===route.region);
+ if(!service?.id)throw new ApiErr('nf','The route could not be identified');
+ state.serviceId=service.id;return service.id;
+}
+async function modelHistory(state,ticket){
+ const cursors=new Set();let cursor=null;
+ state.historyComplete=false;
+ for(let page=0;page<500;page++){
+  if(!modelCurrent(state,ticket))return;
+  const data=await api('bt','/api/vehiclejourneys/',{service:state.serviceId,date:state.date,...(cursor?{cursor}:{})});
+  if(!Array.isArray(data?.results))throw new ApiErr('format','Journey history did not return a list');
+  for(const journey of data.results){
+   if(journey.date!==state.date||!journey.vehicle||(journey.route_name&&String(journey.route_name).trim()!==state.line))continue;
+   const when=Date.parse(journey.datetime);
+   if(Number.isFinite(when)&&londonKey(londonCalendar(when))!==state.date)continue;
+   modelAddRef(state,journey.vehicle,{seen:!Number.isFinite(when)||when<=Date.now(),upcoming:Number.isFinite(when)&&when>Date.now()});
+  }
+  state.progress=`Reading today's journeys · ${state.refs.size} distinct vehicles found`;
+  if(S.view==='models'&&MODELS.selected===state.line&&page%5===0)renderModels();
+  if(!data.next){state.historyComplete=true;return}
+  const next=new URL(data.next,'https://bustimes.org');
+  if(next.origin!=='https://bustimes.org'||next.pathname!=='/api/vehiclejourneys/')throw new ApiErr('format','Unexpected journey pagination');
+  cursor=next.searchParams.get('cursor');
+  if(!cursor||cursors.has(cursor))throw new ApiErr('format','Journey history pagination repeated');
+  cursors.add(cursor);
+ }
+ throw new ApiErr('partial','Journey history is too large to finish in one refresh');
+}
+async function modelExpected(state){
+ if(state.line==='91'){
+  const data=await api('tfl','/Line/91/Arrivals');if(!Array.isArray(data))throw new ApiErr('format');
+  for(const arrival of data){
+   const time=Date.parse(arrival.expectedArrival),stamp=Date.parse(arrival.timestamp);
+   if(String(arrival.lineId||arrival.lineName).toLowerCase()!=='91'||!arrival.vehicleId||!Number.isFinite(time)||time<Date.now()||time>Date.now()+2*3600000||londonKey(londonCalendar(time))!==state.date)continue;
+   if(Number.isFinite(stamp)&&(Date.now()-stamp>5*60000||stamp>Date.now()+30000))continue;
+   modelAddRef(state,{reg:arrival.vehicleId},{expected:true});
+  }
+ }else{
+  const data=await api('bt','/vehicles.json',{service:state.serviceId});if(!Array.isArray(data))throw new ApiErr('format');
+  for(const report of data){
+   const time=b6When(report),line=String(report.service?.line_name||report.route_name||'').trim();
+   if((line&&line!=='6')||!Number.isFinite(time)||time>Date.now()+30000||londonKey(londonCalendar(time))!==state.date)continue;
+   const serviceUrl=String(report.service?.url||'');
+   if(serviceUrl&&!serviceUrl.replace(/\/$/,'').endsWith('/'+MODEL_ROUTES['6'].slug))continue;
+   const vehicle=report.vehicle||{};
+   modelAddRef(state,{id:vehicle.id??report.vehicle_id,reg:b6Reg(report),slug:b6Slug(report)},{seen:true});
+  }
+ }
+}
+async function loadModels(line=MODELS.selected,force=false){
+ if(!MODEL_ROUTES[line])return;
+ const state=modelState(line);
+ if(state.loading||(!force&&state.source===(cfg.proxy||'')&&Date.now()-state.checkedAt<120000))return;
+ state.loading=true;state.source=cfg.proxy||'';state.historyError=null;state.expectedError=null;state.progress='Finding today’s journeys…';
+ const ticket=++state.ticket;
+ // Keep this day's recorded models while refreshing, but never retain old arrival predictions.
+ for(const [key,item] of state.refs){if(!item.seen)state.refs.delete(key);else{item.expected=false;item.upcoming=false}}
+ modelRebuild(state);if(S.view==='models')renderModels();
+ try{
+  await modelService(state);
+  const results=await Promise.allSettled([modelHistory(state,ticket),modelExpected(state)]);
+  if(!modelCurrent(state,ticket))return;
+  if(results[0].status==='rejected')state.historyError=results[0].reason?.kind||'unavailable';
+  if(results[1].status==='rejected')state.expectedError=results[1].reason?.kind||'unavailable';
+  const entries=[...state.refs.values()];let index=0,done=0;
+  const worker=async()=>{while(index<entries.length){
+   if(!modelCurrent(state,ticket))return;
+   const item=entries[index++];item.vehicle=await modelVehicle(item.ref);done++;
+   state.progress=`Checking bus models · ${done} of ${entries.length}`;modelRebuild(state);
+   if(S.view==='models'&&MODELS.selected===line)renderModels();
+  }};
+  await Promise.all([worker(),worker(),worker()]);
+  if(modelCurrent(state,ticket)){modelRebuild(state);state.checkedAt=Date.now()}
+ }catch(error){state.historyError=error?.kind||'unavailable';state.historyComplete=false;state.checkedAt=Date.now()}
+ finally{state.loading=false;if(S.view==='models'&&MODELS.selected===line)renderModels()}
+}
+function renderModels(){
+ const state=modelState(MODELS.selected),route=MODEL_ROUTES[MODELS.selected],view=$('#view-models');if(!view)return;
+ if(S.view==='models')$('#statchip').innerHTML=`<span class="chip">${state.loading?'Updating':'Today'}</span>`;
+ const day=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',day:'numeric',month:'long'}).format(Date.now());
+ let html=`${viewTitle('Models','Today’s bus models',day)}<div class="model-route-switch" role="group" aria-label="Choose a route">${['91','6'].map(line=>`<button data-model-route="${line}" aria-pressed="${line===MODELS.selected}"><b>Route ${line}</b><span>${MODEL_ROUTES[line].city}</span></button>`).join('')}</div><div class="models-heading"><h2>${state.groups.length?state.groups.length+' model'+(state.groups.length===1?'':'s'):'Models'}</h2><button id="modelsRefresh" aria-label="Refresh today’s bus models" ${state.loading?'disabled':''}>↻</button></div>`;
+ if(state.loading)html+=`<p class="models-status" role="status">${esc(state.progress)}</p>`;
+ else if(state.checkedAt)html+=`<p class="models-status">Updated ${fmtT(state.checkedAt)}</p>`;
+ if(state.historyError)html+=`<div class="banner warn">${state.groups.length?'Today’s history is incomplete. Showing the reports available.':'Journey history could not be loaded.'} ${!cfg.proxy?'If your browser blocks bustimes.org, add your proxy in Settings.':''}<button class="ghost" data-go="settings">Settings</button></div>`;
+ if(state.groups.length){
+  html+='<div class="model-list">'+state.groups.map(group=>{
+   const evidence=[group.seen?'Recorded today':null,group.expected?'Expected soon':null,group.upcoming?'Upcoming journey reported':null].filter(Boolean);
+   return `<article class="model-item"><h3>${esc(group.name)}</h3><p class="model-evidence">${evidence.join(' · ')}</p>${state.line==='6'?`<ul class="model-liveries" aria-label="Liveries recorded for ${esc(group.name)}">${[...group.liveries.values()].sort((a,b)=>a.label.localeCompare(b.label)).map(livery=>`<li>${b6LiveryHTML(livery.vehicle,false)}<span>${esc(livery.label)}</span></li>`).join('')}</ul>`:''}</article>`;
+  }).join('')+'</div>';
+ }else if(!state.loading&&!state.historyError)html+='<p class="models-empty">No identified models have been reported on this route today.</p>';
+ if(state.unknown&&!state.loading)html+=`<p class="models-status">${state.unknown} vehicle record${state.unknown===1?' is':'s are'} missing model information.</p>`;
+ if(state.expectedError&&!state.loading)html+=`<p class="models-status">${state.line==='91'?'Near-term arrival predictions':'The current tracking feed'} could not be checked.</p>`;
+ html+=`<details class="models-coverage"><summary>About this list</summary><p>One entry per named bus model. ${state.line==='6'?'Each livery is listed once beneath its model. Livery names describe the vehicle record and may have changed since a journey.':''}</p><p>${state.historyComplete?'All pages of today’s available journey history have been checked.':'Journey history may be incomplete.'} Missing tracking or model records can leave buses out.</p><p>${state.line==='91'?'“Expected soon” means TfL currently predicts a bus on Route 91 within the next two hours. ':''}Public feeds do not provide a complete list of planned vehicle allocations for the rest of the day. A reported upcoming journey is not a guaranteed future assignment.</p><p>Today uses the Europe/London calendar date. Model names come from bustimes.org; different named variants remain separate.</p></details>`;
+ view.innerHTML=html;
+}
+
 function renderPick(){
  const v=$('#view-pick');
  v.innerHTML=`<div class="glass"><h2>Which stop?</h2><p class="mut">${S.cands.filter(s=>s.letter==='A').length>1?'More than one Bus Stop A serves Route 91 nearby.':'We could not find exactly one Stop A, so please choose.'} Confirmed start: <b>${esc(S.startLabel)}</b></p></div>
@@ -1043,9 +1209,9 @@ function renderPick(){
 }
 function render(){
  const P=calc();const si=stateInfo(P);
- $('#statchip').innerHTML=S.view==='bristol6'?`<span class="chip ${B6.error?'bad':B6.items.length?'ok live':''}"><i class="dot"></i>${B6.loading?'Loading':B6.error?'Offline':B6.items.length+' buses'}</span>`:`<span class="chip ${si.c}"><i class="dot"></i>${si.l}</span>`;
+ $('#statchip').innerHTML=S.view==='models'?`<span class="chip">${modelState(MODELS.selected).loading?'Updating':'Today'}</span>`:S.view==='bristol6'?`<span class="chip ${B6.error?'bad':B6.items.length?'ok live':''}"><i class="dot"></i>${B6.loading?'Loading':B6.error?'Offline':B6.items.length+' buses'}</span>`:`<span class="chip ${si.c}"><i class="dot"></i>${si.l}</span>`;
  const w=$('#wx');w.textContent=S.weather?`${Math.round(S.weather.temperature_2m)}°C · ${WX(S.weather.weather_code)}`:'';
- ({overview:renderOverview,bus:renderBus,traffic:renderTraffic,arrivals:renderArrivals,bristol6:renderBristol6,explain:renderExplain,settings:renderSettings,pick:renderPick}[S.view]||(()=>{}))(P);
+ ({overview:renderOverview,bus:renderBus,traffic:renderTraffic,arrivals:renderArrivals,bristol6:renderBristol6,models:renderModels,explain:renderExplain,settings:renderSettings,pick:renderPick}[S.view]||(()=>{}))(P);
  if(S.view==='map')mapSheetRefresh();
  notifyCheck(P);
 }
@@ -1055,8 +1221,8 @@ function applyView(v){
  $$('.view').forEach(e=>e.classList.toggle('on',e.id==='view-'+v));S.view=v;
  $$('.tab').forEach(t=>t.setAttribute('aria-current',t.dataset.go===v?'page':'false'));
  $('#app').style.visibility=v==='map'?'hidden':'visible';
- const br=v==='bristol6';$('.app-heading b').textContent='Bus tracker';$('.app-heading span').textContent=br?'Bristol · Route 6':'London · Route 91';$('footer.f').innerHTML=br?'Vehicle positions · bustimes.org<br>GPS fixes may be delayed.':'TfL primary · bustimes.org backup<br>Always check the stop display before travelling.';
- if(br)loadBristol6();
+ const br=v==='bristol6',models=v==='models';$('.app-heading b').textContent='Bus tracker';$('.app-heading span').textContent=models?'Models · Routes 91 & 6':br?'Bristol · Route 6':'London · Route 91';$('footer.f').innerHTML=models?'Journey history · bustimes.org<br>Near-term predictions · TfL (Route 91)':br?'Vehicle positions · bustimes.org<br>GPS fixes may be delayed.':'TfL primary · bustimes.org backup<br>Always check the stop display before travelling.';
+ if(br)loadBristol6();if(models)loadModels();
  render();mapOn=v==='map';if(v==='map'){initMap();setTimeout(()=>{mapResize();updateMap(true)},60)}else window.scrollTo(0,0);
 }
 function go(v,morph){
@@ -1235,8 +1401,10 @@ async function showStopSheet(id,name,letter){
 }
 /* ---------- events ---------- */
 document.addEventListener('click',async e=>{
- const t=e.target.closest('button,[data-go],[data-pick],[data-geo],[data-b6-id]');if(!t)return;
- if(t.dataset.go){go(t.dataset.go);return}
+ const t=e.target.closest('button,[data-go],[data-pick],[data-geo],[data-b6-id],[data-model-route]');if(!t)return;
+ if(t.dataset.modelRoute){MODELS.selected=t.dataset.modelRoute;renderModels();loadModels();return}
+ if(t.id==='modelsRefresh'){loadModels(MODELS.selected,true);return}
+ if(t.dataset.go){if(t.dataset.go==='models'&&S.view==='bristol6')MODELS.selected='6';go(t.dataset.go);return}
  if(t.dataset.b6Id){await chooseBristol6(t.dataset.b6Id);return}
  if(t.id==='busCard'){go('map',true);return}
  if(t.dataset.pick!=null){await choose(S.cands[+t.dataset.pick]);return}
@@ -1244,7 +1412,7 @@ document.addEventListener('click',async e=>{
  if(t.dataset.follow){cfg.followVid=cfg.followVid===t.dataset.follow?null:t.dataset.follow;persist();render();refresh();return}
  if(t.dataset.usestop){const s=S.nearby.find(x=>x.id===t.dataset.usestop);if(s){await choose(s);$('#sheet').classList.remove('on');toast('Now tracking '+s.name)}return}
  switch(t.id){
-  case 'btnRefresh':case 'bRefresh':if(S.view==='bristol6'){B6.loadedAt=0;await loadBristol6(true)}else{toast('Refreshing…');S.weatherAt=0;S.roadsAt=0;await refresh()}break;
+  case 'btnRefresh':case 'bRefresh':if(S.view==='models'){await loadModels(MODELS.selected,true)}else if(S.view==='bristol6'){B6.loadedAt=0;await loadBristol6(true)}else{toast('Refreshing…');S.weatherAt=0;S.roadsAt=0;await refresh()}break;
   case 'b6Refresh':B6.loadedAt=0;await loadBristol6(true);break;
   case 'b6Back':B6.selected=null;B6.details=null;B6.journey=null;renderBristol6();break;
   case 'retryBoot':S.bootErr=null;S.err=null;boot();break;
@@ -1297,9 +1465,9 @@ async function boot(){
 }
 applyTheme();pwa();
 matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',applyTheme);
-addEventListener('online',()=>{if(S.view==='bristol6')loadBristol6(true);else refresh()});addEventListener('offline',render);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(S.view==='bristol6')loadBristol6(true);else refresh()}});
-setInterval(tick,1000);setInterval(()=>{if(S.view==='bristol6')loadBristol6(true);else refresh()},20000);tick();
+addEventListener('online',()=>{if(S.view==='models')loadModels();else if(S.view==='bristol6')loadBristol6(true);else refresh()});addEventListener('offline',render);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(S.view==='models')loadModels();else if(S.view==='bristol6')loadBristol6(true);else refresh()}});
+setInterval(tick,1000);setInterval(()=>{if(S.view==='models')loadModels();else if(S.view==='bristol6')loadBristol6(true);else refresh()},20000);tick();
 boot();
 })();
 </script>
