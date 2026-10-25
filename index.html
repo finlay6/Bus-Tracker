@@ -15,8 +15,8 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <style>
 /* Transit UI: neutral surfaces, mode colours and compact information rows. */
-:root{color-scheme:dark;--ink:#f5f5f7;--mut:#b5b6bc;--bg1:#111214;--bg2:#111214;--glass:#232427;--surface:#303136;--line:#3b3c42;--red:#f1403e;--blue:#8d9dff;--action:#263fd5;--on-action:#fff;--ok:#60d6a0;--warn:#ffe500;--bad:#ff8f8b;--spring:cubic-bezier(.2,.7,.2,1);--sat:env(safe-area-inset-top);--sab:env(safe-area-inset-bottom)}
-html[data-theme=light]{color-scheme:light;--ink:#080a22;--mut:#535665;--bg1:#f3f4f5;--bg2:#f3f4f5;--glass:#fff;--surface:#e5e7eb;--line:#eceef1;--red:#dc241f;--blue:#0800ac;--action:#0800ac;--on-action:#fff;--ok:#00834a;--warn:#8b6200;--bad:#b5241e}
+:root{color-scheme:dark;--ink:#f5f5f7;--mut:#b5b6bc;--bg1:#111214;--bg2:#111214;--glass:#232427;--surface:#303136;--line:#3b3c42;--red:#f1403e;--blue:#e8aaa3;--action:#a9362e;--on-action:#fff;--ok:#60d6a0;--warn:#ffe500;--bad:#ff8f8b;--spring:cubic-bezier(.2,.7,.2,1);--sat:env(safe-area-inset-top);--sab:env(safe-area-inset-bottom)}
+html[data-theme=light]{color-scheme:light;--ink:#080a22;--mut:#535665;--bg1:#f3f4f5;--bg2:#f3f4f5;--glass:#fff;--surface:#e5e7eb;--line:#eceef1;--red:#dc241f;--blue:#9c3029;--action:#a9362e;--on-action:#fff;--ok:#00834a;--warn:#8b6200;--bad:#b5241e}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html{scroll-padding-bottom:110px}html,body{margin:0;min-height:100%;background:var(--bg2);color:var(--ink);font:16px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;-webkit-text-size-adjust:100%}body{padding:calc(var(--sat) + 18px) 20px calc(var(--sab) + 100px)}#app{max-width:660px;margin:0 auto}a{color:var(--blue);text-underline-offset:3px}p{margin:.5em 0;line-height:1.5}h1,h2,h3{margin:0;font-weight:650;letter-spacing:0;line-height:1.25}h1{font-size:28px}h2{font-size:21px}h3{font-size:17px;margin-bottom:12px}.small{font-size:12px}.mut{color:var(--mut)}.sp{flex:1}.row{display:flex;align-items:center;gap:10px;min-width:0}.wrap{flex-wrap:wrap}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 button,.btn{font:inherit;font-size:14px;font-weight:550;color:var(--ink);border:0;background:var(--surface);border-radius:8px;min-height:44px;min-width:44px;padding:0 16px;cursor:pointer;transition:background .15s,opacity .15s}button:hover{filter:brightness(.96)}button:active{opacity:.75}button.pri{background:var(--action);color:var(--on-action);font-weight:600}button.ghost{background:transparent;color:var(--blue)}button:disabled{opacity:.5;cursor:default}:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
 header.top{display:flex;align-items:center;gap:10px;min-height:44px;margin:0 0 28px}.app-mark{display:flex;align-items:center;justify-content:center;color:var(--red);width:34px;height:34px;flex-shrink:0}.app-mark svg{width:30px;height:30px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.app-heading{min-width:0;display:flex;flex-direction:column}.app-heading b{font-size:15px;font-weight:650}.app-heading span{color:var(--mut);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:210px}.clock{font-variant-numeric:tabular-nums;font-size:12px;font-weight:500;white-space:nowrap}header.top #wx{font-size:10px;max-width:110px}header.top button{background:var(--glass);border-radius:50%;width:38px;min-width:38px;height:38px;min-height:38px;padding:0;display:grid;place-items:center}#btnRefresh{font-size:23px;font-weight:400}#statchip .chip{border:0;background:transparent;padding:0;gap:4px;font-size:10px;min-height:0}#statchip .dot{width:5px;height:5px}.view-title{margin:0 0 24px}.view-title h1{font-size:28px;letter-spacing:.005em;line-height:1.2}.view-title p{font-size:13px;margin:8px 0 0;color:var(--mut)}.view-title .location-line{display:flex;gap:8px;align-items:center;color:var(--mut);font-size:12px;margin-top:10px}.stop-letter{display:inline-grid;place-items:center;border-radius:50%;width:22px;height:22px;color:var(--red);border:1.5px solid var(--red);font-size:12px;font-weight:700}
@@ -46,6 +46,13 @@ input[type=text],input[type=url],select{font:inherit;font-size:14px;color:var(--
 @media(max-width:360px){.departure-focus{padding:25px 22px;min-height:211px}.leave-value{font-size:74px}.leave-message{font-size:40px}#view-overview>.view-title h1{font-size:20px}.next-bus-row>div{gap:9px}}
 
 .arrival-fleet{font-weight:600;color:var(--ink)}.arrival-model{display:inline-block;margin-top:3px}.arrival-location{display:inline-block;margin-top:4px;font-size:10px}
+
+/* Let scale establish hierarchy without a large block of colour. */
+.departure-focus{background:transparent;color:var(--ink);border-radius:0;padding:18px 2px 25px;min-height:204px;border-bottom:1px solid var(--line)}.leave-intro{font-size:15px;color:var(--mut);font-weight:450}.leave-value{font-size:80px;font-weight:600;letter-spacing:-.055em;margin:2px 0 15px}.leave-value span{font-size:30px;font-weight:400;margin-left:10px;color:var(--mut)}.leave-message{font-size:48px;font-weight:600;letter-spacing:-.035em;margin:4px 0 25px}.leave-context{color:var(--mut);font-size:12px}.departure-now .leave-message{color:var(--red)}.departure-empty{background:transparent;min-height:150px}.departure-route{margin-top:3px;margin-bottom:25px}
+#vector-map{position:absolute;inset:0;z-index:0;pointer-events:none;background:var(--bg2)}#mb{z-index:1;filter:grayscale(1) contrast(.86) brightness(1.04)}html[data-theme=dark] #mb{filter:grayscale(1) invert(1) brightness(.7) contrast(.9)}#mc{z-index:2}#map.vector-ready>#mb{visibility:hidden}.attr{z-index:4;max-width:calc(100% - 16px);font-size:9px;line-height:1.4;background:var(--glass);color:var(--mut);border-radius:4px;box-shadow:0 1px 6px #0001}.mctl button[aria-pressed=true]{background:var(--surface);color:var(--ink);box-shadow:inset 0 0 0 1px var(--mut),0 2px 8px #0001}
+@media(min-width:720px){.departure-focus{padding:20px 2px 28px;min-height:223px}.leave-value{font-size:90px}}
+@media(max-width:360px){.departure-focus{padding:15px 2px 23px;min-height:192px}.leave-value{font-size:72px}.leave-message{font-size:41px}}
+
 </style>
 </head>
 <body>
@@ -73,7 +80,7 @@ input[type=text],input[type=url],select{font:inherit;font-size:14px;color:var(--
 </div>
 
 <section class="view" id="view-map" aria-label="Interactive map">
- <div id="map" role="application" aria-label="Map of your walk and Route 91"><canvas id="mb" aria-hidden="true"></canvas><canvas id="mc"></canvas><div class="attr"><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap contributors</a></div></div>
+ <div id="map" role="application" aria-label="Map of your walk and Route 91"><div id="vector-map" aria-hidden="true"></div><canvas id="mb" aria-hidden="true"></canvas><canvas id="mc"></canvas><div class="attr"><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap contributors</a><span id="vectorCredit" hidden> · <a href="https://openfreemap.org/" target="_blank" rel="noopener noreferrer">OpenFreeMap</a> · <a href="https://openmaptiles.org/" target="_blank" rel="noopener noreferrer">OpenMapTiles</a></span></div></div>
  <div class="mctl">
   <button id="mBack" aria-label="Back to journey">‹ Back</button>
   <button id="mZin" aria-label="Zoom in">+</button>
@@ -539,7 +546,7 @@ function renderHero(P){
  else{const m=P.leaveIn;big=m<=0?'Leave now':m<1?'Leave in under 1 min':'Leave in '+Math.floor(m)+' min';sub=`Walk ${walkDesc()} · buffer ${cfg.buffer} min · ${P.timetableOnly?'timetable':'expected'} ${fmtT(P.lo)}–${fmtT(P.hi)}`}
  const timed=P&&!cfg.leaveNow&&P.leaveIn>=1;
  const under=P&&!cfg.leaveNow&&P.leaveIn>0&&P.leaveIn<1;
- el.innerHTML=`<div class="departure-focus ${P?'':'departure-empty'}"><div id="countdown" aria-label="${esc(big)}" ${P&&!cfg.leaveNow?'':'aria-live="polite"'}>${timed||under?`<span class="leave-intro">Leave in${under?' under':''}</span><div class="leave-value">${under?'1':Math.floor(P.leaveIn)}<span>min</span></div>`:`<div class="leave-message">${esc(big)}</div>`}</div><div class="leave-context">${P?`${Math.round(P.walk/60)} min walk · ${cfg.buffer} min buffer${P.timetableOnly?'<br>Timetable estimate · not a live arrival':''}`:esc(sub)}</div></div>`;
+ el.innerHTML=`<div class="departure-focus ${P&&P.leaveIn<=0?'departure-now':''} ${P?'':'departure-empty'}"><div id="countdown" aria-label="${esc(big)}" ${P&&!cfg.leaveNow?'':'aria-live="polite"'}>${timed||under?`<span class="leave-intro">Leave in${under?' under':''}</span><div class="leave-value">${under?'1':Math.floor(P.leaveIn)}<span>min</span></div>`:`<div class="leave-message">${esc(big)}</div>`}</div><div class="leave-context">${P?`${Math.round(P.walk/60)} min walk · ${cfg.buffer} min buffer${P.timetableOnly?'<br>Timetable estimate · not a live arrival':''}`:esc(sub)}</div></div>`;
  const guidance=$('#departureGuidance');if(guidance)guidance.textContent=sub;
 }
 
@@ -759,7 +766,7 @@ function renderSettings(){
  <li>Microphone and camera are never used. Precise location is used only if you switch it on above.</li>
  <li>Error log below never contains coordinates or the address.</li></ul>
  <h3 style="margin-top:12px">Data sources</h3>
- <ul class="small"><li>Primary arrivals, route sequence, timetable, service status, road disruptions, journey planner: TfL Unified API</li><li>Fallback nearby stops and departure times: bustimes.org (can include scheduled times only)</li><li>Vehicle fleet number, model, livery: bustimes.org using reg=</li><li>Geocoding: OpenStreetMap Nominatim</li><li>Walking route: FOSSGIS routing on OpenStreetMap data</li><li>Traffic: TfL road disruptions without a key; optional TomTom traffic speed using your Worker key</li><li>Principal timing points: bustimes.org vehiclejourneys/details, when linked to a trip</li><li>Map tiles: OpenStreetMap standard raster tiles (key-free; dark recolouring is applied locally; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">attribution</a>)</li></ul>${foldEnd}
+ <ul class="small"><li>Primary arrivals, route sequence, timetable, service status, road disruptions, journey planner: TfL Unified API</li><li>Fallback nearby stops and departure times: bustimes.org (can include scheduled times only)</li><li>Vehicle fleet number, model, livery: bustimes.org using reg=</li><li>Geocoding: OpenStreetMap Nominatim</li><li>Walking route: FOSSGIS routing on OpenStreetMap data</li><li>Traffic: TfL road disruptions without a key; optional TomTom traffic speed using your Worker key</li><li>Principal timing points: bustimes.org vehiclejourneys/details, when linked to a trip</li><li>Map background: OpenFreeMap vector maps (Positron in light mode, Dark in dark mode), rendered with MapLibre. OpenStreetMap raster tiles provide a fallback; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">attribution</a>)</li></ul>${foldEnd}
  ${foldStart('installation','Install on iPhone','Add the tracker to your Home Screen')}<p class="small mut">Host these files on an HTTPS website, open in iPhone Safari, tap Share → Add to Home Screen, and select Open as Web App. The tracker then opens like an app instead of in an HTML viewer.</p>${foldEnd}
  ${foldStart('proxy','Connection &amp; API settings','Proxy URL and optional Worker setup')}<p class="small mut">A single HTML file cannot keep a secret. Without a proxy, TfL is called directly without a key. bustimes.org may block direct browser requests because of CORS. For reliable automatic fallback, deploy the Worker below and paste its URL. Never place a key in this page.</p>
  <input type="url" id="sProxy" placeholder="https://your-proxy.workers.dev" value="${esc(cfg.proxy)}" aria-label="Proxy URL"><div class="row" style="margin-top:10px"><button id="bProxy">Save proxy URL</button><button id="bCopy" class="ghost">Copy Worker code</button></div>
@@ -1060,7 +1067,7 @@ function go(v,morph){
   t.finished.finally(()=>{$('#view-map').style.viewTransitionName=''});
  }else applyView(v);
 }
-/* ---------- map: key-free OpenStreetMap standard raster tiles + canvas overlays ---------- */
+/* ---------- map: OpenFreeMap vector basemap, OSM fallback and canvas overlays ---------- */
 let mapOn=false,showWalk=true,camFollow=false,cur=null,anim=null,VT=null,ctx=null,bctx=null,W=0,H=0,dpr=1,raf=0,mInit=false;
 const V={lon:-0.118,lat:51.54,z:15.3},M={hits:[],stops:[]},TS=256,tiles=new Map();
 const wx=(lon,z)=>(lon+180)/360*TS*2**z;
@@ -1070,6 +1077,62 @@ const uny=(y,z)=>{const n=Math.PI-2*Math.PI*y/(TS*2**z);return Math.atan(Math.si
 const scr=(lon,lat)=>[W/2+wx(lon,V.z)-wx(V.lon,V.z),H/2+wy(lat,V.z)-wy(V.lat,V.z)];
 const want=()=>{if(!raf&&mapOn)raf=requestAnimationFrame(draw)};
 const isDark=()=>document.documentElement.dataset.theme==='dark';
+// The vector camera uses 512 px tiles; the existing overlay camera uses 256 px.
+// A one-level zoom offset keeps every stop, route and hit target aligned.
+let vectorMap=null,vectorStarting=false,vectorReady=false,vectorTheme='',vectorCamera='';
+const vectorStyle=()=>`https://tiles.openfreemap.org/styles/${isDark()?'dark':'positron'}`;
+function showVectorMap(ready){
+ vectorReady=ready;$('#map').classList.toggle('vector-ready',ready);
+ $('#vectorCredit').hidden=!ready;
+ if(ready)$('#mapmsg').hidden=true;want();
+}
+function syncVectorStyle(){
+ const theme=document.documentElement.dataset.theme;
+ if(!vectorMap||vectorTheme===theme)return;
+ vectorTheme=theme;showVectorMap(false);vectorMap.setStyle(vectorStyle());
+}
+function tuneVectorMap(){
+ if(!isDark())return;
+ // Preserve the provider's geometry and labels, with more legible night contrast.
+ for(const layer of vectorMap.getStyle().layers||[]){
+  const id=layer.id;
+  if(layer.type==='background')vectorMap.setPaintProperty(id,'background-color','#171b1c');
+  if(layer.type==='fill'){
+   const colour=/water/.test(id)?'#223033':/park|wood|landcover/.test(id)?'#202b25':/building/.test(id)?'#22282a':'#1b2021';
+   vectorMap.setPaintProperty(id,'fill-color',colour);
+   if(/building/.test(id))vectorMap.setPaintProperty(id,'fill-outline-color','#343b3c');
+  }
+  if(layer.type==='line'){
+   const colour=/water/.test(id)?'#2b4144':/dashline/.test(id)?'#171b1c':/casing/.test(id)?'#252c2e':/highway|road/.test(id)?'#414b4d':'#3c4546';
+   vectorMap.setPaintProperty(id,'line-color',colour);
+  }
+  if(layer.type==='symbol'&&layer.layout?.['text-field']){
+   vectorMap.setPaintProperty(id,'text-color','#b8c0bf');
+   vectorMap.setPaintProperty(id,'text-halo-color','#171b1c');
+   vectorMap.setPaintProperty(id,'text-halo-width',1.2);
+  }
+ }
+}
+async function startVectorMap(){
+ if(vectorMap||vectorStarting)return;vectorStarting=true;
+ try{
+  const css=document.createElement('link');css.rel='stylesheet';css.href='https://unpkg.com/maplibre-gl@6.16.0/dist/maplibre-gl.css';document.head.append(css);
+  const library=await import('https://unpkg.com/maplibre-gl@6.16.0/dist/maplibre-gl.mjs');
+  vectorTheme=document.documentElement.dataset.theme;
+  vectorMap=new library.Map({container:'vector-map',style:vectorStyle(),center:[V.lon,V.lat],zoom:V.z-1,bearing:0,pitch:0,interactive:false,attributionControl:false,renderWorldCopies:true});
+  vectorMap.on('style.load',()=>{tuneVectorMap();showVectorMap(true)});
+  vectorMap.on('error',()=>{if(!vectorReady){logE('Vector basemap unavailable; using raster fallback');want()}});
+  vectorMap.getCanvas().addEventListener('webglcontextlost',()=>{showVectorMap(false)});
+  vectorMap.getCanvas().addEventListener('webglcontextrestored',()=>{showVectorMap(true)});
+  vectorMap.resize();vectorCamera='';want();
+ }catch{showVectorMap(false);logE('Vector map could not start; using raster fallback')}
+ finally{vectorStarting=false}
+}
+function syncVectorCamera(){
+ if(!vectorMap)return;
+ const camera=[V.lon,V.lat,V.z,W,H].join('/');
+ if(camera!==vectorCamera){vectorCamera=camera;vectorMap.jumpTo({center:[V.lon,V.lat],zoom:V.z-1,bearing:0,pitch:0})}
+}
 function tile(z,x,y){
  const n=2**z;x=((x%n)+n)%n;if(y<0||y>=n)return null;
  const k=z+'/'+x+'/'+y;let t=tiles.get(k);
@@ -1095,28 +1158,29 @@ function draw(t){
  // Keep the map tiles in a dedicated canvas. A CSS filter colours only that layer,
  // because CanvasRenderingContext2D.filter is not supported in iPhone Safari.
  bctx.setTransform(dpr,0,0,dpr,0,0);bctx.clearRect(0,0,W,H);
- bctx.fillStyle='#e9e5dc';bctx.fillRect(0,0,W,H);
+ bctx.fillStyle='#f2f2ef';bctx.fillRect(0,0,W,H);
  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);
  const tz=clamp(Math.round(V.z),2,19),sc=2**(V.z-tz),cx=wx(V.lon,tz),cy=wy(V.lat,tz);
  const x0=Math.floor((cx-W/2/sc)/TS),x1=Math.floor((cx+W/2/sc)/TS),y0=Math.floor((cy-H/2/sc)/TS),y1=Math.floor((cy+H/2/sc)/TS);
- for(let x=x0;x<=x1;x++)for(let y=y0;y<=y1;y++){const im=tile(tz,x,y);if(im&&im.ok)bctx.drawImage(im,Math.round(W/2+(x*TS-cx)*sc),Math.round(H/2+(y*TS-cy)*sc),Math.ceil(TS*sc)+1,Math.ceil(TS*sc)+1)}
+ syncVectorCamera();
+ if(!vectorReady)for(let x=x0;x<=x1;x++)for(let y=y0;y<=y1;y++){const im=tile(tz,x,y);if(im&&im.ok)bctx.drawImage(im,Math.round(W/2+(x*TS-cx)*sc),Math.round(H/2+(y*TS-cy)*sc),Math.ceil(TS*sc)+1,Math.ceil(TS*sc)+1)}
  const path=pts=>{ctx.beginPath();pts.forEach((p,i)=>{const s=scr(p[0],p[1]);i?ctx.lineTo(s[0],s[1]):ctx.moveTo(s[0],s[1])})};
  ctx.lineJoin=ctx.lineCap='round';M.hits=[];
  if(M.route){path(M.route);ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=9;ctx.stroke();ctx.strokeStyle='#dc241f';ctx.lineWidth=5;ctx.stroke()}
  if(M.prog){path(M.prog);ctx.setLineDash([2,9]);ctx.strokeStyle='#fff';ctx.lineWidth=3;ctx.stroke();ctx.setLineDash([])}
- if(M.walk){path(M.walk);ctx.setLineDash([2,9]);ctx.strokeStyle='#2f5fe0';ctx.lineWidth=5;ctx.stroke();ctx.setLineDash([])}
+ if(M.walk){path(M.walk);ctx.setLineDash([2,9]);ctx.strokeStyle=isDark()?'#86bcae':'#386f60';ctx.lineWidth=5;ctx.stroke();ctx.setLineDash([])}
  const dot=(p,r,fill,stroke,lw)=>{ctx.beginPath();ctx.arc(p[0],p[1],r,0,7);ctx.fillStyle=fill;ctx.fill();ctx.strokeStyle=stroke;ctx.lineWidth=lw;ctx.stroke()};
  if(V.z>=14)for(const s of M.stops){const p=scr(s.lon,s.lat);if(p[0]<-20||p[0]>W+20||p[1]<-20||p[1]>H+20)continue;dot(p,6,'#f6f1e9','#dc241f',3);M.hits.push({x:p[0],y:p[1],r:14,t:'stop',s})}
  if(cfg.timing)for(const p of S.timingPoints){const xy=scr(p.pos[0],p.pos[1]);if(xy[0]<-20||xy[0]>W+20||xy[1]<-20||xy[1]>H+20)continue;dot(xy,7,'#f2c77b','#0a111d',2);M.hits.push({x:xy[0],y:xy[1],r:15,t:'timing',p})}
  if(cfg.traffic)for(const i of S.inc){const p=scr(i.pt[0],i.pt[1]);dot(p,10,'#f5b84a','#14181f',2);ctx.fillStyle='#14181f';ctx.font='bold 13px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('!',p[0],p[1]+1);M.hits.push({x:p[0],y:p[1],r:16,t:'inc',i})}
  if(M.walk&&S.walk){const m=M.walk[Math.floor(M.walk.length/2)],p=scr(m[0],m[1]),tx=mins(walkSec())+' min walk';ctx.font='bold 13px sans-serif';const w=ctx.measureText(tx).width+20;ctx.fillStyle='rgba(20,24,34,.88)';ctx.beginPath();ctx.roundRect?ctx.roundRect(p[0]-w/2,p[1]-34,w,24,12):ctx.rect(p[0]-w/2,p[1]-34,w,24);ctx.fill();ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(tx,p[0],p[1]-22)}
- if(S.start){const p=scr(S.start[0],S.start[1]);dot(p,15,'#3a63d8','#fff',3);ctx.font='15px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('🏠',p[0],p[1]+1);M.hits.push({x:p[0],y:p[1],r:22,t:'home'})}
+ if(S.start){const p=scr(S.start[0],S.start[1]);dot(p,15,'#34413c','#fff',3);ctx.fillStyle='#fff';ctx.font='bold 21px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('⌂',p[0],p[1]+1);M.hits.push({x:p[0],y:p[1],r:22,t:'home'})}
  if(M.sp){const p=scr(M.sp[0],M.sp[1]);dot(p,16,'#dc241f','#fff',3);ctx.fillStyle='#fff';ctx.font='bold 15px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(S.stop.letter||'A',p[0],p[1]+1);M.hits.push({x:p[0],y:p[1],r:22,t:'stop0'})}
  if(cur&&S.bp){const p=scr(cur[0],cur[1]);if(!reduced()){const ph=(t%1800)/1800;ctx.beginPath();ctx.arc(p[0],p[1],10+ph*18,0,7);ctx.strokeStyle=`rgba(220,36,31,${.8*(1-ph)})`;ctx.lineWidth=3;ctx.stroke();busy=true}dot(p,10,'#dc241f','#fff',3);M.hits.push({x:p[0],y:p[1],r:24,t:'bus'})}
  if(busy)want();
 }
 const ptrs=new Map();let down=null,pinch=null;
-function mapResize(){const c=$('#mc'),bg=$('#mb');if(!c||!bg)return;dpr=Math.min(3,devicePixelRatio||1);W=c.clientWidth;H=c.clientHeight;c.width=bg.width=Math.round(W*dpr);c.height=bg.height=Math.round(H*dpr);ctx=c.getContext('2d');bctx=bg.getContext('2d');want()}
+function mapResize(){const c=$('#mc'),bg=$('#mb');if(!c||!bg)return;dpr=Math.min(3,devicePixelRatio||1);W=c.clientWidth;H=c.clientHeight;c.width=bg.width=Math.round(W*dpr);c.height=bg.height=Math.round(H*dpr);ctx=c.getContext('2d');bctx=bg.getContext('2d');if(vectorMap){vectorMap.resize();vectorCamera=''}want()}
 function panBy(dx,dy){VT=null;V.lon=unx(wx(V.lon,V.z)-dx,V.z);V.lat=uny(wy(V.lat,V.z)-dy,V.z);want()}
 function zoomBy(dz){VT=null;V.z=clamp(V.z+dz,2,19);want()}
 function tap(x,y){
@@ -1131,7 +1195,7 @@ function tap(x,y){
  $('#sheet').classList.remove('on');
 }
 function initMap(){
- mapOn=true;if(mInit){mapResize();return}
+ mapOn=true;startVectorMap();if(mInit){mapResize();return}
  const c=$('#mc');if(!c||!c.getContext){$('#mapmsg').hidden=false;return}
  mInit=true;mapResize();addEventListener('resize',mapResize);
  c.addEventListener('pointerdown',e=>{c.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,[e.clientX,e.clientY]);if(ptrs.size===1)down={t:performance.now(),m:0};else if(ptrs.size===2){const[a,b]=[...ptrs.values()];pinch={d:Math.hypot(a[0]-b[0],a[1]-b[1]),z:V.z};down=null}});
@@ -1218,7 +1282,7 @@ document.addEventListener('change',async e=>{const t=e.target;const m={cLeave:'l
  if(t.id==='sUnits'||t.id==='sTheme'){cfg[t.id==='sUnits'?'units':'theme']=t.value;persist();applyTheme();render()}
 });
 /* ---------- theme, clock, PWA ---------- */
-function applyTheme(){want();const d=cfg.theme==='auto'?(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'):cfg.theme;document.documentElement.dataset.theme=d;document.documentElement.dataset.motion=reduced()?'reduced':'';$('meta[name=theme-color]').content=d==='dark'?'#111214':'#f3f4f5'}
+function applyTheme(){want();const d=cfg.theme==='auto'?(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'):cfg.theme;document.documentElement.dataset.theme=d;syncVectorStyle();document.documentElement.dataset.motion=reduced()?'reduced':'';$('meta[name=theme-color]').content=d==='dark'?'#111214':'#f3f4f5'}
 function tick(){$('#clock').textContent=fmtTS(Date.now());if(S.stop&&S.view==='overview'){const P=calc();if(P||S.chosen===null)renderHero(P)}}
 function pwa(){
  // Files need to be served over HTTPS (or localhost), not opened from file://.
