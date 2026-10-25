@@ -1,5 +1,5 @@
 /* Offline application shell only. NEVER cache API predictions as if they were live. */
-const CACHE='route91-shell-v3';
+const CACHE='route91-shell-v5';
 const SHELL=['./index.html','./manifest.webmanifest','./icons/icon-180.png','./icons/icon-192.png','./icons/icon-512.png'];
 self.addEventListener('install',event=>{
  event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)));

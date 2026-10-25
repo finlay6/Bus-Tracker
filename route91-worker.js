@@ -1,4 +1,4 @@
-/* Optional Cloudflare Worker for the Route 91 PWA.
+/* Optional Cloudflare Worker for the Routes 91 and 6 PWA.
    Bind ALLOWED_ORIGIN to your HTTPS site's origin, e.g. https://example.pages.dev
    Secrets TFL_KEY and TOMTOM_KEY are optional. */
 export default {
