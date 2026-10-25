@@ -141,15 +141,13 @@ nav.tabs .tab svg{width:19px;height:19px}
 .b6-vehicle-info b{font-size:17px}.b6-vehicle-info span{color:var(--mut);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .b6-vehicle-info small{color:var(--ok);font-size:11px}
 .b6-vehicle-right{display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:auto}
-.b6-livery-mini{display:flex;flex-direction:column;align-items:flex-end;gap:4px;min-width:72px}
+.b6-livery-mini{display:flex;flex-direction:column;align-items:flex-end;gap:4px;min-width:62px}
 .b6-livery-chip{font-size:10px;line-height:1.2;color:var(--mut);max-width:92px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
-.b6-livery-swatch{display:inline-flex;flex-shrink:0;overflow:hidden;width:68px;height:22px;border-radius:8px;border:1px solid var(--line);background:#263545;box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
-.b6-livery-swatch.large{width:138px;height:32px;border-radius:10px;vertical-align:middle}
-.b6-livery-side{display:block;min-width:0;flex:1 1 0;background-color:#263545;background-size:100% 100%;background-repeat:no-repeat}
-.b6-livery-side+.b6-livery-side{border-left:1px solid rgba(255,255,255,.22)}
-.b6-livery-swatch.missing .b6-livery-side:first-child{background:#42516a}
-.b6-livery-swatch.missing .b6-livery-side:last-child{background:#253144}
-.b6-livery-caption{display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap}
+.b6-livery-swatch{display:inline-block;flex-shrink:0;overflow:hidden;width:44px;height:36px;border-radius:4px;border:1px solid rgba(255,255,255,.16);background:#263545;box-shadow:inset 0 1px 0 rgba(255,255,255,.08);background-size:100% 100%;background-repeat:no-repeat;background-position:center center}
+.b6-livery-swatch.large{width:58px;height:40px;border-radius:4px;vertical-align:middle}
+.b6-livery-swatch.missing{background:linear-gradient(135deg,#42516a 0 50%,#253144 50% 100%)}
+.b6-livery-caption{display:inline-flex;align-items:center;gap:12px;flex-wrap:wrap}
+.b6-livery-caption .b6-livery-name{display:inline-block}
 .b6-arrow{font-size:26px;color:var(--mut)}
 html[data-theme=light] .b6-intro{background:#e5f8f0}html[data-theme=light] .b6-vehicle{background:#f6fafb}
 @media(max-width:370px){nav.tabs .tab{font-size:9px}nav.tabs .tab svg{width:18px;height:18px}}
@@ -869,14 +867,17 @@ function b6SafeBackground(value){
  if(!s||s.length>2048||/[;{}<>]/.test(s)||/url\s*\(|image-set\s*\(|var\s*\(|expression\s*\(|@import|!important/i.test(s))return '';
  return typeof CSS==='undefined'||typeof CSS.supports!=='function'||CSS.supports('background',s)?s:'';
 }
+function b6LiveryPreviewCSS(source){
+ const l=b6LiveryData(source);
+ return b6SafeBackground(l?.left||l?.right||'');
+}
 function b6LiveryHTML(source,large=false){
- const l=b6LiveryData(source),left=b6SafeBackground(l?.left||l?.right),right=b6SafeBackground(l?.right||l?.left);
- const known=!!(left||right);
+ const bg=b6LiveryPreviewCSS(source);
+ const known=!!bg;
  const cls='b6-livery-swatch'+(large?' large':'')+(known?'':' missing');
- const label=l?.name||'Livery';
- const leftStyle=left?` style="background:${esc(left)}"`:'';
- const rightStyle=right?` style="background:${esc(right)}"`:'';
- return `<span class="${cls}" role="img" aria-label="${esc(known?label+' livery, two sides':'Livery colours unavailable')}" title="${esc(known?label+' · left and right':'Livery colours unavailable')}"><span class="b6-livery-side"${leftStyle}></span><span class="b6-livery-side"${rightStyle}></span></span>`;
+ const label=b6LiveryLabel(source)||'Livery';
+ const style=bg?` style="background:${esc(bg)}"`:'';
+ return `<span class="${cls}" role="img" aria-label="${esc(known?label+' livery preview':'Livery colours unavailable')}" title="${esc(known?label:'Livery colours unavailable')}"${style}></span>`;
 }
 function b6LiveryLabel(source){const l=b6LiveryData(source);return l?.name||null}
 async function b6PrimeListDetails(records){
@@ -1024,7 +1025,7 @@ function renderBristol6(){
   ${fld('Double-decker',typeof vt.double_decker==='boolean'?(vt.double_decker?'Yes':'No'):null,'bustimes.org')}
   ${fld('Operator',x.operator?.name||l.vehicle?.operator?.name,'bustimes.org vehicle record')}
   ${fld('Garage',x.garage?.name,'bustimes.org')}
-  ${kv('Livery',b6LiveryData(x)||b6LiveryData(l)?`<span class="b6-livery-caption"><span>${esc(b6LiveryLabel(x)||'Unlabelled livery')}</span>${b6LiveryHTML(b6LiveryData(x)?x:l,true)}</span>`:null,'live','bustimes.org')}
+  ${kv('Livery',b6LiveryData(x)||b6LiveryData(l)?`<span class="b6-livery-caption">${b6LiveryHTML(b6LiveryData(x)?x:l,true)}<span class="b6-livery-name">${esc(b6LiveryLabel(x)||'Unlabelled livery')}</span></span>`:null,'live','bustimes.org')}
   ${fld('Branding',x.branding,'bustimes.org')}
   ${fld('Features',x.special_features,'bustimes.org')}
   ${fld('Current route',l.service?.line_name||l.route_name,'bustimes.org live tracking')}
