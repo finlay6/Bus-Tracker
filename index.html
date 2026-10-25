@@ -64,6 +64,8 @@ input[type=text],input[type=url],select{font:inherit;font-size:14px;color:var(--
 
 
 @media(max-width:800px){.route-map.vehicle-open .route-map-actions,.route-map.vehicle-open #route-bus-list{display:none}.model-selected-route{flex-wrap:wrap}.model-selected-route>div{min-width:calc(100% - 60px)}.model-selected-route>button{margin-top:0}}
+#route-markers{position:absolute;inset:0;z-index:3;overflow:hidden;pointer-events:none}.route-vehicle-marker{position:absolute;top:0;left:0;width:30px;height:30px;min-width:0;min-height:0;margin:0;padding:0;border:0;border-radius:7px;background:none;color:#fff;pointer-events:auto;overflow:visible;cursor:pointer;touch-action:manipulation;box-shadow:none}.marker-livery{display:block;position:relative;width:30px;height:30px;border:2px solid #fff;border-radius:7px;box-shadow:0 1px 5px #0008;background:#68737c}.marker-livery svg{position:absolute;inset:3px;width:20px;height:20px;fill:none;stroke:#fff;stroke-width:1.8;filter:drop-shadow(0 1px 1px #000) drop-shadow(0 0 1px #000);stroke-linecap:round;stroke-linejoin:round}.route-vehicle-marker.selected .marker-livery{outline:3px solid #ffe66b;outline-offset:1px}.route-vehicle-marker.delayed .marker-livery{border-style:dashed}.marker-fleet{position:absolute;display:block;height:18px;padding:1px 4px;border:1px solid var(--line);border-radius:3px;background:var(--glass);color:var(--ink);box-shadow:0 1px 4px #0003;font:600 10px/14px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;white-space:nowrap;text-align:center;pointer-events:auto}.route-vehicle-marker.selected .marker-fleet{border-color:#b89421}.route-vehicle-marker.delayed .marker-fleet{border-style:dashed}.marker-heading{position:absolute;left:9px;top:-9px;width:8px;height:22px;transform-origin:4px 22px;pointer-events:none}.marker-heading:before{content:'';position:absolute;left:0;top:0;width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:6px solid #fff;filter:drop-shadow(0 0 1px #000)}.route-vehicle-marker:focus-visible .marker-livery{outline:3px solid var(--ink);outline-offset:3px}.journey-map-key{display:flex;gap:16px;align-items:center;flex-wrap:wrap;font-size:11px;margin:17px 0 7px}.journey-map-key span{display:inline-flex;gap:7px;align-items:center}.journey-map-key i{display:inline-block;width:22px;height:4px;border-radius:3px;background:#919ba7}.journey-map-key .remaining{background:#4ddd9a}html[data-theme=light] .journey-map-key .remaining{background:#087c58}.journey-map-key .travelled{background:#9b9fa8}html[data-theme=light] .journey-map-key .travelled{background:#7b8492}
+
 </style>
 </head>
 <body>
@@ -93,7 +95,7 @@ input[type=text],input[type=url],select{font:inherit;font-size:14px;color:var(--
 </div>
 
 <section class="view" id="view-map" aria-label="Interactive map">
- <div id="map" role="application" aria-label="Map of your walk and Route 91"><div id="vector-map" aria-hidden="true"></div><canvas id="mb" aria-hidden="true"></canvas><canvas id="mc"></canvas><div class="attr"><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap contributors</a><span id="vectorCredit" hidden> · <a href="https://openfreemap.org/" target="_blank" rel="noopener noreferrer">OpenFreeMap</a> · <a href="https://openmaptiles.org/" target="_blank" rel="noopener noreferrer">OpenMapTiles</a></span></div></div>
+ <div id="map" role="application" aria-label="Map of your walk and Route 91"><div id="vector-map" aria-hidden="true"></div><canvas id="mb" aria-hidden="true"></canvas><canvas id="mc"></canvas><div id="route-markers" aria-label="Route vehicles"></div><div class="attr"><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap contributors</a><span id="vectorCredit" hidden> · <a href="https://openfreemap.org/" target="_blank" rel="noopener noreferrer">OpenFreeMap</a> · <a href="https://openmaptiles.org/" target="_blank" rel="noopener noreferrer">OpenMapTiles</a></span></div></div>
  <div class="mctl">
   <button id="mBack" aria-label="Back to journey">‹ Back</button>
   <button id="mZin" aria-label="Zoom in">+</button>
@@ -146,11 +148,11 @@ const fmtS=k=>cfg.units==='mi'?(k/1.609).toFixed(1)+' mph':k.toFixed(1)+' km/h';
 const S={gps:null,start:null,startLabel:'',stop:null,cands:[],nearby:[],arr:[],arrSource:null,arrMode:null,stopSource:null,backupReason:null,fetchedAt:0,err:null,rate:false,seq:null,walk:null,jp:null,lineStatus:null,roads:[],roadsAt:0,roadsErr:false,inc:[],sched:null,schedFor:null,veh:null,vehId:null,vehErr:null,vArr:null,btGpsAt:0,timingPoints:[],timingFor:null,timingAt:0,traffic:null,trafficErr:null,weather:null,weatherAt:0,demo:false,log:[],view:'overview',passed:null,loading:true,chosen:null,bp:null,notified:{},stopClosed:false,flags:new Set(),srcs:{},geoAlt:[]};
 class ApiErr extends Error{constructor(k,m){super(m||k);this.kind=k}}
 const logE=m=>{S.log.unshift(fmtTS(Date.now())+' '+String(m).replace(/-?\d+\.\d{3,}/g,'•').slice(0,180));S.log.length=Math.min(S.log.length,30)};
-async function api(kind,path,params={},type='json'){
+async function api(kind,path,params={},type='json',timeoutMs=null){
  const px=(cfg.proxy||'').trim().replace(/\/$/,'');
  const base=px?px+'/'+kind:(kind==='tfl'?'https://api.tfl.gov.uk':'https://bustimes.org');
  const u=new URL(base+path);for(const[k,v]of Object.entries(params))if(v!=null)u.searchParams.set(k,v);
- let r;try{r=await fetch(u,{headers:{Accept:type==='text'?'text/html':'application/json'},cache:'no-store',signal:AbortSignal.timeout?AbortSignal.timeout(type==='text'?20000:10000):undefined})}catch(e){logE(kind+' '+path+' network/CORS error');throw new ApiErr('net')}
+ let r;try{r=await fetch(u,{headers:{Accept:type==='text'?'text/html':'application/json'},cache:'no-store',signal:AbortSignal.timeout?AbortSignal.timeout(timeoutMs||(type==='text'?20000:10000)):undefined})}catch(e){logE(kind+' '+path+' network/CORS error');throw new ApiErr('net')}
  if(r.status===429){logE(kind+' '+path+' 429');if(kind==='tfl')S.rate=true;throw new ApiErr('rate')}
  if(!r.ok){logE(kind+' '+path+' HTTP '+r.status);throw new ApiErr('http',String(r.status))}
  try{return type==='text'?await r.text():await r.json()}catch{logE(kind+' '+path+' invalid response');throw new ApiErr('format')}
@@ -1107,34 +1109,31 @@ async function loadRoute(key=ROUTES.key,force=false){
  routeChanged();
  try{
   const route=await ensureRouteIdentity(key);
-  const geometry=async()=>{
-   if(state.geometryAt&&Date.now()-state.geometryAt<3600000)return;
-   try{const data=await api('bt','/services/'+route.id+'.json');Object.assign(state,parseRouteGeometry(data));state.geometryAt=Date.now();state.geometryError=''}
-   catch{state.geometryError='Route shape unavailable; showing available positions and stops.'}
-  };
-  const gps=async()=>{
+  const gps=(async()=>{
    const data=await api('bt','/vehicles.json',{service:route.id});if(!Array.isArray(data))throw new ApiErr('format','Tracking feed did not return vehicles');
-   return routeRecords(data,route);
-  };
-  const results=await Promise.allSettled([geometry(),gps()]);
+   const items=routeRecords(data,route);
+   if(state.request===request){state.items=items;primeRouteLiveries(state);routeChanged()}
+   return items;
+  })();
+  const results=await Promise.allSettled([loadRouteGeometry(route,state,gps,force),gps]);
   if(state.request!==request)return;
   if(results[1].status==='rejected')throw results[1].reason;
   let items=results[1].value;
   if(!items.length){
-   // The service index can be empty while the geographic feed still has buses.
    const bounds=routeBounds(state);
    if(bounds&&(bounds.hi-bounds.lo)*(bounds.north-bounds.south)<.15){
     try{const data=await api('bt','/vehicles.json',{xmin:bounds.lo-.005,ymin:bounds.south-.005,xmax:bounds.hi+.005,ymax:bounds.north+.005});if(Array.isArray(data))items=routeRecords(data,route)}catch{}
    }
   }
-  state.items=items;state.updatedAt=Date.now();
+  state.items=items;state.updatedAt=Date.now();primeRouteLiveries(state);
   if(ROUTES.key===key&&ROUTES.selected){
    const selected=items.find(x=>b6Id(x)===ROUTES.selected);
-   if(selected)ROUTES.selectedReport=selected;
+   if(selected){ROUTES.selectedReport=selected;if(!ROUTES.detailLoading&&String(ROUTES.journey?.id)!==String(selected.journey_id))openRouteVehicle(ROUTES.selected,false)}
   }
  }catch(error){state.error=error.kind==='net'?'Tracking could not be reached. Check your connection and proxy in Settings.':'Tracking is unavailable for this route right now.'}
  finally{state.loading=false;routeChanged();if(ROUTES.key===key&&S.view==='map'&&ROUTES.mode==='route'&&ROUTES.fittedKey!==key&&(state.geometryAt||state.items.length)){ROUTES.fittedKey=key;updateMap(true)}}
 }
+
 function routeChanged(){
  if(S.view==='routes'){const node=$('#route-selected-status'),state=routeState();if(node)node.textContent=state.loading?'Checking tracking…':state.error||state.items.length+' recent vehicle positions'+(state.updatedAt?' · updated '+fmtT(state.updatedAt):'')}
  if(S.view==='map'&&ROUTES.mode==='route'){renderRouteMapControls();updateMap();if(ROUTES.selected)renderRouteVehicle()}
@@ -1175,26 +1174,196 @@ function renderRoutes(){
 }
 function renderRouteMapControls(){
  const on=ROUTES.mode==='route',route=MODEL_ROUTES[ROUTES.key],state=routeState();
- $('#map').setAttribute('aria-label',on?'Route '+route.line+' vehicle map':'Your walk and Route 91');$('#view-map').classList.toggle('route-map',on);$('#route-map-controls').hidden=!on;$('.mctl').hidden=on;
+ $('#map').setAttribute('aria-label',on?'Route '+route.line+' vehicle map':'Your walk and Route 91');$('#view-map').classList.toggle('route-map',on);$('#route-map-controls').hidden=!on;$('#route-markers').hidden=!on;$('#view-map').classList.toggle('vehicle-open',on&&!!ROUTES.selected);$('.mctl').hidden=on;
  if(!on){$('#route-panel').hidden=true;return}
  const fresh=state.items.filter(x=>Date.now()-b6When(x)<=300000).length;
  const stale=state.items.length-fresh;
  const listOpen=$('#route-bus-list')?.open;
- $('#route-map-controls').innerHTML=`<div class="route-map-heading"><button class="map-route-choice" data-go="routes" aria-label="Change route ${esc(route.line)}"><span class="route-number">${esc(route.line)}</span><span><b>${esc(route.city)}</b><small>${state.loading?'Updating…':fresh+' recent bus'+(fresh===1?'':'es')}${stale?' · '+stale+' delayed':''}</small></span><span aria-hidden="true">⌄</span></button><button id="route-map-refresh" aria-label="Refresh route vehicles">↻</button></div><div class="route-map-actions"><button id="route-fit">Fit route</button><button id="route-map-models">Models</button><button id="route-my-walk">My 91 walk</button><button id="route-zoom-in" aria-label="Zoom in">+</button><button id="route-zoom-out" aria-label="Zoom out">−</button></div>${state.error?`<p class="map-feed-note" role="alert">${esc(state.error)}${state.items.length?' Retaining previous reports.':''}</p>`:''}${state.geometryError?`<p class="map-feed-note">${esc(state.geometryError)}</p>`:''}${!state.loading&&!state.items.length&&!state.error?'<p class="map-feed-note">No recent GPS positions reported. This does not mean no buses are running.</p>':''}<details id="route-bus-list" ${listOpen?'open':''}><summary>Vehicles <span>${state.items.length}</span></summary><div>${state.items.map(report=>`<button data-route-vehicle="${esc(b6Id(report))}" aria-label="Bus ${esc(b6Fleet(report))}, ${esc(report.destination||'destination unavailable')}"><b>${esc(b6Fleet(report))}</b><span>${esc(report.destination||'Destination unavailable')}<small>${Date.now()-b6When(report)>300000?'Delayed report · ':''}${fmtT(b6When(report))}</small></span></button>`).join('')}</div></details>`;
+ $('#route-map-controls').innerHTML=`<div class="route-map-heading"><button class="map-route-choice" data-go="routes" aria-label="Change route ${esc(route.line)}"><span class="route-number">${esc(route.line)}</span><span><b>${esc(route.city)}</b><small>${state.loading?'Updating…':fresh+' recent bus'+(fresh===1?'':'es')}${stale?' · '+stale+' delayed':''}</small></span><span aria-hidden="true">⌄</span></button><button id="route-map-refresh" aria-label="Refresh route vehicles">↻</button></div>${ROUTES.selected&&selectedJourneyProgress(ROUTES.journey,ROUTES.selectedReport)?`<div class="journey-map-key" aria-label="Journey map colours"><span><i class="travelled"></i>Travelled</span><span><i class="remaining"></i>Remaining</span></div>`:""}<div class="route-map-actions"><button id="route-fit">Fit route</button><button id="route-map-models">Models</button><button id="route-my-walk">My 91 walk</button><button id="route-zoom-in" aria-label="Zoom in">+</button><button id="route-zoom-out" aria-label="Zoom out">−</button></div>${state.error?`<p class="map-feed-note" role="alert">${esc(state.error)}${state.items.length?' Retaining previous reports.':''}</p>`:''}${state.geometryError?`<p class="map-feed-note">${esc(state.geometryError)}</p>`:state.geometrySource&&state.geometrySource!=='bustimes route geometry'?`<p class="map-feed-note">${esc(state.geometrySource)}${state.geometryApproximate?' · dashed sections connect stops':''}</p>`:''}${!state.loading&&!state.items.length&&!state.error?'<p class="map-feed-note">No recent GPS positions reported. This does not mean no buses are running.</p>':''}<details id="route-bus-list" ${listOpen?'open':''}><summary>Vehicles <span>${state.items.length}</span></summary><div>${state.items.map(report=>`<button data-route-vehicle="${esc(b6Id(report))}" aria-label="Bus ${esc(b6Fleet(report))}, ${esc(report.destination||'destination unavailable')}"><b>${esc(b6Fleet(report))}</b><span>${esc(report.destination||'Destination unavailable')}<small>${Date.now()-b6When(report)>300000?'Delayed report · ':''}${fmtT(b6When(report))}</small></span></button>`).join('')}</div></details>`;
 }
 function routeStopName(id){return routeState().stops.find(s=>s.id===id)?.name||null}
-async function openRouteVehicle(id){
+/* ---------- Map geometry recovery, livery markers and ordered journey progress ---------- */
+const validMapPoint=p=>Array.isArray(p)&&p.length>=2&&p.slice(0,2).every(Number.isFinite)&&Math.abs(p[0])<=180&&Math.abs(p[1])<=90;
+function journeyLegs(trip){
+ const times=trip?.times||[],legs=[];
+ for(let i=1;i<times.length;i++){
+  const a=times[i-1].stop?.location,b=times[i].stop?.location;
+  if(!validMapPoint(a)||!validMapPoint(b))continue;
+  let points=Array.isArray(times[i].track)?times[i].track.filter(validMapPoint).map(p=>p.slice(0,2)):[];
+  const approximate=points.length<2;
+  if(approximate)points=[a.slice(0,2),b.slice(0,2)];
+  else if(hav(points[0],a)+hav(points.at(-1),b)>hav(points.at(-1),a)+hav(points[0],b))points.reverse();
+  legs.push({index:i-1,points,approximate});
+ }
+ return legs;
+}
+async function routeGeometryFallback(route,state,reports){
+ // TfL has an independent route-shape source, useful when a proxy cannot load
+ // bustimes service-map JSON. Read both directions without changing the 91 stop.
+ if(route.region==='L'){
+  const results=await Promise.allSettled(['inbound','outbound'].map(direction=>api('tfl','/Line/'+encodeURIComponent(route.line.toLowerCase())+'/Route/Sequence/'+direction,{serviceTypes:'Regular'},'json',20000)));
+  const lines=[],stops=new Map(state.stops.map(stop=>[stop.id,stop]));
+  for(const result of results){if(result.status!=='fulfilled')continue;const data=result.value;
+   for(const raw of data.lineStrings||[]){try{const value=typeof raw==='string'?JSON.parse(raw):raw;const collect=value=>{if(!Array.isArray(value))return;if(value.length>1&&value.every(validMapPoint))lines.push(value.map(p=>p.slice(0,2)));else for(const child of value)collect(child)};collect(value)}catch{}}
+   for(const sequence of data.stopPointSequences||[])for(const stop of sequence.stopPoint||[])if(stop.id&&validMapPoint([stop.lon,stop.lat]))stops.set(stop.id,{id:stop.id,name:stop.name,lon:stop.lon,lat:stop.lat,letter:''});
+  }
+  if(lines.length)return{lines,stops:[...stops.values()],geometrySource:'TfL route geometry',geometryApproximate:false,lineApproximate:[]};
+ }
+ // Non-London routes can recover their shape from ordered timetable tracks.
+ // Do not connect the service's unordered stop list into an invented route.
+ const ids=new Map();for(const report of reports||[])if(report.trip_id&&!ids.has(report.destination||report.trip_id))ids.set(report.destination||report.trip_id,report.trip_id);
+ if(ids.size<2){try{const data=await api('bt','/api/trips/',{service:route.id,date:modelToday(),limit:100});for(const trip of data.results||[])if(String(trip.service?.id)===String(route.id)&&!ids.has(trip.headsign||trip.id))ids.set(trip.headsign||trip.id,trip.id)}catch{}}
+ const results=await Promise.allSettled([...new Set(ids.values())].slice(0,4).map(id=>api('bt','/api/trips/'+encodeURIComponent(id)+'/',{date:modelToday()},'json',20000)));
+ const lines=[],lineApproximate=[],stops=new Map(state.stops.map(stop=>[stop.id,stop]));let approximate=false;
+ for(const result of results){
+  if(result.status!=='fulfilled'||String(result.value.service?.id)!==String(route.id))continue;
+  const trip=result.value;
+  for(const leg of journeyLegs(trip)){lines.push(leg.points);lineApproximate.push(leg.approximate);approximate||=leg.approximate}
+  for(const time of trip.times||[]){const stop=time.stop;if(stop?.atco_code&&validMapPoint(stop.location))stops.set(stop.atco_code,{id:stop.atco_code,name:stop.name,lon:stop.location[0],lat:stop.location[1],letter:stop.icon||''})}
+ }
+ if(!lines.length)throw new ApiErr('format','No route lines in the available geometry sources');
+ return{lines,stops:[...stops.values()],geometrySource:'Available journey tracks',geometryApproximate:approximate,lineApproximate};
+}
+async function loadRouteGeometry(route,state,reportsPromise,force){
+ if(!force&&state.lines.length&&state.geometryAt&&Date.now()-state.geometryAt<3600000)return;
+ let primaryError;
+ try{
+  const data=await api('bt','/services/'+route.id+'.json',{},'json',25000),parsed=parseRouteGeometry(data);
+  if(parsed.stops.length)state.stops=parsed.stops;
+  if(!parsed.lines.length)throw new ApiErr('format','Service map contained stops but no route lines');
+  Object.assign(state,parsed,{geometryAt:Date.now(),geometryError:'',geometrySource:'bustimes route geometry',geometryApproximate:false,lineApproximate:[]});return;
+ }catch(error){primaryError=error}
+ try{
+  const reports=await reportsPromise.catch(()=>[]),fallback=await routeGeometryFallback(route,state,reports);
+  Object.assign(state,fallback,{geometryAt:Date.now(),geometryError:''});
+ }catch{
+  // Keep a previously working shape, but retry on the next update rather than
+  // caching a stops-only response as a complete route for an hour.
+  state.geometryAt=0;state.geometryError=state.lines.length?'Using the last route shape; the latest geometry could not be checked.':'Route lines could not be loaded from the available sources. Refresh to retry; check that your proxy supports /bt/services/{id}.json and /bt/api/trips/.';
+  logE('Route '+route.line+' shape unavailable ('+(primaryError?.kind||'format')+')');
+ }
+}
+function routeVehicleProfile(report,state=routeState()){
+ if(ROUTES.selected===b6Id(report)&&ROUTES.profile)return ROUTES.profile;
+ return state.vehicleProfiles?.get(b6Id(report))?.vehicle||null;
+}
+async function primeRouteLiveries(state){
+ if(state.liveriesLoading)return;
+ state.vehicleProfiles??=new Map();const reports=state.items.filter(report=>!(state.vehicleProfiles.get(b6Id(report))?.until>Date.now()));
+ if(!reports.length)return;state.liveriesLoading=true;let index=0;
+ const worker=async()=>{while(index<reports.length){
+  const report=reports[index++];let vehicle=null;
+  try{vehicle=await modelVehicle({id:report.id??report.vehicle?.id,reg:b6Reg(report),slug:b6Slug(report)})}catch{}
+  state.vehicleProfiles.set(b6Id(report),{vehicle,until:Date.now()+(vehicle?15*60000:60000)});
+  if(ROUTES.key===state.key&&ROUTES.mode==='route')want();
+ }};
+ try{await Promise.all([worker(),worker(),worker()])}finally{state.liveriesLoading=false}
+}
+function routeMarkerLivery(report,state=routeState()){
+ const vehicle=routeVehicleProfile(report,state),background=b6LiveryPreviewCSS(vehicle)||b6LiveryPreviewCSS(report)||b6SafeBackground(report.vehicle?.colour)||'#68737c';
+ return{background,label:vehicle?.livery?.name||(b6LiveryPreviewCSS(report)?'Custom livery':'Reported vehicle colours'),fleet:String(vehicle?.fleet_code||vehicle?.fleet_number||b6Fleet(report))};
+}
+function projectOnRouteLine(points,position){
+ if(points.length<2||!validMapPoint(position))return null;
+ const scale=Math.cos(position[1]*rad);let best=null,distanceAlong=0,total=0;
+ const lengths=[];for(let i=1;i<points.length;i++){const length=hav(points[i-1],points[i]);lengths.push(length);total+=length}
+ for(let i=1;i<points.length;i++){
+  const a=points[i-1],b=points[i],dx=(b[0]-a[0])*scale,dy=b[1]-a[1];
+  const fraction=clamp((((position[0]-a[0])*scale)*dx+(position[1]-a[1])*dy)/(dx*dx+dy*dy||1),0,1);
+  const point=[a[0]+(b[0]-a[0])*fraction,a[1]+(b[1]-a[1])*fraction],distance=hav(point,position);
+  if(!best||distance<best.distance)best={point,segment:i-1,distance,fraction:total?(distanceAlong+lengths[i-1]*fraction)/total:0};
+  distanceAlong+=lengths[i-1];
+ }
+ return best;
+}
+function splitRouteLine(points,fraction){
+ const lengths=points.slice(1).map((point,i)=>hav(points[i],point)),target=lengths.reduce((sum,length)=>sum+length,0)*clamp(fraction,0,1);let traversed=0;
+ for(let i=0;i<lengths.length;i++){
+  if(traversed+lengths[i]>=target||i===lengths.length-1){const f=lengths[i]?(target-traversed)/lengths[i]:0,a=points[i],b=points[i+1],cut=[a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f];return{travelled:[...points.slice(0,i+1),cut],remaining:[cut,...points.slice(i+1)]}}
+  traversed+=lengths[i];
+ }
+ return{travelled:points.slice(),remaining:[]};
+}
+function selectedJourneyProgress(journey,report){
+ if(!validMapPoint(b6Coords(report))||!journey||String(journey.id)!==String(report?.journey_id)||!journey.trip?.times?.length)return null;
+ const times=journey.trip.times,legs=journeyLegs(journey.trip);if(!legs.length)return null;
+ const progress=report.progress||{};let index=times.findIndex(time=>progress.id!=null&&String(time.id)===String(progress.id));
+ if(index<0&&progress.prev_stop){
+  const candidates=times.flatMap((time,i)=>time.stop?.atco_code===progress.prev_stop&&(!progress.next_stop||times[i+1]?.stop?.atco_code===progress.next_stop)?[i]:[]);
+  if(candidates.length===1)index=candidates[0];
+  else if(candidates.length>1&&Number.isInteger(+progress.sequence))index=candidates.reduce((best,i)=>Math.abs(i-progress.sequence)<Math.abs(best-progress.sequence)?i:best);
+ }
+ let leg=legs.find(leg=>leg.index===index),projection=leg&&projectOnRouteLine(leg.points,b6Coords(report));
+ if(index===times.length-1&&validMapPoint(times.at(-1).stop?.location)&&hav(times.at(-1).stop.location,b6Coords(report))<300)return{travelled:legs,remaining:[],index,approximate:legs.some(leg=>leg.approximate)};
+ if(!leg){
+  // Without a stop-row ID, only estimate from GPS when the nearest ordered
+  // leg is unambiguous. A loop or parallel return direction must not jump.
+  const nearest=legs.map(leg=>({leg,projection:projectOnRouteLine(leg.points,b6Coords(report))})).filter(x=>x.projection?.distance<250).sort((a,b)=>a.projection.distance-b.projection.distance);
+  if(!nearest.length)return null;
+  if(nearest[1]&&nearest[1].projection.distance-nearest[0].projection.distance<20){const separate=Math.abs(nearest[1].leg.index-nearest[0].leg.index)>1,interior=nearest.slice(0,2).every(item=>item.projection.fraction>.05&&item.projection.fraction<.95);if(separate||interior)return null}
+  leg=nearest[0].leg;index=leg.index;projection=nearest[0].projection;
+ }
+ const reported=Number(progress.progress),fraction=projection?.distance<300?projection.fraction:Number.isFinite(reported)&&progress.progress!=null?clamp(reported,0,1):null;
+ if(fraction==null)return null;
+ const split=splitRouteLine(leg.points,fraction);
+ return{travelled:[...legs.filter(leg=>leg.index<index),{...leg,points:split.travelled}],remaining:[{...leg,points:split.remaining},...legs.filter(leg=>leg.index>index)],index,approximate:legs.some(leg=>leg.approximate)};
+}
+function routeProgressStroke(path,legs,colour,width=5){
+ for(const leg of legs){if(leg.points.length<2)continue;path(leg.points);ctx.setLineDash(leg.approximate?[6,5]:[]);ctx.strokeStyle=isDark()?'#182022':'#fff';ctx.lineWidth=width+4;ctx.stroke();ctx.strokeStyle=colour;ctx.lineWidth=width;ctx.stroke()}
+ ctx.setLineDash([]);
+}
+function markerLabelLayout(markers,width,height){
+ const occupied=[],icons=markers.map(marker=>({x:marker.x-18,y:marker.y-18,w:36,h:36}));
+ const overlap=(a,b)=>Math.max(0,Math.min(a.x+a.w,b.x+b.w)-Math.max(a.x,b.x))*Math.max(0,Math.min(a.y+a.h,b.y+b.h)-Math.max(a.y,b.y));
+ return markers.map(marker=>{
+  const w=marker.labelWidth,h=18,candidates=[];
+  for(const gap of [22,42,62,82])candidates.push({x:marker.x-w/2,y:marker.y+gap},{x:marker.x+gap,y:marker.y-h/2},{x:marker.x-w-gap,y:marker.y-h/2},{x:marker.x-w/2,y:marker.y-h-gap});
+  let best=null;
+  for(const [order,point]of candidates.entries()){
+   const box={...point,w,h},outside=Math.max(0,-box.x)+Math.max(0,box.x+w-width)+Math.max(0,-box.y)+Math.max(0,box.y+h-height);
+   const score=outside*10000+occupied.reduce((sum,other)=>sum+overlap(box,other)*4,0)+icons.reduce((sum,other)=>sum+overlap(box,other)*3,0)+order*2;
+   if(!best||score<best.score)best={...box,score};
+  }
+  occupied.push(best);return best;
+ });
+}
+ROUTES.markerNodes=new Map();
+function renderRouteMarkers(state){
+ const layer=$('#route-markers');if(!layer)return;
+ const markers=state.items.map(report=>({report,position:scr(...b6Coords(report))})).filter(item=>item.position[0]>=-25&&item.position[0]<=W+25&&item.position[1]>=-25&&item.position[1]<=H+25).sort((a,b)=>(ROUTES.selected===b6Id(b.report))-(ROUTES.selected===b6Id(a.report)));
+ ctx.font='600 10px sans-serif';
+ const display=markers.map(item=>{const livery=routeMarkerLivery(item.report,state);return{...item,...livery,x:item.position[0],y:item.position[1],labelWidth:Math.ceil(ctx.measureText(livery.fleet).width)+12}});
+ const labels=markerLabelLayout(display,W,Math.max(100,H-75)),used=new Set();
+ for(const [i,item]of display.entries()){
+  const report=item.report,id=b6Id(report),selected=ROUTES.selected===id;used.add(id);
+  let node=ROUTES.markerNodes.get(id);
+  if(!node){
+   const button=document.createElement('button');button.className='route-vehicle-marker';button.dataset.routeVehicle=id;
+   button.innerHTML='<span class="marker-livery"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="15" rx="2"/><path d="M5 11h14M8 18v3M16 18v3M8 15h1M15 15h1"/></svg><i class="marker-heading" aria-hidden="true"></i></span><span class="marker-fleet"></span>';
+   layer.append(button);node={button,icon:button.querySelector('.marker-livery'),label:button.querySelector('.marker-fleet'),arrow:button.querySelector('.marker-heading')};ROUTES.markerNodes.set(id,node);
+  }
+  node.button.style.transform=`translate(${item.x-15}px,${item.y-15}px)`;node.button.style.zIndex=selected?'100':'10';node.button.classList.toggle('selected',selected);node.button.classList.toggle('delayed',Date.now()-b6When(report)>300000);
+  node.button.setAttribute('aria-label','Bus '+item.fleet+', '+(report.destination||'destination unavailable')+', '+item.label);node.button.setAttribute('aria-pressed',String(selected));
+  node.icon.style.background=item.background;node.icon.title=item.label;node.label.textContent=item.fleet;
+  node.label.style.left=(labels[i].x-item.x+15)+'px';node.label.style.top=(labels[i].y-item.y+15)+'px';node.label.style.width=item.labelWidth+'px';
+  node.arrow.hidden=report.heading==null||!Number.isFinite(+report.heading);node.arrow.style.transform=`rotate(${+report.heading||0}deg)`;
+  if(Math.abs(labels[i].x+labels[i].w/2-item.x)>10||labels[i].y-item.y>27||labels[i].y<item.y){ctx.beginPath();ctx.moveTo(item.x,item.y);ctx.lineTo(clamp(item.x,labels[i].x,labels[i].x+labels[i].w),clamp(item.y,labels[i].y,labels[i].y+labels[i].h));ctx.lineWidth=1;ctx.strokeStyle=isDark()?'#a9b1b7':'#6d7780';ctx.stroke()}
+ }
+ for(const [id,node]of ROUTES.markerNodes)if(!used.has(id)){node.button.remove();ROUTES.markerNodes.delete(id)}
+}
+
+async function openRouteVehicle(id,recenter=true){
  const report=routeState().items.find(x=>b6Id(x)===id);if(!report)return;
  const ticket=++ROUTES.detailTicket,key=ROUTES.key;
  ROUTES.stopTicket=(ROUTES.stopTicket||0)+1;ROUTES.selected=id;ROUTES.selectedReport=report;ROUTES.profile=null;ROUTES.journey=null;ROUTES.detailLoading=true;ROUTES.detailError='';$('#sheet').classList.remove('on');renderRouteVehicle();
- const pos=b6Coords(report);V.z=Math.max(V.z,14.6);V.lon=W>800?unx(wx(pos[0],V.z)+180,V.z):pos[0];V.lat=W<=800?uny(wy(pos[1],V.z)+H*.25,V.z):pos[1];VT=null;want();
+ const pos=b6Coords(report);if(recenter){V.z=Math.max(V.z,14.6);V.lon=W>800?unx(wx(pos[0],V.z)+180,V.z):pos[0];V.lat=W<=800?uny(wy(pos[1],V.z)+H*.25,V.z):pos[1];VT=null}want();
  try{
   const [profile,journey]=await Promise.allSettled([modelVehicle({id:report.id??report.vehicle?.id,slug:b6Slug(report),reg:b6Reg(report)}),report.journey_id?api('bt','/api/vehiclejourneys/'+encodeURIComponent(report.journey_id)+'/details/'):Promise.resolve(null)]);
   if(ticket!==ROUTES.detailTicket||key!==ROUTES.key)return;
-  if(profile.status==='fulfilled')ROUTES.profile=profile.value;
+  if(profile.status==='fulfilled'){ROUTES.profile=profile.value;if(profile.value){const state=routeState(key);state.vehicleProfiles??=new Map();state.vehicleProfiles.set(id,{vehicle:profile.value,until:Date.now()+15*60000})}}
   if(journey.status==='fulfilled'&&String(journey.value?.id)===String(report.journey_id)&&String(journey.value?.service?.id)===String(MODEL_ROUTES[key].id))ROUTES.journey=journey.value;
   if(!ROUTES.profile)ROUTES.detailError='Full vehicle details are unavailable; showing the tracking report.';
- }finally{if(ticket===ROUTES.detailTicket){ROUTES.detailLoading=false;renderRouteVehicle()}}
+ }finally{if(ticket===ROUTES.detailTicket){ROUTES.detailLoading=false;renderRouteVehicle();renderRouteMapControls();want()}}
 }
 function routeTime(value){const time=Date.parse(value);return Number.isFinite(time)?fmtT(time):/^(\d{1,2}:\d{2})/.exec(value||'')?.[1]||'—'}
 function renderRouteVehicle(){
@@ -1204,9 +1373,9 @@ function renderRouteVehicle(){
  const time=b6When(report),age=Date.now()-time,listed=routeState().items.some(x=>b6Id(x)===ROUTES.selected),live=listed&&age<=300000;
  const positions=journey?.trip?.times||[],next=report.progress?.next_stop,previous=report.progress?.prev_stop;
  const stopName=id=>routeStopName(id)||positions.find(x=>x.stop?.atco_code===id)?.stop?.name||null;
- const source=vehicle||report,location=next?stopName(next):null;
+ const source=vehicle||report,location=next?stopName(next):null,progress=selectedJourneyProgress(journey,report);
  const status=routeState().error?'Tracking refresh unavailable':!listed?'No longer in route feed':live?'Recent GPS report':'Delayed GPS report';
- panel.innerHTML=`<div class="vehicle-panel-top"><span class="route-number">${esc(route.line)}</span><button id="route-close-vehicle" class="ghost" aria-label="Close vehicle details">×</button></div><h2>${esc(vehicle?.fleet_code||vehicle?.fleet_number||b6Fleet(report))}</h2><p class="vehicle-model">${esc(vehicle?.vehicle_type?.name||(ROUTES.detailLoading?'Loading bus details…':'Model not supplied'))}</p><p class="vehicle-destination">To ${esc(report.destination||journey?.destination||'destination unavailable')}</p><div class="vehicle-status ${live?'recent':''}"><span></span>${status} · ${Number.isFinite(time)?fmtT(time):'time unavailable'}</div>${ROUTES.detailError?`<p class="models-status">${esc(ROUTES.detailError)}</p>`:''}<dl class="vehicle-facts"><div><dt>Fleet number</dt><dd>${esc(vehicle?.fleet_code||vehicle?.fleet_number||b6Fleet(report))}</dd></div><div><dt>Registration</dt><dd>${esc(vehicle?.reg||b6Reg(report)||'Not supplied')}</dd></div><div><dt>Operator</dt><dd>${esc(vehicle?.operator?.name||'Not supplied')}</dd></div><div><dt>Livery</dt><dd class="vehicle-livery">${b6LiveryHTML(source,false)}<span>${esc(b6LiveryLabel(source)||(b6LiveryPreviewCSS(source)?'Unlabelled livery':'Not supplied'))}</span></dd></div>${vehicle?.branding?`<div><dt>Branding</dt><dd>${esc(vehicle.branding)}</dd></div>`:''}${vehicle?.special_features?.length?`<div><dt>Features</dt><dd>${esc(vehicle.special_features.join(' · '))}</dd></div>`:''}</dl>${location||previous?`<section class="vehicle-progress"><h3>On the route</h3>${previous&&stopName(previous)?`<p><small>Last stop</small>${esc(stopName(previous))}</p>`:''}${location?`<p><small>Next reported stop</small>${esc(location)}</p>`:''}</section>`:''}${positions.length?`<details class="vehicle-stops"><summary>Journey stops · ${positions.length}</summary><ol>${positions.map(stop=>`<li ${stop.stop?.atco_code===next?'aria-current="step"':''}><span>${esc(stop.stop?.name||'Bus stop')}</span><time>${esc(routeTime(stop.actual_departure_time||stop.expected_departure_time||stop.aimed_departure_time||stop.aimed_arrival_time))}</time></li>`).join('')}</ol><p class="models-status">Stop times are scheduled unless the feed supplies an actual or expected time.</p></details>`:''}<button class="ghost" id="route-map-models">Today’s models & liveries <span aria-hidden="true">›</span></button><p class="models-status">Positions are reported by bustimes.org and may have moved. ${live?'Reports up to five minutes old are shown as recent.':'This report is over five minutes old; current activity is unconfirmed.'}</p>`;
+ panel.innerHTML=`<div class="vehicle-panel-top"><span class="route-number">${esc(route.line)}</span><button id="route-close-vehicle" class="ghost" aria-label="Close vehicle details">×</button></div><h2>${esc(vehicle?.fleet_code||vehicle?.fleet_number||b6Fleet(report))}</h2><p class="vehicle-model">${esc(vehicle?.vehicle_type?.name||(ROUTES.detailLoading?'Loading bus details…':'Model not supplied'))}</p><p class="vehicle-destination">To ${esc(report.destination||journey?.destination||'destination unavailable')}</p><div class="vehicle-status ${live?'recent':''}"><span></span>${status} · ${Number.isFinite(time)?fmtT(time):'time unavailable'}</div>${ROUTES.detailError?`<p class="models-status">${esc(ROUTES.detailError)}</p>`:''}<dl class="vehicle-facts"><div><dt>Fleet number</dt><dd>${esc(vehicle?.fleet_code||vehicle?.fleet_number||b6Fleet(report))}</dd></div><div><dt>Registration</dt><dd>${esc(vehicle?.reg||b6Reg(report)||'Not supplied')}</dd></div><div><dt>Operator</dt><dd>${esc(vehicle?.operator?.name||'Not supplied')}</dd></div><div><dt>Livery</dt><dd class="vehicle-livery">${b6LiveryHTML(source,false)}<span>${esc(b6LiveryLabel(source)||(b6LiveryPreviewCSS(source)?'Unlabelled livery':'Not supplied'))}</span></dd></div>${vehicle?.branding?`<div><dt>Branding</dt><dd>${esc(vehicle.branding)}</dd></div>`:''}${vehicle?.special_features?.length?`<div><dt>Features</dt><dd>${esc(vehicle.special_features.join(' · '))}</dd></div>`:''}</dl>${progress?`<p class="models-status">Based on the reported journey and last position.${progress.approximate?' Dashed links connect stops where street geometry is missing.':''}</p>`:ROUTES.detailLoading?'':`<p class="models-status">Journey progress unavailable for this report.</p>`}${location||previous?`<section class="vehicle-progress"><h3>On the route</h3>${previous&&stopName(previous)?`<p><small>Last stop</small>${esc(stopName(previous))}</p>`:''}${location?`<p><small>Next reported stop</small>${esc(location)}</p>`:''}</section>`:''}${positions.length?`<details class="vehicle-stops"><summary>Journey stops · ${positions.length}</summary><ol>${positions.map(stop=>`<li ${stop.stop?.atco_code===next?'aria-current="step"':''}><span>${esc(stop.stop?.name||'Bus stop')}</span><time>${esc(routeTime(stop.actual_departure_time||stop.expected_departure_time||stop.aimed_departure_time||stop.aimed_arrival_time))}</time></li>`).join('')}</ol><p class="models-status">Stop times are scheduled unless the feed supplies an actual or expected time.</p></details>`:''}<button class="ghost" id="route-map-models">Today’s models & liveries <span aria-hidden="true">›</span></button><p class="models-status">Positions are reported by bustimes.org and may have moved. ${live?'Reports up to five minutes old are shown as recent.':'This report is over five minutes old; current activity is unconfirmed.'}</p>`;
 }
 function fitRouteView(){
  const state=routeState(),bounds=routeBounds(state);if(!bounds||!W)return;
@@ -1216,23 +1385,16 @@ function fitRouteView(){
 }
 function drawRouteOverlay(path,dot){
  const state=routeState();M.stops=state.stops;
- for(const line of state.lines){path(line);ctx.strokeStyle=isDark()?'#181c1e':'#fff';ctx.lineWidth=8;ctx.stroke();ctx.strokeStyle=isDark()?'#d77369':'#b8483e';ctx.lineWidth=4;ctx.stroke()}
- if(V.z>=14)for(const stop of state.stops){const p=scr(stop.lon,stop.lat);if(p[0]<0||p[0]>W||p[1]<0||p[1]>H)continue;dot(p,4,isDark()?'#1b2021':'#fff',isDark()?'#d77369':'#b8483e',2);M.hits.push({x:p[0],y:p[1],r:11,t:'route-stop',s:stop})}
- for(const report of state.items){
-  const pos=b6Coords(report),p=scr(...pos);if(p[0]<-40||p[0]>W+40||p[1]<-40||p[1]>H+40)continue;
-  const selected=ROUTES.selected===b6Id(report),delayed=Date.now()-b6When(report)>300000;
-  ctx.save();ctx.translate(...p);ctx.fillStyle=delayed?'#777b7b':'#c63f35';ctx.strokeStyle=selected?'#ffe66b':'#fff';ctx.lineWidth=selected?4:2;
-  ctx.beginPath();ctx.roundRect(-15,-15,30,30,7);ctx.fill();ctx.stroke();
-  // A bus silhouette keeps the fleet label optional at wider route scales.
-  ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.strokeRect(-7,-9,14,16);ctx.beginPath();ctx.moveTo(-7,-1);ctx.lineTo(7,-1);ctx.moveTo(-5,7);ctx.lineTo(-5,10);ctx.moveTo(5,7);ctx.lineTo(5,10);ctx.stroke();ctx.fillStyle='#fff';ctx.fillRect(-5,3,2,2);ctx.fillRect(3,3,2,2);
-  if(Number.isFinite(+report.heading)){ctx.rotate(+report.heading*rad);ctx.beginPath();ctx.moveTo(0,-21);ctx.lineTo(-4,-16);ctx.lineTo(4,-16);ctx.closePath();ctx.fill()}
-  ctx.restore();
-  if(V.z>=14.5||selected){const text=b6Fleet(report);ctx.font='600 10px sans-serif';const tw=ctx.measureText(text).width+12;ctx.fillStyle=isDark()?'#25292c':'#fff';ctx.fillRect(p[0]-tw/2,p[1]+20,tw,17);ctx.fillStyle=isDark()?'#fff':'#17191c';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(text,p[0],p[1]+29)}
-  M.hits.push({x:p[0],y:p[1],r:22,t:'route-bus',id:b6Id(report)});
- }
+ const progress=ROUTES.selected?selectedJourneyProgress(ROUTES.journey,ROUTES.selectedReport):null;
+ for(const [index,line]of state.lines.entries()){path(line);ctx.setLineDash(state.lineApproximate?.[index]?[6,5]:[]);ctx.strokeStyle=isDark()?'#182022':'#fff';ctx.lineWidth=progress?6:9;ctx.stroke();ctx.strokeStyle=progress?(isDark()?'#546166':'#bbc1c6'):(isDark()?'#e09a8e':'#b8483e');ctx.lineWidth=progress?2:4.5;ctx.stroke()}
+ ctx.setLineDash([]);
+ if(progress){routeProgressStroke(path,progress.travelled,isDark()?'#9b9fa8':'#7b8492');routeProgressStroke(path,progress.remaining,isDark()?'#4ddd9a':'#087c58',5.5)}
+ if(V.z>=14)for(const stop of state.stops){const p=scr(stop.lon,stop.lat);if(p[0]<0||p[0]>W||p[1]<0||p[1]>H)continue;dot(p,3,isDark()?'#1b2021':'#fff',progress?(isDark()?'#879397':'#8e989e'):(isDark()?'#e09a8e':'#b8483e'),1.5);M.hits.push({x:p[0],y:p[1],r:11,t:'route-stop',s:stop})}
+ renderRouteMarkers(state);
 }
+
 async function showRouteStop(stop){
- ROUTES.selected=null;ROUTES.detailTicket++;$('#route-panel').hidden=true;want();
+ ROUTES.selected=null;ROUTES.detailTicket++;renderRouteVehicle();renderRouteMapControls();want();
  const key=ROUTES.key,route=MODEL_ROUTES[key];const ticket=(ROUTES.stopTicket||0)+1;ROUTES.stopTicket=ticket;
  sheet(`<h3>${esc(stop.name)}</h3><p class="models-status">Loading Route ${esc(route.line)} departures…</p>`);
  try{
@@ -1591,7 +1753,7 @@ function renderModels(){
  if(state.activityErrors&&!state.loading)html+='<p class="models-status">Some GPS histories were unavailable; those entries show journey start times.</p>';
  if(state.expectedError&&!state.loading)html+=`<p class="models-status">The current tracking feed could not be checked.</p>`;
  if(state.predictionsChecked&&!state.loading&&(state.predictionErrors||state.predictionDiscoveryError))html+='<p class="models-status">Some future buses could not be checked. If a livery is missing, refresh or update the proxy Worker from Settings; it must support vehicle and timetable-block pages.</p>';
- html+=`<details class="models-coverage"><summary>About this list</summary><p>Build 25 Oct · route explorer 3</p><p>One entry per named bus model. Each livery is listed once beneath its model, including London services. Livery names describe the current vehicle record and may have changed since a journey.</p><p>${state.historyComplete?'All pages of today’s available journey history have been checked.':'Journey history may be incomplete.'} Missing tracking or model records can leave buses out.</p><p>Active now uses a GPS report from the last five minutes. TfL arrivals also provide expected bus times for London routes. Earlier times use the last recorded position on that route; when it is unavailable, the last journey’s start is labelled explicitly. Times describe the latest bus of that model or livery. “Predicted later” comes from bustimes.org’s vehicle-page predictions, inferred from recent workings and timetable blocks. Timetable blocks are also checked for buses switching in from other routes. Some routes have no block data or future predictions; the app cannot list unreported allocations. Predictions can change and are not operator-confirmed allocations; coverage can still be incomplete. If a refresh fails, an unexpired saved prediction is labelled “Previously predicted”.</p><p>Today uses the Europe/London calendar date. Model names come from bustimes.org; different named variants remain separate.</p></details>`;
+ html+=`<details class="models-coverage"><summary>About this list</summary><p>Build 25 Oct · map liveries & progress 4</p><p>One entry per named bus model. Each livery is listed once beneath its model, including London services. Livery names describe the current vehicle record and may have changed since a journey.</p><p>${state.historyComplete?'All pages of today’s available journey history have been checked.':'Journey history may be incomplete.'} Missing tracking or model records can leave buses out.</p><p>Active now uses a GPS report from the last five minutes. TfL arrivals also provide expected bus times for London routes. Earlier times use the last recorded position on that route; when it is unavailable, the last journey’s start is labelled explicitly. Times describe the latest bus of that model or livery. “Predicted later” comes from bustimes.org’s vehicle-page predictions, inferred from recent workings and timetable blocks. Timetable blocks are also checked for buses switching in from other routes. Some routes have no block data or future predictions; the app cannot list unreported allocations. Predictions can change and are not operator-confirmed allocations; coverage can still be incomplete. If a refresh fails, an unexpired saved prediction is labelled “Previously predicted”.</p><p>Today uses the Europe/London calendar date. Model names come from bustimes.org; different named variants remain separate.</p></details>`;
  view.innerHTML=html;
 }
 
@@ -1812,7 +1974,7 @@ document.addEventListener('click',async e=>{
  if(t.id==='route-fit'){fitRouteView();return}
  if(t.id==='route-zoom-in'){zoomBy(1);return}
  if(t.id==='route-zoom-out'){zoomBy(-1);return}
- if(t.id==='route-close-vehicle'){ROUTES.selected=null;ROUTES.detailTicket++;renderRouteVehicle();want();return}
+ if(t.id==='route-close-vehicle'){ROUTES.selected=null;ROUTES.detailTicket++;renderRouteVehicle();renderRouteMapControls();want();return}
  if(t.id==='route-my-walk'||t.id==='journey-walk-map'||t.id==='journey-bus-map'){ROUTES.mode='journey';ROUTES.selected=null;renderRouteMapControls();go('map');updateMap(true);return}
  if(t.dataset.modelRoute){MODELS.selected=t.dataset.modelRoute;renderModels();loadModels();return}
  if(t.id==='modelsRefresh'){loadModels(MODELS.selected,true);return}
@@ -1851,7 +2013,7 @@ document.addEventListener('click',async e=>{
  }
 });
 document.addEventListener('submit',e=>{if(e.target.id==='route-search-form'){e.preventDefault();searchRoutes()}});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){ROUTES.selected=null;ROUTES.detailTicket++;ROUTES.stopTicket=(ROUTES.stopTicket||0)+1;renderRouteVehicle();$('#sheet').classList.remove('on');want()}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){ROUTES.selected=null;ROUTES.detailTicket++;ROUTES.stopTicket=(ROUTES.stopTicket||0)+1;renderRouteVehicle();renderRouteMapControls();$('#sheet').classList.remove('on');want()}});
 document.addEventListener('input',e=>{const t=e.target;
  if(t.id==='sWalk'){cfg.walkKmh=+t.value;$('#vWalk').textContent=fmtS(cfg.walkKmh);persist();if(S.walk)render()}
  if(t.id==='sBuf'){cfg.buffer=+t.value;$('#vBuf').textContent=cfg.buffer+' min';persist()}
