@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Route 91 · Caledonian Road</title>
+<title>Bus Tracker · Routes 91 &amp; 6</title>
 <meta name="theme-color" content="#070a10">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
@@ -127,6 +127,21 @@ html[data-theme=light] .board-card{background:#fff}html[data-theme=light] .board
 html[data-theme=light] #busCard{background:#fff}
 #view-settings .glass h2,#view-traffic .glass h2{margin-bottom:13px}
 @media(max-width:360px){header.top #wx,header.top .app-heading span{display:none}.app-heading b{font-size:13px}header.top .clock{font-size:12px}#hero .count{font-size:34px}}
+
+/* Sixth bottom tab and GPS-only Bristol fleet viewer */
+nav.tabs{gap:2px;padding:5px}nav.tabs .tab{min-width:0;min-height:59px;font-size:10px;gap:3px;padding:1px}
+nav.tabs .tab svg{width:19px;height:19px}
+.route6-tab-icon{display:flex;width:22px;height:22px;align-items:center;justify-content:center;color:white;background:#167b63;border-radius:7px;font-size:15px;font-weight:850}
+.b6-intro{background:linear-gradient(145deg,#10312e,#111c29 70%);border-color:rgba(90,207,173,.25)}
+.b6-badge{display:flex;align-items:center;justify-content:center;border-radius:15px;background:#0e9a75;color:white;font-size:26px;font-weight:800;width:52px;height:52px;flex:0 0 52px}
+.b6-list{display:flex;flex-direction:column;gap:9px;margin-bottom:18px}
+.b6-vehicle{width:100%;border-radius:20px;display:flex;align-items:center;gap:13px;text-align:left;background:#111e2c;padding:13px 14px;min-height:81px}
+.b6-vehicle-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:12px;background:#0e9a75;color:white;font-size:22px;font-weight:850;flex-shrink:0}
+.b6-vehicle-info{display:flex;flex:1;flex-direction:column;min-width:0;gap:3px}
+.b6-vehicle-info b{font-size:17px}.b6-vehicle-info span{color:var(--mut);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.b6-vehicle-info small{color:var(--ok);font-size:11px}.b6-arrow{font-size:26px;color:var(--mut)}
+html[data-theme=light] .b6-intro{background:#e5f8f0}html[data-theme=light] .b6-vehicle{background:#f6fafb}
+@media(max-width:370px){nav.tabs .tab{font-size:9px}nav.tabs .tab svg{width:18px;height:18px}}
 </style>
 </head>
 <body>
@@ -148,6 +163,7 @@ html[data-theme=light] #busCard{background:#fff}
   <section class="view" id="view-explain" aria-label="Prediction explanation"></section>
   <section class="view" id="view-settings" aria-label="Settings and privacy"></section>
   <section class="view" id="view-pick" aria-label="Select your bus stop"></section>
+  <section class="view" id="view-bristol6" aria-label="Live Route 6 vehicles in Bristol"></section>
  </main>
  <footer class="f">TfL primary · bustimes.org backup<br>Always check the stop display before travelling.</footer>
 </div>
@@ -175,6 +191,7 @@ html[data-theme=light] #busCard{background:#fff}
  <button class="tab" data-go="bus"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="15" rx="3"/><path d="M4 11h16M8 21v-3M16 21v-3"/></svg>Bus</button>
  <button class="tab" data-go="traffic"><svg viewBox="0 0 24 24"><path d="M12 3l10 18H2zM12 10v4M12 17.5v.5"/></svg>Traffic</button>
  <button class="tab" data-go="arrivals"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Arrivals</button>
+ <button class="tab" data-go="bristol6" aria-label="Route 6 Bristol active vehicles"><span class="route6-tab-icon">6</span>Route 6</button>
 </nav>
 
 <script>
@@ -199,7 +216,7 @@ if(cfg.homeVersion!==2){cfg={...cfg,address:DEF_ADDR,stopId:HOME_STOP,startCoord
 const fmtD=m=>cfg.units==='mi'?(m<400?Math.round(m*1.0936)+' yd':(m/1609.34).toFixed(2)+' mi'):(m<1000?Math.round(m)+' m':(m/1000).toFixed(2)+' km');
 const fmtS=k=>cfg.units==='mi'?(k/1.609).toFixed(1)+' mph':k.toFixed(1)+' km/h';
 /* ---------- state ---------- */
-const S={start:null,startLabel:'',stop:null,cands:[],nearby:[],arr:[],arrSource:null,arrMode:null,stopSource:null,backupReason:null,fetchedAt:0,err:null,rate:false,seq:null,walk:null,jp:null,lineStatus:null,roads:[],roadsAt:0,roadsErr:false,inc:[],sched:null,schedFor:null,veh:null,vehId:null,vehErr:null,vArr:null,btGpsAt:0,timingPoints:[],timingFor:null,timingAt:0,traffic:null,trafficErr:null,weather:null,weatherAt:0,demo:false,log:[],view:'overview',passed:null,loading:true,chosen:null,bp:null,notified:{},stopClosed:false,flags:new Set(),srcs:{},geoAlt:[]};
+const S={gps:null,start:null,startLabel:'',stop:null,cands:[],nearby:[],arr:[],arrSource:null,arrMode:null,stopSource:null,backupReason:null,fetchedAt:0,err:null,rate:false,seq:null,walk:null,jp:null,lineStatus:null,roads:[],roadsAt:0,roadsErr:false,inc:[],sched:null,schedFor:null,veh:null,vehId:null,vehErr:null,vArr:null,btGpsAt:0,timingPoints:[],timingFor:null,timingAt:0,traffic:null,trafficErr:null,weather:null,weatherAt:0,demo:false,log:[],view:'overview',passed:null,loading:true,chosen:null,bp:null,notified:{},stopClosed:false,flags:new Set(),srcs:{},geoAlt:[]};
 class ApiErr extends Error{constructor(k,m){super(m||k);this.kind=k}}
 const logE=m=>{S.log.unshift(fmtTS(Date.now())+' '+String(m).replace(/-?\d+\.\d{3,}/g,'•').slice(0,180));S.log.length=Math.min(S.log.length,30)};
 async function api(kind,path,params={},type='json'){
@@ -323,7 +340,7 @@ async function resolveStop(){
 }
 
 async function choose(s){
- S.stop=s;S.arr=[];S.arrSource=null;S.arrMode=null;S.backupReason=null;S.seq=null;S.sched=null;S.schedFor=null;S.fetchedAt=0;S.chosen=null;S.bp=null;S.vArr=null;S.veh=null;S.vehId=null;S.btGpsAt=0;S.timingPoints=[];S.timingFor=null;S.timingAt=0;
+ S.stop=s;S.arr=[];S.arrSource=null;S.arrMode=null;S.backupReason=null;S.seq=null;S.sched=null;S.schedFor=null;S.fetchedAt=0;S.chosen=null;S.bp=null;S.vArr=null;S.veh=null;S.vehId=null;S.gps=null;S.btGpsAt=0;S.timingPoints=[];S.timingFor=null;S.timingAt=0;
  if(cfg.saveAddress){cfg.stopId=s.id;persist()}
  loadWalk();loadSched();loadStopBt();
  if(S.view==='pick')go('overview');
@@ -362,11 +379,38 @@ async function loadVehicle(b){
  if(b.source==='tfl'){
   try{S.vArr=(await api('tfl','/Vehicle/'+encodeURIComponent(vehicleId)+'/Arrivals')).filter(x=>x.lineName==='91').sort((a,c)=>a.timeToStation-c.timeToStation)}catch{S.vArr=null}
  }else S.vArr=null;
- if(S.vehId!==vehicleId){S.vehId=vehicleId;S.veh=null;S.vehErr=null;S.btGpsAt=0;S.timingFor=null;S.timingPoints=[];S.timingAt=0;
+ if(S.vehId!==vehicleId){S.vehId=vehicleId;S.veh=null;S.gps=null;S.vehErr=null;S.btGpsAt=0;S.timingFor=null;S.timingPoints=[];S.timingAt=0;
   try{const j=await api('bt','/api/vehicles/',{reg:vehicleId});const nz=q=>String(q||'').toUpperCase().replace(/[^A-Z0-9]/g,'');const v=(j.results||[]).find(r=>nz(r.reg)===nz(vehicleId));S.veh=v||null;if(!v)S.vehErr='nf'}catch(e){S.vehErr=e.kind||'err'}
  }
- if(S.veh?.id&&S.vehId===vehicleId&&cfg.timing)await loadBtJourneyInfo(S.veh,b.source==='bt');
+ if(S.veh?.id&&S.vehId===vehicleId){
+  await Promise.allSettled([loadBtGPS(S.veh,vehicleId),...(cfg.timing?[loadBtJourneyInfo(S.veh,false)]:[])]);
+ }
 }
+/* bustimes.org's website tracks positions through /vehicles.json?id=ID,
+   refreshed independently of trip/timetable details. Use only a recent, matched
+   fix. The coordinate is a snapshot, not continuous GPS or a TfL prediction. */
+function btVehiclePosition(item,requiredId){
+ const v=item?.vehicle||{};
+ if(String(v.id??item?.vehicle_id??'')!==String(requiredId))return null;
+ const xy=item?.coordinates;
+ const when=Date.parse(item?.datetime||item?.timestamp||'');
+ const age=Date.now()-when;
+ if(!Array.isArray(xy)||xy.length!==2||xy.some(x=>!Number.isFinite(x))||Math.abs(xy[0])>180||Math.abs(xy[1])>90||!Number.isFinite(when)||age< -30000||age>150000)return null;
+ const line=String(item.service?.line_name||item.route_name||'').trim();
+ // Never accidentally use the same vehicle's GPS while it is on a different route.
+ if(line&&line!=='91')return null;
+ if(!S.stop||hav(xy,[S.stop.lon,S.stop.lat])>17000)return null;
+ return{pos:xy.slice(),dist:hav(xy,[S.stop.lon,S.stop.lat]),stopsAway:null,next:null,nextTts:null,estimated:false,gps:true,vehicleId:S.vehId,gpsReadAt:Date.now(),observedAt:when,age,journeyId:item.journey_id||null};
+}
+async function loadBtGPS(vehicle,vehicleId){
+ try{
+  const items=await api('bt','/vehicles.json',{id:vehicle.id});
+  if(S.vehId!==vehicleId||!Array.isArray(items))return;
+  S.gps=items.map(x=>btVehiclePosition(x,vehicle.id)).find(Boolean)||null;
+ }catch(e){if(S.vehId===vehicleId){S.gps=null;logE('bustimes.org live GPS unavailable ('+(e.kind||'network')+')')}}
+}
+function valid91Gps(vehicleId){return S.gps?.vehicleId===vehicleId&&Date.now()-S.gps.observedAt<=150000?S.gps:null}
+
 /* bustimes.org's public API serializer exposes trip.times[].timing_status:
    PTP = principal timing point, OTH = other stop. These are scheduled
    timing points, NOT proof that the bus is holding or will be on time. */
@@ -471,11 +515,11 @@ async function refresh(){
   const pre=pickBus(Date.now());
   if(S.lastVid&&S.arrSource==='tfl'&&!S.arr.find(x=>x.vehicleId===S.lastVid)&&S.lastTts<=150&&!S.demo){S.passed={vid:S.lastVid,at:Date.now()}}
   if(pre?.vehicleId){S.lastVid=pre.vehicleId;S.lastTts=(Date.parse(pre.expectedArrival)-Date.now())/1000}
-  if(!pre?.vehicleId){S.veh=null;S.vehId=null;S.vehErr=null}
+  if(!pre?.vehicleId){S.veh=null;S.vehId=null;S.gps=null;S.vehErr=null}
   if(!S.demo&&pre){
    if(S.arrSource==='tfl'){
-    await Promise.allSettled([ensureSeq(pre.direction),loadVehicle(pre)]);S.bp=busPos(pre);
-   }else{if(!S.bp?.gps||S.bp.vehicleId!==pre.vehicleId||Date.now()-S.bp.gpsReadAt>90000)S.bp=null;if(pre.vehicleId)await loadVehicle(pre)}
+    await Promise.allSettled([ensureSeq(pre.direction),loadVehicle(pre)]);S.bp=valid91Gps(pre.vehicleId)||busPos(pre);
+   }else{if(pre.vehicleId)await loadVehicle(pre);S.bp=valid91Gps(pre.vehicleId)||null}
   }else if(!S.demo&&!S.seq){try{await ensureSeq(null)}catch{}}
   if(!S.demo){await Promise.allSettled([loadRoads(),loadTraffic(),loadWeather()]);computeInc()}
  }finally{busy=false}
@@ -632,7 +676,7 @@ function renderBus(P){
  ${kv('Open-top',/open/i.test(vt.style||'')?'Open-top':null,'live','bustimes.org')}
  ${kv('Current delay',P.sc?(Math.abs(P.sc.diffMin)<1?'On time':Math.round(Math.abs(P.sc.diffMin))+' min '+(P.sc.diffMin>0?'late':'early')):null,'calc','prediction vs TfL timetable')}
  ${kv('Current location',b.currentLocation?esc(b.currentLocation):null,'live',b.source==='bt'?'bustimes.org':'TfL Arrivals')}
- ${kv('Map position',bp?bp.gps?'Recent GPS location':'Between stops (estimated)':null,bp?.gps?'live':'calc',bp?.gps?'bustimes.org vehiclejourneys':'from next-stop prediction')}
+ ${kv('Map position',bp?bp.gps?'GPS snapshot · '+fmtTS(bp.observedAt):'Between stops (estimated)':null,bp?.gps?'live':'calc',bp?.gps?'bustimes.org /vehicles.json; may be delayed':'from next-stop prediction')}
  ${kv('Next stop',bp?.next?esc(bp.next.name)+' in '+Math.round(bp.nextTts)+' s':null,'live','TfL Vehicle arrivals')}
  ${kv('Next timing point',nextTimingPoint()?esc(nextTimingPoint().name):null,'sched','bustimes.org trip · scheduled principal timing point')}
  ${S.timingPoints.length?`<h3 style="margin-top:16px">Published timing points</h3>${S.timingPoints.slice(0,12).map(timingRow).join('')}<p class="small mut">Timing points are scheduled stops, not live reports of a bus holding or its punctuality.</p>`:`<p class="small mut">Principal timing points will appear when bustimes.org links this vehicle to a trip.</p>`}
@@ -643,7 +687,7 @@ function renderTraffic(P){
  const v=$('#view-traffic');let h='<div class="glass"><h2>Traffic conditions</h2>';
  const ls=S.lineStatus;
  h+=ls?ls.map(s=>`<div class="kv"><div class="k">Route 91 service</div><div class="v">${esc(s.statusSeverityDescription)}${s.reason?`<br><span class="small mut">${esc(s.reason)}</span>`:''}<br>${tag('live','TfL Line Status')}</div></div>`).join(''):kv('Route 91 service',null);
- h+=S.traffic?kv('Live traffic delay',S.traffic.delay>0?'+'+mins(S.traffic.delay)+' min':'No extra delay','live',S.traffic.src):`<div class="kv"><div class="k">Live traffic</div><div class="v">${S.trafficErr==='off'?'Turned off':'Speed-based congestion requires an optional provider; TfL road incidents are available below.'}<br>${tag('miss')}${S.trafficErr==='optional'?'<div class="small mut">Add a TomTom key to the Worker for speed-based congestion. TfL road disruptions need no key.</div>':''}</div></div>`;
+ h+=S.traffic?kv('Extra driving delay from traffic provider',S.traffic.delay>0?'+'+mins(S.traffic.delay)+' min':'No reported extra delay','live',S.traffic.src):`<p class="small mut">TfL roadworks, closures and route status are shown below without a traffic-provider key. Speed-based congestion estimates are not included.</p>`;
  h+='</div>';
  h+=`<div class="glass"><h3>Roadworks and incidents ${S.seq?'along Route 91':'near your stop'}</h3>${S.roadsErr?'<p class="mut">TfL road disruption feed unavailable.</p>':!S.inc.length?'<p>No reported disruptions were found along the available route area. This is not a live traffic-speed reading.</p>'+tag('live','TfL Road Disruption'):S.inc.slice(0,12).map(i=>`<div class="kv"><div class="k">${esc(i.cat)}<br><span class="small mut">${esc(i.sev)}${i.ahead?' · ahead':''}</span></div><div class="v">${esc(i.loc||i.text).slice(0,160)}<br><span class="small mut" style="font-weight:500">${esc(i.eff)}</span>${tag('live','TfL')}</div></div>`).join('')}</div>`;
  v.innerHTML=h;
@@ -654,7 +698,7 @@ function renderArrivals(P){
 }
 function renderExplain(P){
  const v=$('#view-explain'),si=stateInfo(P);
- const states=[['Loading',S.loading],['Live',si.k==='live'],['Stale',si.k==='stale'],['Temporarily unavailable',!!S.err],['No buses found',!S.arr.length&&!S.loading],['Bus passed',!!S.passed],['Stop closed',S.stopClosed],['Route disrupted',!!(S.lineStatus&&S.lineStatus.some(x=>x.statusSeverity!==10))],['API rate limit reached',S.rate],['Location unavailable',S.flags.has('location')],['Traffic data unavailable',!S.traffic],['Vehicle details unavailable',!S.veh]];
+ const states=[['Loading',S.loading],['Live',si.k==='live'],['Stale',si.k==='stale'],['Temporarily unavailable',!!S.err],['No buses found',!S.arr.length&&!S.loading],['Bus passed',!!S.passed],['Stop closed',S.stopClosed],['Route disrupted',!!(S.lineStatus&&S.lineStatus.some(x=>x.statusSeverity!==10))],['API rate limit reached',S.rate],['Location unavailable',S.flags.has('location')],['TfL incident feed unavailable',S.roadsErr],['Vehicle details unavailable',!S.veh]];
  let h='<div class="glass"><h2>How this estimate is made</h2>';
  if(!P)h+='<p>No bus to explain yet.</p>';else{
   h+=`<p style="font-size:17px">${P.text.map(esc).join(' ')}</p></div>
@@ -663,7 +707,7 @@ function renderExplain(P){
   ${kv('Safety buffer',cfg.buffer+' min','calc','your setting')}
   ${kv(P.timetableOnly?'Scheduled departure':'Expected arrival',fmtT(P.exp0),S.demo?'demo':P.timetableOnly?'sched':'live',S.arrSource==='bt'?'bustimes.org':'TfL Arrivals')}
   ${kv('Delay vs timetable',P.sc?(Math.round(P.sc.diffMin*10)/10)+' min (already inside the prediction)':null,'calc','TfL Timetable')}
-  ${kv('Traffic adjustment',S.traffic?'+'+mins(P.tAdj)+' min':null,'calc',S.traffic?S.traffic.src:'')}
+  ${kv('Traffic adjustment','None added to the bus prediction','calc','TfL ETA already accounts for expected delays')}
   ${kv('Stops before yours',S.bp?S.bp.stopsAway:null,'calc','TfL route sequence')}
   ${kv('Dwell time per stop','Already inside TfL\u2019s prediction; not added again','hist','')}
   ${kv('Timing-point behaviour',null)}
@@ -675,7 +719,7 @@ function renderExplain(P){
  <p class="small mut" style="margin-top:10px">Labels: ${tag('live')} from a live API · ${tag('calc')} computed by this app · ${tag('hist')} an assumption · ${tag('miss')} not supplied · ${tag('demo')} fake demonstration data.</p></div>`;
  v.innerHTML=h;
 }
-const WORKER=String.raw`/* Optional Cloudflare Worker for the Route 91 PWA.
+const WORKER=String.raw`/* Optional Cloudflare Worker for the Routes 91 and 6 PWA.
    Bind ALLOWED_ORIGIN to your HTTPS site's origin, e.g. https://example.pages.dev
    Secrets TFL_KEY and TOMTOM_KEY are optional. */
 export default {
@@ -745,9 +789,115 @@ function renderSettings(){
  <div class="glass"><h2>Install on iPhone</h2><p class="small mut">Host these files on an HTTPS website, open in iPhone Safari, tap Share → Add to Home Screen, and select Open as Web App. The tracker then opens like an app instead of in an HTML viewer.</p></div>
  <div class="glass"><h2>Proxy &amp; API keys</h2><p class="small mut">A single HTML file cannot keep a secret. Without a proxy, TfL is called directly without a key. bustimes.org may block direct browser requests because of CORS. For reliable automatic fallback, deploy the Worker below and paste its URL. Never place a key in this page.</p>
  <input type="url" id="sProxy" placeholder="https://your-proxy.workers.dev" value="${esc(cfg.proxy)}" aria-label="Proxy URL"><div class="row" style="margin-top:10px"><button id="bProxy">Save proxy URL</button><button id="bCopy" class="ghost">Copy Worker code</button></div>
- <p class="small mut">Cloudflare Worker secrets (optional): TFL_KEY and TOMTOM_KEY. Restrict CORS to your own website when deploying publicly.</p><pre>${esc(WORKER)}</pre></div>
+ <p class="small mut">The Worker needs no paid API keys for bustimes.org GPS or TfL road incidents. TFL_KEY is optional. TOMTOM_KEY is needed only if you want separate driving-speed congestion data. Restrict CORS to your own website.</p><pre>${esc(WORKER)}</pre></div>
  <div class="glass"><h3>Error log (no addresses)</h3><pre>${esc(S.log.join('\n')||'No errors.')}</pre></div>`;
 }
+/* Bristol Route 6: City Centre (The Centre) ⇄ Kingswood (Cecil Road).
+   Service slug verified from bustimes.org's website. No map is used here. */
+const ROUTE6_SLUG='6-the-centre-c4-cecil-road-or-teewell-hill';
+const B6={serviceId:null,items:[],loadedAt:0,loading:false,error:null,selected:null,details:null,journey:null,detailError:null,detailLoading:false};
+const b6Id=x=>x?.vehicle?.id??x?.vehicle_id??null;
+const b6When=x=>Date.parse(x?.datetime||x?.timestamp||'');
+const b6Fleet=x=>String(x?.vehicle?.fleet_code||x?.vehicle?.fleet_number||x?.vehicle?.reg||'Unknown vehicle');
+function b6Fresh(x){const ts=b6When(x),dt=Date.now()-ts;return Number.isFinite(ts)&&dt>=-30000&&dt<180000&&Array.isArray(x?.coordinates)&&x.coordinates.length===2&&x.coordinates.every(Number.isFinite)}
+async function loadBristol6(force=false){
+ if(B6.loading||(!force&&Date.now()-B6.loadedAt<18000))return;
+ B6.loading=true;B6.error=null;if(S.view==='bristol6')render();
+ try{
+  if(!B6.serviceId){
+   const result=await api('bt','/api/services/',{slug:ROUTE6_SLUG});
+   const matches=Array.isArray(result)?result:(result.results||[]);
+   const service=matches.find(x=>x.slug===ROUTE6_SLUG&&String(x.line_name).trim()==='6');
+   if(!service?.id)throw new ApiErr('nf','Bristol Route 6 service was not found in bustimes.org');
+   B6.serviceId=service.id;
+  }
+  const live=await api('bt','/vehicles.json',{service:B6.serviceId});
+  if(!Array.isArray(live))throw new ApiErr('format','Live tracking returned invalid data');
+  // bustimes already filters this request by service ID. Keep only fresh positions;
+  // do not turn timetable allocations or historical journeys into active vehicles.
+  const unique=new Map();
+  for(const x of live.filter(b6Fresh)){
+   const id=b6Id(x);if(id==null)continue;
+   const old=unique.get(String(id));if(!old||b6When(x)>b6When(old))unique.set(String(id),x);
+  }
+  B6.items=[...unique.values()].sort((a,b)=>b6Fleet(a).localeCompare(b6Fleet(b),undefined,{numeric:true}));
+  B6.loadedAt=Date.now();
+  if(B6.selected){
+   const newItem=B6.items.find(x=>String(b6Id(x))===String(B6.selected));
+   B6.selectedLive=newItem||null;
+  }
+ }catch(e){B6.error=e.kind==='net'?'Cannot reach bustimes.org. Check your Worker URL in Settings.':e.message||'Route 6 tracking unavailable';}
+ finally{B6.loading=false;if(S.view==='bristol6')render()}
+}
+async function chooseBristol6(id){
+ B6.selected=String(id);B6.selectedLive=B6.items.find(x=>String(b6Id(x))===B6.selected)||null;
+ B6.details=null;B6.journey=null;B6.detailError=null;B6.detailLoading=true;renderBristol6();
+ const current=B6.selected;
+ const live=B6.selectedLive;
+ const results=await Promise.allSettled([
+  api('bt','/api/vehicles/'+encodeURIComponent(current)+'/'),
+  live?.journey_id?api('bt','/api/vehiclejourneys/'+encodeURIComponent(live.journey_id)+'/details/'):Promise.resolve(null)
+ ]);
+ if(B6.selected!==current)return;
+ B6.details=results[0].status==='fulfilled'?results[0].value:null;
+ B6.journey=results[1].status==='fulfilled'?results[1].value:null;
+ B6.detailLoading=false;
+ if(!B6.details)B6.detailError='Vehicle records unavailable. GPS tracking may still be available.';
+ renderBristol6();
+}
+function renderBristol6(){
+ const v=$('#view-bristol6');if(!v)return;
+ let html=`<div class="glass b6-intro"><div class="row"><span class="b6-badge">6</span><div><h2>Bristol · Route 6</h2><p class="small mut">The Centre ↔ Kingswood, Cecil Road</p></div></div>
+ <p class="small mut" style="margin-top:12px">Only buses with a recent bustimes.org GPS report are listed. A missing bus may still be running without tracking.</p>
+ <div class="row wrap" style="margin-top:12px"><span class="chip ${B6.items.length?'ok':''}"><i class="dot"></i>${B6.loading?'Checking…':B6.error?'Data unavailable':B6.items.length+' tracked'}</span>
+ <span class="small mut">${B6.loadedAt?'Checked '+fmtTS(B6.loadedAt):'Not loaded yet'}</span><div class="sp"></div><button id="b6Refresh" style="min-height:40px">↻ Refresh</button></div></div>`;
+ if(B6.error)html+=`<div class="banner warn">${esc(B6.error)} <span class="small">This list requires bustimes.org and may need the configured Worker in Safari.</span></div>`;
+ if(B6.selected){
+  const l=B6.selectedLive||{},x=B6.details||{},vt=x.vehicle_type||{},tm=B6.journey?.trip||{};
+  const fld=(name,val,origin)=>kv(name,val==null||val===''?null:esc(Array.isArray(val)?val.join(', '):val),val!=null?'live':null,origin);
+  const age=Number.isFinite(b6When(l))?Math.max(0,Math.round((Date.now()-b6When(l))/1000)):null;
+  const desc=(B6.journey?.trip?.times||[]).filter(t=>t.timing_status==='PTP').slice(0,10);
+  html+=`<div class="glass"><button id="b6Back" class="ghost" style="min-height:42px;margin-bottom:12px">‹ All Route 6 buses</button>
+  <h2>${esc(x.fleet_code||x.fleet_number||l.vehicle?.fleet_code||l.vehicle?.reg||'Vehicle '+B6.selected)}</h2>
+  <p class="small mut">${esc(x.reg||l.vehicle?.reg||'Registration unavailable')} · ${B6.detailLoading?'Loading details…':'Full vehicle details'}</p>
+  ${B6.detailError?`<p class="banner warn">${esc(B6.detailError)}</p>`:''}
+  ${fld('Registration',x.reg||l.vehicle?.reg,'bustimes.org vehicle record')}
+  ${fld('Fleet code',x.fleet_code||l.vehicle?.fleet_code,'bustimes.org')}
+  ${fld('Fleet number',x.fleet_number,'bustimes.org')}
+  ${fld('Previous registration',x.previous_reg,'bustimes.org')}
+  ${fld('Vehicle model',vt.name||l.vehicle?.vehicle_type,'bustimes.org')}
+  ${fld('Body / style',vt.style,'bustimes.org')}
+  ${fld('Fuel',vt.fuel,'bustimes.org')}
+  ${fld('Electric',typeof vt.electric==='boolean'?(vt.electric?'Yes':'No'):null,'bustimes.org')}
+  ${fld('Double-decker',typeof vt.double_decker==='boolean'?(vt.double_decker?'Yes':'No'):null,'bustimes.org')}
+  ${fld('Operator',x.operator?.name||l.vehicle?.operator?.name,'bustimes.org vehicle record')}
+  ${fld('Garage',x.garage?.name,'bustimes.org')}
+  ${fld('Livery',x.livery?.name,'bustimes.org')}
+  ${fld('Branding',x.branding,'bustimes.org')}
+  ${fld('Features',x.special_features,'bustimes.org')}
+  ${fld('Current route',l.service?.line_name||l.route_name,'bustimes.org live tracking')}
+  ${fld('Destination',l.destination||l.destination_name||tm.headsign,'bustimes.org')}
+  ${fld('GPS recorded at',l.datetime?fmtTS(Date.parse(l.datetime)):null,'bustimes.org GPS')}
+  ${fld('Position age',age!=null?age+' seconds':null,'bustimes.org GPS snapshot')}
+  ${fld('Last GPS coordinates',Array.isArray(l.coordinates)?l.coordinates[1].toFixed(5)+', '+l.coordinates[0].toFixed(5):null,'bustimes.org; no map')}
+  ${fld('Journey ID',l.journey_id,'bustimes.org')}
+  ${fld('Published timing points',desc.length?desc.map(t=>t.stop?.name||'Unnamed stop').join(' · '):null,'bustimes.org timetable')}
+  ${fld('Notes',x.notes,'bustimes.org')}
+  ${fld('Withdrawn',typeof x.withdrawn==='boolean'?(x.withdrawn?'Yes':'No'):null,'bustimes.org')}
+  ${!B6.selectedLive?'<p class="banner warn">This vehicle is no longer reporting a fresh GPS location.</p>':''}
+  <p class="small mut" style="margin-top:12px">GPS fixes may be delayed. This is a vehicle listing, not a real-time arrival prediction.</p>
+  </div>`;
+ }else if(!B6.items.length){
+  html+=`<div class="glass"><h3>${B6.loading?'Loading buses…':B6.error?'Unable to load vehicles':'No buses currently reporting GPS'}</h3><p class="mut">Only recently tracked Route 6 vehicles are included. Use Refresh to try again.</p></div>`;
+ }else{
+  html+=`<div class="b6-list">${B6.items.map(x=>{
+   const id=b6Id(x),fleet=b6Fleet(x),age=Math.max(0,Math.round((Date.now()-b6When(x))/1000));
+   return `<button class="b6-vehicle" data-b6-id="${esc(id)}" aria-label="Details for ${esc(fleet)}"><div class="b6-vehicle-icon">6</div><div class="b6-vehicle-info"><b>${esc(fleet)}</b><span>${esc(x.vehicle?.reg||'Registration not supplied')} · ${esc(x.destination||x.destination_name||'Route 6')}</span><small>GPS report ${age} s ago</small></div><span aria-hidden="true" class="b6-arrow">›</span></button>`;
+  }).join('')}</div>`;
+ }
+ v.innerHTML=html;
+}
+
 function renderPick(){
  const v=$('#view-pick');
  v.innerHTML=`<div class="glass"><h2>Which stop?</h2><p class="mut">${S.cands.filter(s=>s.letter==='A').length>1?'More than one Bus Stop A serves Route 91 nearby.':'We could not find exactly one Stop A, so please choose.'} Confirmed start: <b>${esc(S.startLabel)}</b></p></div>
@@ -756,9 +906,9 @@ function renderPick(){
 }
 function render(){
  const P=calc();const si=stateInfo(P);
- $('#statchip').innerHTML=`<span class="chip ${si.c}"><i class="dot"></i>${si.l}</span>`;
+ $('#statchip').innerHTML=S.view==='bristol6'?`<span class="chip ${B6.error?'bad':B6.items.length?'ok live':''}"><i class="dot"></i>${B6.loading?'Loading':B6.error?'Offline':B6.items.length+' buses'}</span>`:`<span class="chip ${si.c}"><i class="dot"></i>${si.l}</span>`;
  const w=$('#wx');w.textContent=S.weather?`${Math.round(S.weather.temperature_2m)}°C · ${WX(S.weather.weather_code)}`:'';
- ({overview:renderOverview,bus:renderBus,traffic:renderTraffic,arrivals:renderArrivals,explain:renderExplain,settings:renderSettings,pick:renderPick}[S.view]||(()=>{}))(P);
+ ({overview:renderOverview,bus:renderBus,traffic:renderTraffic,arrivals:renderArrivals,bristol6:renderBristol6,explain:renderExplain,settings:renderSettings,pick:renderPick}[S.view]||(()=>{}))(P);
  if(S.view==='map')mapSheetRefresh();
  notifyCheck(P);
 }
@@ -768,6 +918,8 @@ function applyView(v){
  $$('.view').forEach(e=>e.classList.toggle('on',e.id==='view-'+v));S.view=v;
  $$('.tab').forEach(t=>t.setAttribute('aria-current',t.dataset.go===v?'page':'false'));
  $('#app').style.visibility=v==='map'?'hidden':'visible';
+ const br=v==='bristol6';$('.app-mark').textContent=br?'6':'91';$('.app-mark').style.background=br?'#0e9a75':'';$('.app-heading b').textContent=br?'Route 6':'Route 91';$('.app-heading span').textContent=br?'Bristol · Kingswood':'Caledonian Road · Stop A';$('footer.f').innerHTML=br?'Vehicle positions · bustimes.org<br>GPS fixes may be delayed.':'TfL primary · bustimes.org backup<br>Always check the stop display before travelling.';
+ if(br)loadBristol6();
  render();mapOn=v==='map';if(v==='map'){initMap();setTimeout(()=>{mapResize();updateMap(true)},60)}else window.scrollTo(0,0);
 }
 function go(v,morph){
@@ -889,15 +1041,18 @@ async function showStopSheet(id,name,letter){
 }
 /* ---------- events ---------- */
 document.addEventListener('click',async e=>{
- const t=e.target.closest('button,[data-go],[data-pick],[data-geo]');if(!t)return;
+ const t=e.target.closest('button,[data-go],[data-pick],[data-geo],[data-b6-id]');if(!t)return;
  if(t.dataset.go){go(t.dataset.go);return}
+ if(t.dataset.b6Id){await chooseBristol6(t.dataset.b6Id);return}
  if(t.id==='busCard'){go('map',true);return}
  if(t.dataset.pick!=null){await choose(S.cands[+t.dataset.pick]);return}
  if(t.dataset.geo){const g=S.geoAlt[+t.dataset.geo];S.start=[g.lon,g.lat];S.startLabel=g.label;S.geoAlt=[g,...S.geoAlt.filter(x=>x!==g)];await resolveStop();render();return}
  if(t.dataset.follow){cfg.followVid=cfg.followVid===t.dataset.follow?null:t.dataset.follow;persist();render();refresh();return}
  if(t.dataset.usestop){const s=S.nearby.find(x=>x.id===t.dataset.usestop);if(s){await choose(s);$('#sheet').classList.remove('on');toast('Now tracking '+s.name)}return}
  switch(t.id){
-  case 'btnRefresh':case 'bRefresh':toast('Refreshing…');S.weatherAt=0;S.roadsAt=0;await refresh();break;
+  case 'btnRefresh':case 'bRefresh':if(S.view==='bristol6'){B6.loadedAt=0;await loadBristol6(true)}else{toast('Refreshing…');S.weatherAt=0;S.roadsAt=0;await refresh()}break;
+  case 'b6Refresh':B6.loadedAt=0;await loadBristol6(true);break;
+  case 'b6Back':B6.selected=null;B6.details=null;B6.journey=null;renderBristol6();break;
   case 'retryBoot':S.bootErr=null;S.err=null;boot();break;
   case 'btnSettings':go('settings');break;
   case 'demoOn':S.demo=true;S.err=null;if(!S.stop){S.stop={id:'demo',name:'Bus Stop A (DEMO)',letter:'A',lat:0,lon:0,lines:['91']};S.walk={dist:320,geom:[[0,0],[0,0]],src:'Demo value',live:false}}refresh();break;
@@ -948,9 +1103,9 @@ async function boot(){
 }
 applyTheme();pwa();
 matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',applyTheme);
-addEventListener('online',()=>refresh());addEventListener('offline',render);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});
-setInterval(tick,1000);setInterval(()=>refresh(),20000);tick();
+addEventListener('online',()=>{if(S.view==='bristol6')loadBristol6(true);else refresh()});addEventListener('offline',render);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(S.view==='bristol6')loadBristol6(true);else refresh()}});
+setInterval(tick,1000);setInterval(()=>{if(S.view==='bristol6')loadBristol6(true);else refresh()},20000);tick();
 boot();
 })();
 </script>
