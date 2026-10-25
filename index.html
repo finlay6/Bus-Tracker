@@ -139,7 +139,14 @@ nav.tabs .tab svg{width:19px;height:19px}
 .b6-vehicle-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:12px;background:#0e9a75;color:white;font-size:22px;font-weight:850;flex-shrink:0}
 .b6-vehicle-info{display:flex;flex:1;flex-direction:column;min-width:0;gap:3px}
 .b6-vehicle-info b{font-size:17px}.b6-vehicle-info span{color:var(--mut);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.b6-vehicle-info small{color:var(--ok);font-size:11px}.b6-arrow{font-size:26px;color:var(--mut)}
+.b6-vehicle-info small{color:var(--ok);font-size:11px}
+.b6-vehicle-right{display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:auto}
+.b6-livery-mini{display:flex;flex-direction:column;align-items:flex-end;gap:4px;min-width:72px}
+.b6-livery-chip{font-size:10px;line-height:1.2;color:var(--mut);max-width:92px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
+.b6-livery-swatch{width:68px;height:22px;border-radius:8px;border:1px solid var(--line);background:linear-gradient(90deg,#314155,#1a2737);box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+.b6-livery-swatch.large{width:112px;height:28px;border-radius:10px;vertical-align:middle}
+.b6-livery-caption{display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap}
+.b6-arrow{font-size:26px;color:var(--mut)}
 html[data-theme=light] .b6-intro{background:#e5f8f0}html[data-theme=light] .b6-vehicle{background:#f6fafb}
 @media(max-width:370px){nav.tabs .tab{font-size:9px}nav.tabs .tab svg{width:18px;height:18px}}
 </style>
@@ -795,7 +802,7 @@ function renderSettings(){
 /* Bristol Route 6, tracking only. bustimes live data is an imperfect GPS
    snapshot: always separate fresh, delayed, empty and inaccessible feeds. */
 const ROUTE6_SLUG='6-the-centre-c4-cecil-road-or-teewell-hill';
-const B6={serviceId:null,items:[],delayed:[],received:0,usable:0,invalid:0,source:'',loadedAt:0,loading:false,error:null,selected:null,selectedLive:null,details:null,journey:null,detailError:null,detailLoading:false};
+const B6={serviceId:null,items:[],delayed:[],received:0,usable:0,invalid:0,source:'',loadedAt:0,loading:false,error:null,selected:null,selectedLive:null,details:null,journey:null,detailError:null,detailLoading:false,cache:{},cacheLoading:new Set()};
 /* /vehicles.json embeds a lightweight vehicle {url,name,...}, NOT necessarily
    vehicle.id. See bustimes.org Vehicle.get_json(). Never discard a GPS report
    just because the numeric database ID isn't included. */
@@ -833,6 +840,35 @@ function b6Fleet(x){
  const name=String(v.name||x?.vehicle_name||'').trim();
  const fleet=name.split(/\s+[-–]\s+/)[0];
  return String(v.fleet_code||v.fleet_number||fleet||b6Reg(x)||'Vehicle '+(b6Id(x)??'?'));
+}
+function b6LiveryData(source){
+ const l=source?.livery||null;
+ if(!l)return null;
+ return {
+  name:l.name||'',
+  left:l.left_css||l.left||'',
+  right:l.right_css||l.right||''
+ };
+}
+function b6LiveryHTML(source,large=false){
+ const l=b6LiveryData(source);
+ const cls='b6-livery-swatch'+(large?' large':'');
+ if(!l)return `<span class="${cls}" title="Livery unavailable"></span>`;
+ const bg=l.right&&l.right!==l.left?`linear-gradient(90deg, ${l.left||'#314155'} 0 50%, ${l.right} 50% 100%)`:(l.left||l.right||'#314155');
+ return `<span class="${cls}" title="${esc(l.name||'Livery')}" style="background:${esc(bg)}"></span>`;
+}
+function b6LiveryLabel(source){const l=b6LiveryData(source);return l?.name||null}
+async function b6PrimeListDetails(records){
+ const todo=records.filter(x=>{const id=String(b6Id(x)||'');return id&&!B6.cache[id]&&!B6.cacheLoading.has(id)}).slice(0,12);
+ if(!todo.length)return;
+ await Promise.allSettled(todo.map(async x=>{
+  const id=String(b6Id(x)||'');
+  if(!id)return;
+  B6.cacheLoading.add(id);
+  try{B6.cache[id]=await b6FetchVehicle(x)}catch(e){if(!B6.cache[id])B6.cache[id]={_error:e?.kind||'err'}}
+  finally{B6.cacheLoading.delete(id)}
+ }));
+ if(S.view==='bristol6'&&!B6.selected)renderBristol6();
 }
 function b6Coords(x){
  const c=x?.coordinates||x?.location?.coordinates;
@@ -899,6 +935,7 @@ async function loadBristol6(force=false){
   if(B6.selected){
    B6.selectedLive=[...B6.items,...B6.delayed].find(x=>String(b6Id(x))===String(B6.selected))||null;
   }
+  b6PrimeListDetails([...B6.items,...B6.delayed]);
  }catch(e){
   B6.error=e.kind==='net'?'bustimes.org request blocked or offline. On iPhone, set your Cloudflare Worker URL in Settings.':e.kind==='http'?'bustimes.org/Worker returned HTTP '+e.message+'. Check the Worker URL in Settings.':e.message||'Route 6 tracking unavailable';
   B6.items=[];B6.delayed=[];B6.received=0;B6.usable=0;B6.invalid=0;B6.source='';
@@ -931,6 +968,7 @@ async function chooseBristol6(id){
  ]);
  if(B6.selected!==current)return;
  B6.details=results[0].status==='fulfilled'?results[0].value:null;
+ if(B6.details&&B6.selected)B6.cache[String(B6.selected)]=B6.details;
  B6.journey=results[1].status==='fulfilled'?results[1].value:null;
  B6.detailLoading=false;
  if(!B6.details)B6.detailError='Full vehicle records unavailable. The GPS report is still shown.';
@@ -965,7 +1003,7 @@ function renderBristol6(){
   ${fld('Double-decker',typeof vt.double_decker==='boolean'?(vt.double_decker?'Yes':'No'):null,'bustimes.org')}
   ${fld('Operator',x.operator?.name||l.vehicle?.operator?.name,'bustimes.org vehicle record')}
   ${fld('Garage',x.garage?.name,'bustimes.org')}
-  ${fld('Livery',x.livery?.name,'bustimes.org')}
+  ${kv('Livery',x.livery?`<span class="b6-livery-caption"><span>${esc(x.livery?.name||'Unnamed livery')}</span>${b6LiveryHTML(x,true)}</span>`:null,'live','bustimes.org')}
   ${fld('Branding',x.branding,'bustimes.org')}
   ${fld('Features',x.special_features,'bustimes.org')}
   ${fld('Current route',l.service?.line_name||l.route_name,'bustimes.org live tracking')}
@@ -984,7 +1022,9 @@ function renderBristol6(){
   const vehicleButtons=(arr,delayed)=>arr.map(x=>{
    const id=b6Id(x),fleet=b6Fleet(x),age=Math.max(0,Math.round(b6Age(x)/60000));
    const dest=String(x.destination||x.destination_name||'Route 6');
-   return `<button class="b6-vehicle" data-b6-id="${esc(id)}" aria-label="Details for ${esc(fleet)}"><div class="b6-vehicle-icon">6</div><div class="b6-vehicle-info"><b>${esc(fleet)}</b><span>${esc(b6Reg(x)||'Registration unavailable')} · ${esc(dest)}</span><small>${delayed?'Delayed GPS · last seen':'GPS recorded'} ${age} min ago</small></div><span aria-hidden="true" class="b6-arrow">›</span></button>`;
+   const cache=B6.cache[String(id)]||null;
+   const livName=b6LiveryLabel(cache)||'Livery';
+   return `<button class="b6-vehicle" data-b6-id="${esc(id)}" aria-label="Details for ${esc(fleet)}"><div class="b6-vehicle-icon">6</div><div class="b6-vehicle-info"><b>${esc(fleet)}</b><span>${esc(b6Reg(x)||'Registration unavailable')} · ${esc(dest)}</span><small>${delayed?'Delayed GPS · last seen':'GPS recorded'} ${age} min ago</small></div><div class="b6-vehicle-right"><div class="b6-livery-mini">${b6LiveryHTML(cache,false)}<span class="b6-livery-chip">${esc(livName)}</span></div><span aria-hidden="true" class="b6-arrow">›</span></div></button>`;
   }).join('');
   if(B6.items.length)html+=`<div class="b6-list">${vehicleButtons(B6.items,false)}</div>`;
   if(B6.delayed.length)html+=`<div class="glass"><h3>Delayed GPS · not confirmed active</h3><p class="small mut">These buses reported 5–30 minutes ago. They might still be in service.</p>${vehicleButtons(B6.delayed,true)}</div>`;
