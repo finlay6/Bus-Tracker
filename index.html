@@ -796,17 +796,47 @@ function renderSettings(){
    snapshot: always separate fresh, delayed, empty and inaccessible feeds. */
 const ROUTE6_SLUG='6-the-centre-c4-cecil-road-or-teewell-hill';
 const B6={serviceId:null,items:[],delayed:[],received:0,usable:0,invalid:0,source:'',loadedAt:0,loading:false,error:null,selected:null,selectedLive:null,details:null,journey:null,detailError:null,detailLoading:false};
-const b6Id=x=>x?.vehicle?.id??x?.vehicle_id??x?.vehicleId??null;
+/* /vehicles.json embeds a lightweight vehicle {url,name,...}, NOT necessarily
+   vehicle.id. See bustimes.org Vehicle.get_json(). Never discard a GPS report
+   just because the numeric database ID isn't included. */
+function b6Slug(x){
+ const url=String(x?.vehicle?.url||x?.vehicle?.href||'');
+ const m=url.match(/(?:^|\/)vehicles\/([^/?#]+)(?:[/?#]|$)/);
+ return m?decodeURIComponent(m[1]):null;
+}
+function b6Id(x){
+ const v=x?.vehicle||{};
+ const id=(v.id??x?.vehicle_id??x?.vehicleId);
+ if(id!=null&&String(id).trim())return 'id:'+id;
+ const slug=b6Slug(x);if(slug)return 'slug:'+slug;
+ const name=v.name||v.reg||x?.vehicle_name;
+ if(name)return 'name:'+String(name).trim().toUpperCase();
+ if(x?.journey_id!=null)return 'journey:'+x.journey_id;
+ return null;
+}
+function b6Reg(x){
+ const v=x?.vehicle||{};
+ if(v.reg)return String(v.reg).toUpperCase();
+ const name=String(v.name||x?.vehicle_name||'').toUpperCase();
+ // The map feed often gives a combined fleet + registration display name.
+ const reg=name.match(/\b[A-Z]{2}\s?\d{2}\s?[A-Z]{3}\b/);
+ return reg?reg[0].replace(/\s/g,''):null;
+}
 function b6When(x){
- const t=x?.datetime??x?.timestamp??x?.recorded_at??x?.recordedAt;
+ const t=x?.datetime??x?.timestamp??x?.recorded_at??x?.recordedAt??x?.time;
  if(typeof t==='number')return t<1e11?t*1000:t;
  if(typeof t==='string'&&/^\d{10,13}$/.test(t))return +t<1e11?+t*1000:+t;
  return Date.parse(t||'');
 }
-const b6Fleet=x=>String(x?.vehicle?.fleet_code||x?.vehicle?.fleet_number||x?.vehicle?.reg||'Vehicle '+(b6Id(x)??'?'));
+function b6Fleet(x){
+ const v=x?.vehicle||{};
+ const name=String(v.name||x?.vehicle_name||'').trim();
+ const fleet=name.split(/\s+[-–]\s+/)[0];
+ return String(v.fleet_code||v.fleet_number||fleet||b6Reg(x)||'Vehicle '+(b6Id(x)??'?'));
+}
 function b6Coords(x){
- const c=x?.coordinates;
- const a=Array.isArray(c)?c:(x?.longitude!=null&&x?.latitude!=null?[x.longitude,x.latitude]:null);
+ const c=x?.coordinates||x?.location?.coordinates;
+ const a=Array.isArray(c)?c:(x?.longitude!=null&&x?.latitude!=null?[x.longitude,x.latitude]:(x?.lon!=null&&x?.lat!=null?[x.lon,x.lat]:null));
  const r=a?.map(Number);
  return r?.length===2&&r.every(Number.isFinite)&&Math.abs(r[0])<=180&&Math.abs(r[1])<=90?r:null;
 }
@@ -814,8 +844,8 @@ function b6Age(x){return Date.now()-b6When(x)}
 function b6Group(x){
  const age=b6Age(x);
  if(b6Id(x)==null||!b6Coords(x)||!Number.isFinite(age)||age< -120000)return 'invalid';
- if(age<=300000)return 'fresh';             // GPS no older than 5 minutes
- if(age<=1800000)return 'delayed';          // 5–30 minutes: show, but not live
+ if(age<=300000)return 'fresh';            // GPS no older than 5 minutes
+ if(age<=1800000)return 'delayed';          // 5–30 minutes: not confirmed active
  return 'old';
 }
 function b6MatchesRoute(x){
@@ -864,7 +894,7 @@ async function loadBristol6(force=false){
   B6.items=records.filter(x=>b6Group(x)==='fresh').sort((a,b)=>b6Fleet(a).localeCompare(b6Fleet(b),undefined,{numeric:true}));
   B6.delayed=records.filter(x=>b6Group(x)==='delayed').sort((a,b)=>b6When(b)-b6When(a));
   B6.usable=B6.items.length+B6.delayed.length;
-  B6.invalid=records.length-B6.usable;
+  B6.invalid=live.length-B6.usable; // includes old, invalid and duplicate GPS reports
   B6.loadedAt=Date.now();
   if(B6.selected){
    B6.selectedLive=[...B6.items,...B6.delayed].find(x=>String(b6Id(x))===String(B6.selected))||null;
@@ -875,20 +905,35 @@ async function loadBristol6(force=false){
   logE('Route 6: '+B6.error);
  }finally{B6.loading=false;if(S.view==='bristol6')render()}
 }
+/* The live map's vehicle URL holds a slug. The public vehicle API can
+   filter by slug, so detail lookups work even without a numeric ID. */
+async function b6FetchVehicle(x){
+ const v=x?.vehicle||{};
+ const numericId=v.id??x?.vehicle_id??x?.vehicleId;
+ if(numericId!=null&&/^\d+$/.test(String(numericId))){
+  return api('bt','/api/vehicles/'+encodeURIComponent(numericId)+'/');
+ }
+ const slug=b6Slug(x),reg=b6Reg(x);
+ const params=slug?{slug}:(reg?{reg}:null);
+ if(!params)throw new ApiErr('nf','No vehicle record reference was supplied');
+ const j=await api('bt','/api/vehicles/',params);
+ const list=Array.isArray(j)?j:(j?.results||[]);
+ const item=slug?list.find(v=>v.slug===slug):list.find(v=>String(v.reg||'').replace(/\s/g,'').toUpperCase()===String(reg).replace(/\s/g,'').toUpperCase());
+ return item||list[0]||null;
+}
 async function chooseBristol6(id){
  B6.selected=String(id);B6.selectedLive=[...B6.items,...B6.delayed].find(x=>String(b6Id(x))===B6.selected)||null;
  B6.details=null;B6.journey=null;B6.detailError=null;B6.detailLoading=true;renderBristol6();
- const current=B6.selected;
- const live=B6.selectedLive;
+ const current=B6.selected,live=B6.selectedLive;
  const results=await Promise.allSettled([
-  api('bt','/api/vehicles/'+encodeURIComponent(current)+'/'),
+  b6FetchVehicle(live),
   live?.journey_id?api('bt','/api/vehiclejourneys/'+encodeURIComponent(live.journey_id)+'/details/'):Promise.resolve(null)
  ]);
  if(B6.selected!==current)return;
  B6.details=results[0].status==='fulfilled'?results[0].value:null;
  B6.journey=results[1].status==='fulfilled'?results[1].value:null;
  B6.detailLoading=false;
- if(!B6.details)B6.detailError='Vehicle records unavailable. GPS tracking may still be available.';
+ if(!B6.details)B6.detailError='Full vehicle records unavailable. The GPS report is still shown.';
  renderBristol6();
 }
 function renderBristol6(){
@@ -898,7 +943,7 @@ function renderBristol6(){
  <div class="row wrap" style="margin-top:12px"><span class="chip ${B6.items.length?'ok':''}"><i class="dot"></i>${B6.loading?'Checking…':B6.error?'Tracking unavailable':B6.items.length+' recent GPS'}</span>
  <span class="small mut">${B6.loadedAt?'Checked '+fmtTS(B6.loadedAt):'Not loaded yet'}</span><div class="sp"></div><button id="b6Refresh" style="min-height:40px">↻ Refresh</button></div></div>`;
  if(B6.error)html+=`<div class="banner warn"><b>Tracking feed unavailable.</b> ${esc(B6.error)} <button class="ghost" data-go="settings" style="min-height:38px">Open Settings</button></div>`;
- if(B6.loadedAt)html+=`<p class="small mut" style="margin:0 6px 12px">${esc(B6.source)} · ${B6.received} reports returned · ${B6.items.length} recent · ${B6.delayed.length} delayed · ${B6.invalid} unusable/old</p>`;
+ if(B6.loadedAt)html+=`<p class="small mut" style="margin:0 6px 12px">${esc(B6.source)} · ${B6.received} reports returned · ${B6.items.length} recent · ${B6.delayed.length} delayed · ${B6.invalid} other/old</p>`;
  if(!cfg.proxy)html+=`<div class="banner warn">If GPS is missing on iPhone, bustimes.org may block direct browser access. Configure the Cloudflare Worker URL in Settings.</div>`;
  if(B6.selected){
   const l=B6.selectedLive||{},x=B6.details||{},vt=x.vehicle_type||{},tm=B6.journey?.trip||{};
@@ -906,11 +951,11 @@ function renderBristol6(){
   const age=Number.isFinite(b6When(l))?Math.max(0,Math.round((Date.now()-b6When(l))/1000)):null;
   const desc=(B6.journey?.trip?.times||[]).filter(t=>t.timing_status==='PTP').slice(0,10);
   html+=`<div class="glass"><button id="b6Back" class="ghost" style="min-height:42px;margin-bottom:12px">‹ All Route 6 buses</button>
-  <h2>${esc(x.fleet_code||x.fleet_number||l.vehicle?.fleet_code||l.vehicle?.reg||'Vehicle '+B6.selected)}</h2>
-  <p class="small mut">${esc(x.reg||l.vehicle?.reg||'Registration unavailable')} · ${B6.detailLoading?'Loading details…':'Full vehicle details'}</p>
+  <h2>${esc(x.fleet_code||x.fleet_number||b6Fleet(l))}</h2>
+  <p class="small mut">${esc(x.reg||b6Reg(l)||'Registration unavailable')} · ${B6.detailLoading?'Loading details…':'Full vehicle details'}</p>
   ${B6.detailError?`<p class="banner warn">${esc(B6.detailError)}</p>`:''}
-  ${fld('Registration',x.reg||l.vehicle?.reg,'bustimes.org vehicle record')}
-  ${fld('Fleet code',x.fleet_code||l.vehicle?.fleet_code,'bustimes.org')}
+  ${fld('Registration',x.reg||b6Reg(l),'bustimes.org vehicle record')}
+  ${fld('Fleet code',x.fleet_code||b6Fleet(l),'bustimes.org')}
   ${fld('Fleet number',x.fleet_number,'bustimes.org')}
   ${fld('Previous registration',x.previous_reg,'bustimes.org')}
   ${fld('Vehicle model',vt.name||l.vehicle?.vehicle_type,'bustimes.org')}
@@ -925,7 +970,7 @@ function renderBristol6(){
   ${fld('Features',x.special_features,'bustimes.org')}
   ${fld('Current route',l.service?.line_name||l.route_name,'bustimes.org live tracking')}
   ${fld('Destination',l.destination||l.destination_name||tm.headsign,'bustimes.org')}
-  ${fld('GPS recorded at',l.datetime?fmtTS(Date.parse(l.datetime)):null,'bustimes.org GPS')}
+  ${fld('GPS recorded at',Number.isFinite(b6When(l))?fmtTS(b6When(l)):null,'bustimes.org GPS')}
   ${fld('Position age',age!=null?age+' seconds':null,'bustimes.org GPS snapshot')}
   ${fld('Last GPS coordinates',b6Coords(l)?b6Coords(l)[1].toFixed(5)+', '+b6Coords(l)[0].toFixed(5):null,'bustimes.org; no map')}
   ${fld('Journey ID',l.journey_id,'bustimes.org')}
@@ -939,7 +984,7 @@ function renderBristol6(){
   const vehicleButtons=(arr,delayed)=>arr.map(x=>{
    const id=b6Id(x),fleet=b6Fleet(x),age=Math.max(0,Math.round(b6Age(x)/60000));
    const dest=String(x.destination||x.destination_name||'Route 6');
-   return `<button class="b6-vehicle" data-b6-id="${esc(id)}" aria-label="Details for ${esc(fleet)}"><div class="b6-vehicle-icon">6</div><div class="b6-vehicle-info"><b>${esc(fleet)}</b><span>${esc(x.vehicle?.reg||'Registration unavailable')} · ${esc(dest)}</span><small>${delayed?'Delayed GPS · last seen':'GPS recorded'} ${age} min ago</small></div><span aria-hidden="true" class="b6-arrow">›</span></button>`;
+   return `<button class="b6-vehicle" data-b6-id="${esc(id)}" aria-label="Details for ${esc(fleet)}"><div class="b6-vehicle-icon">6</div><div class="b6-vehicle-info"><b>${esc(fleet)}</b><span>${esc(b6Reg(x)||'Registration unavailable')} · ${esc(dest)}</span><small>${delayed?'Delayed GPS · last seen':'GPS recorded'} ${age} min ago</small></div><span aria-hidden="true" class="b6-arrow">›</span></button>`;
   }).join('');
   if(B6.items.length)html+=`<div class="b6-list">${vehicleButtons(B6.items,false)}</div>`;
   if(B6.delayed.length)html+=`<div class="glass"><h3>Delayed GPS · not confirmed active</h3><p class="small mut">These buses reported 5–30 minutes ago. They might still be in service.</p>${vehicleButtons(B6.delayed,true)}</div>`;
