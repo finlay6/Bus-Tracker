@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Bus Tracker · Routes 91 &amp; 6</title>
+<title>Bus tracker · Live routes</title>
 <meta name="theme-color" content="#111214">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
@@ -58,6 +58,12 @@ input[type=text],input[type=url],select{font:inherit;font-size:14px;color:var(--
 @media(max-width:360px){.model-route-switch button{gap:6px}.model-route-switch b{font-size:13px}.model-route-switch span{font-size:10px}.model-item h3{font-size:16px}}
 
 .predicted-livery{display:block;font-size:10px;color:var(--mut);margin-top:2px}
+/* Route browsing stays separate from the departure countdown. */
+[hidden]{display:none!important}.route-search{margin:24px 0 18px}.route-search>div{display:flex;gap:8px;margin-top:8px}.route-search input{min-width:0;flex:1;margin:0}.route-search button{flex:none;padding:0 18px}.route-shortcuts{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 22px}.route-shortcuts button{display:flex;align-items:center;gap:10px;background:var(--glass);border:1px solid var(--line);padding:9px 13px;border-radius:8px;min-height:44px}.route-shortcuts button[aria-pressed=true]{border-color:var(--mut)}.route-shortcuts b{font-size:17px}.route-shortcuts span{font-size:11px;color:var(--mut)}.route-result{display:flex;text-align:left;align-items:center;width:100%;gap:14px;background:transparent;border-radius:0;border-bottom:1px solid var(--line);padding:17px 0}.route-number{display:inline-flex;align-items:center;justify-content:center;min-width:46px;min-height:38px;flex-shrink:0;background:var(--red);color:#fff;border-radius:6px;padding:4px 10px;font-size:19px;font-weight:650;line-height:1.2}.route-result>span:nth-child(2){flex:1;min-width:0}.route-result strong{display:block;font-size:13px;line-height:1.5;font-weight:550}.route-result small{display:block;font-size:11px;color:var(--mut);margin-top:4px}.selected-route{margin:26px 0;border-top:1px solid var(--line);padding-top:22px}.route-title{display:flex;align-items:flex-start;gap:14px}.route-title h2{font-size:20px;margin:0 0 6px}.route-title p{font-size:12px;color:var(--mut);line-height:1.6;margin:0}.route-actions{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0 12px}.route-actions button{min-height:45px}.model-selected-route{display:flex;align-items:center;gap:12px;margin:22px 0}.model-selected-route>div{flex:1;min-width:0}.model-selected-route strong{display:block;font-size:14px}.model-selected-route small{display:block;font-size:11px;color:var(--mut);line-height:1.6}.model-selected-route button{flex:none;font-size:12px}.quick-91-stops{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:18px 0 25px}.quick-91-stops button{display:flex;align-items:center;text-align:left;gap:9px;min-height:57px;padding:10px;background:var(--glass);border:1px solid var(--line);border-radius:8px;font-size:11px;line-height:1.4}.quick-91-stops button[aria-pressed=true]{border-color:var(--mut)}.quick-91-stops .stop-letter{width:25px;height:25px;min-width:25px;font-size:12px}.quick-91-stops small{display:block;font-size:10px;color:var(--mut);margin-top:2px}#route-map-controls{position:absolute;z-index:12;top:calc(var(--sat) + 12px);left:12px;width:330px;max-width:calc(100% - 24px);background:var(--glass);border-radius:12px;padding:12px;box-shadow:0 3px 18px #0002}.route-map-heading{display:flex;align-items:center;gap:8px}.map-route-choice{display:flex;align-items:center;text-align:left;gap:12px;background:none;border-radius:0;flex:1;min-width:0;padding:0}.map-route-choice>span:nth-child(2){flex:1;min-width:0}.map-route-choice b{display:block;font-size:14px}.map-route-choice small{display:block;color:var(--mut);font-size:11px;margin-top:3px}.route-map-heading>button:last-child{background:var(--surface);font-size:22px;width:40px;min-height:40px;border-radius:50%;padding:0}.route-map-actions{display:flex;gap:3px;justify-content:space-between;border-top:1px solid var(--line);margin-top:12px;padding-top:6px}.route-map-actions button{font-size:11px;padding:6px;min-height:38px;background:transparent}.map-feed-note{font-size:11px;line-height:1.6;color:var(--mut);margin:6px 0}#route-bus-list{border-top:1px solid var(--line);padding-top:8px;margin-top:4px}#route-bus-list summary{cursor:pointer;font-size:11px;min-height:27px;color:var(--mut)}#route-bus-list summary span{float:right}#route-bus-list>div{max-height:35vh;overflow:auto}#route-bus-list button{display:flex;gap:12px;align-items:center;width:100%;padding:10px 0;text-align:left;background:transparent;border-top:1px solid var(--line);border-radius:0;font-size:11px}#route-bus-list b{min-width:50px}#route-bus-list span{flex:1}#route-bus-list small{display:block;color:var(--mut);font-size:10px;margin-top:3px}#route-panel{position:absolute;z-index:13;right:12px;top:calc(var(--sat) + 12px);bottom:calc(var(--sab) + 86px);width:355px;background:var(--glass);border:1px solid var(--line);border-radius:13px;padding:21px;overflow:auto;box-shadow:0 4px 22px #0002;overscroll-behavior:contain}.vehicle-panel-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}.vehicle-panel-top>button{font-size:27px;border-radius:50%;background:var(--surface);width:38px;min-height:38px;padding:0}#route-panel h2{font-size:30px;letter-spacing:-.6px;margin:0 0 5px}.vehicle-model{font-size:15px;line-height:1.5;margin:0 0 16px}.vehicle-destination{font-size:12px;color:var(--mut);line-height:1.6}.vehicle-status{font-size:10px;color:var(--mut);margin:15px 0 22px;display:flex;align-items:center;gap:6px}.vehicle-status>span{width:6px;height:6px;background:var(--mut);border-radius:50%}.vehicle-status.recent>span{background:var(--ok)}.vehicle-facts{font-size:12px;margin:0}.vehicle-facts>div{padding:12px 0;border-top:1px solid var(--line)}.vehicle-facts dt{font-size:10px;color:var(--mut);margin-bottom:5px}.vehicle-facts dd{margin:0;overflow-wrap:anywhere}.vehicle-livery{display:flex;align-items:center;gap:10px}.vehicle-progress{border-top:1px solid var(--line);padding-top:17px;margin-top:8px}.vehicle-progress h3{font-size:14px;margin:0 0 13px}.vehicle-progress p{font-size:12px;line-height:1.6}.vehicle-progress small{display:block;font-size:10px;color:var(--mut);margin-bottom:3px}.vehicle-stops{font-size:12px;border-top:1px solid var(--line);padding:15px 0;margin-top:18px}.vehicle-stops summary{cursor:pointer;min-height:30px}.vehicle-stops ol{padding:0;list-style:none}.vehicle-stops li{display:flex;gap:12px;justify-content:space-between;font-size:11px;padding:10px 0;border-bottom:1px solid var(--line)}.vehicle-stops li[aria-current]{font-weight:650;color:var(--red)}.route-map #sheet{left:12px;right:auto;max-width:330px;width:calc(100% - 24px)}.route-map .attr{max-width:calc(100% - 24px);bottom:calc(var(--sab) + 76px)}
+@media(max-width:800px){#route-map-controls{width:calc(100% - 24px)}#route-panel{top:auto;left:12px;right:12px;width:auto;max-height:52vh;bottom:calc(var(--sab) + 80px);padding:18px;border-radius:14px 14px 8px 8px}.vehicle-panel-top{margin-bottom:13px}.vehicle-panel-top .route-number{min-height:30px;font-size:16px}.route-map #sheet{max-width:none;right:12px}.model-selected-route{gap:9px}.model-selected-route button{padding:6px;font-size:11px}.route-search>div{gap:6px}.route-search button{padding:0 12px}.route-number{font-size:17px}.route-result{gap:10px}}
+
+
+@media(max-width:800px){.route-map.vehicle-open .route-map-actions,.route-map.vehicle-open #route-bus-list{display:none}.model-selected-route{flex-wrap:wrap}.model-selected-route>div{min-width:calc(100% - 60px)}.model-selected-route>button{margin-top:0}}
 </style>
 </head>
 <body>
@@ -80,6 +86,7 @@ input[type=text],input[type=url],select{font:inherit;font-size:14px;color:var(--
   <section class="view" id="view-settings" aria-label="Settings and privacy"></section>
   <section class="view" id="view-pick" aria-label="Select your bus stop"></section>
   <section class="view" id="view-models" aria-label="Today’s bus models"></section>
+  <section class="view" id="view-routes" aria-label="Find a bus route"></section>
   <section class="view" id="view-bristol6" aria-label="Live Route 6 vehicles in Bristol"></section>
  </main>
  <footer class="f">TfL primary · bustimes.org backup<br>Always check the stop display before travelling.</footer>
@@ -98,6 +105,8 @@ input[type=text],input[type=url],select{font:inherit;font-size:14px;color:var(--
   <button id="mTiming" aria-pressed="true" aria-label="Show timing points">Timing pts</button>
   <button id="mDetails" aria-label="Show bus details">Details</button>
  </div>
+ <div id="route-map-controls" hidden></div>
+ <aside id="route-panel" hidden aria-label="Selected vehicle details"></aside>
  <div id="sheet" class="glass" role="dialog" aria-label="Details"></div>
  <div id="mapmsg" class="banner bad" hidden style="position:absolute;top:120px;left:12px;right:12px;z-index:13">The map cannot start in this browser. The rest of the app still works.</div>
 </section>
@@ -108,7 +117,7 @@ input[type=text],input[type=url],select{font:inherit;font-size:14px;color:var(--
  <button class="tab" data-go="bus"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="15" rx="3"/><path d="M4 11h16M8 21v-3M16 21v-3"/></svg>Bus</button>
  <button class="tab" data-go="traffic"><svg viewBox="0 0 24 24"><path d="M12 3l10 18H2zM12 10v4M12 17.5v.5"/></svg>Traffic</button>
  <button class="tab" data-go="arrivals"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Arrivals</button>
- <button class="tab" data-go="bristol6" aria-label="Route 6 Bristol active vehicles"><span class="route6-tab-icon">6</span>Route 6</button>
+ <button class="tab" data-go="routes" aria-label="Find a bus route"><svg viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="m15 15 6 6"/></svg>Routes</button>
  <button class="tab" data-go="models" aria-label="Today’s bus models"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="6" rx="1.5"/><path d="M3 14h18M3 19h18M7 4v6"/></svg>Models</button>
 </nav>
 
@@ -173,7 +182,7 @@ function btClockMs(hm,now,dayHint){
  }
  return ans.filter(x=>x>=now-90000).sort((a,b)=>a-b)[0]??null;
 }
-function btDeparturesFromHTML(html,stopId,now=Date.now()){
+function btDeparturesFromHTML(html,stopId,now=Date.now(),line='91'){
  const dom=new DOMParser().parseFromString(html,'text/html');
  if(!dom.querySelector('#departures')){if(!dom.body.textContent.trim())return [];throw new ApiErr('format','No departures panel')}
  const out=[],tables=[...dom.querySelectorAll('#departures table')];
@@ -182,7 +191,7 @@ function btDeparturesFromHTML(html,stopId,now=Date.now()){
   const si=heads.findIndex(x=>x.includes('sched')),ei=heads.findIndex(x=>x.includes('expected'));
   for(const [i,tr] of [...table.querySelectorAll('tbody tr')].entries()){
    const td=[...tr.children].filter(x=>x.tagName==='TD');
-   if(td.length<3||td[0].textContent.trim()!=='91')continue;
+   if(td.length<3||td[0].textContent.trim().toLowerCase()!==String(line).toLowerCase())continue;
    const live=ei>=0?td[ei]?.textContent.trim():'',sched=si>=0?td[si]?.textContent.trim():'';
    const chosen=/^\d{1,2}:\d{2}$/.test(live)?live:/^\d{1,2}:\d{2}$/.test(sched)?sched:'';
    if(!chosen)continue;
@@ -192,7 +201,7 @@ function btDeparturesFromHTML(html,stopId,now=Date.now()){
    const vtext=v?.textContent.trim()||'';
    const reg=vtext.match(/\b[A-Z]{2}\s?\d{2}\s?[A-Z]{3}\b/i)?.[0]?.replace(/\s/g,'').toUpperCase()||'';
    const dest=td[1].cloneNode(true);dest.querySelector('.vehicle')?.remove();
-    out.push({vehicleId:reg,lineName:'91',naptanId:stopId,direction:'',towards:'',destinationName:dest.textContent.trim(),currentLocation:reg?'Vehicle on bustimes.org':null,
+    out.push({vehicleId:reg,lineName:line,naptanId:stopId,direction:'',towards:'',destinationName:dest.textContent.trim(),currentLocation:reg?'Vehicle on bustimes.org':null,
     expectedArrival:new Date(time).toISOString(),timestamp:new Date(now).toISOString(),timeToStation:Math.max(0,Math.round((time-now)/1000)),source:'bt',predictionKind:live&&chosen===live?'live':'scheduled',vehiclePage:link?.getAttribute('href')||null});
   }
  }
@@ -258,25 +267,25 @@ async function resolveStop(){
 }
 
 async function choose(s){
- S.stop=s;S.arr=[];S.arrSource=null;S.arrMode=null;S.backupReason=null;S.seq=null;S.sched=null;S.schedFor=null;S.fetchedAt=0;S.chosen=null;S.bp=null;S.vArr=null;S.veh=null;S.vehId=null;S.gps=null;S.btGpsAt=0;S.timingPoints=[];S.timingFor=null;S.timingAt=0;
+ S.stop=s;S.walk=null;S.jp=null;S.arr=[];S.arrSource=null;S.arrMode=null;S.backupReason=null;S.seq=null;S.sched=null;S.schedFor=null;S.fetchedAt=0;S.chosen=null;S.bp=null;S.vArr=null;S.veh=null;S.vehId=null;S.gps=null;S.btGpsAt=0;S.timingPoints=[];S.timingFor=null;S.timingAt=0;
  if(cfg.saveAddress){cfg.stopId=s.id;persist()}
  loadWalk();loadSched();loadStopBt();
  if(S.view==='pick')go('overview');
  await refresh();
 }
-async function loadStopBt(){S.stopBt=null;try{const j=await api('bt','/api/stops/',{atco_code:S.stop.id});S.stopBt=(j.results||[]).find(r=>r.atco_code===S.stop.id)||null}catch{S.stopBt=null}render()}
+async function loadStopBt(){const stopId=S.stop.id;S.stopBt=null;try{const j=await api('bt','/api/stops/',{atco_code:stopId});if(S.stop?.id!==stopId)return;S.stopBt=(j.results||[]).find(r=>r.atco_code===stopId)||null}catch{if(S.stop?.id!==stopId)return;S.stopBt=null}render()}
 async function loadWalk(){
- const a=S.start,b=[S.stop.lon,S.stop.lat];
- try{const r=await fetch(`https://routing.openstreetmap.de/routed-foot/route/v1/driving/${a[0].toFixed(5)},${a[1].toFixed(5)};${b[0]},${b[1]}?overview=full&geometries=geojson`,{referrerPolicy:'no-referrer'});const j=await r.json();const rt=j.routes[0];S.walk={dist:rt.distance,geom:rt.geometry.coordinates,src:'FOSSGIS foot routing (OpenStreetMap data)',live:true}}
- catch{logE('walking route failed');S.walk={dist:hav(a,b)*1.25,geom:[a,b],src:'Straight-line distance × 1.25 (walking router unavailable)',live:false}}
- try{const j=await api('tfl',`/Journey/JourneyResults/${a[1].toFixed(5)},${a[0].toFixed(5)}/to/${S.stop.id}`,{mode:'walking',walkingSpeed:cfg.walkKmh<4?'slow':cfg.walkKmh>5.6?'fast':'average'});S.jp=j.journeys&&j.journeys[0]?{min:j.journeys[0].duration}:null}catch{S.jp=null}
+ const a=S.start,b=[S.stop.lon,S.stop.lat],stopId=S.stop.id;
+ try{const r=await fetch(`https://routing.openstreetmap.de/routed-foot/route/v1/driving/${a[0].toFixed(5)},${a[1].toFixed(5)};${b[0]},${b[1]}?overview=full&geometries=geojson`,{referrerPolicy:'no-referrer'});const j=await r.json();const rt=j.routes[0];if(S.stop?.id!==stopId)return;S.walk={dist:rt.distance,geom:rt.geometry.coordinates,src:'FOSSGIS foot routing (OpenStreetMap data)',live:true}}
+ catch{if(S.stop?.id!==stopId)return;logE('walking route failed');S.walk={dist:hav(a,b)*1.25,geom:[a,b],src:'Straight-line distance × 1.25 (walking router unavailable)',live:false}}
+ try{const j=await api('tfl',`/Journey/JourneyResults/${a[1].toFixed(5)},${a[0].toFixed(5)}/to/${stopId}`,{mode:'walking',walkingSpeed:cfg.walkKmh<4?'slow':cfg.walkKmh>5.6?'fast':'average'});if(S.stop?.id!==stopId)return;S.jp=j.journeys&&j.journeys[0]?{min:j.journeys[0].duration}:null}catch{if(S.stop?.id!==stopId)return;S.jp=null}
  render();updateMap();
 }
 async function loadSched(){
- if(S.schedFor===S.stop.id)return;S.schedFor=S.stop.id;
- try{const j=await api('tfl',`/Line/91/Timetable/${S.stop.id}`);const wd=lp(Date.now()).wd;const dt=/sat/i.test(wd)?/sat/i:/sun/i.test(wd)?/sun/i:/mon|fri|week/i;const m=[];
+ const stopId=S.stop.id;if(S.schedFor===stopId)return;S.schedFor=stopId;
+ try{const j=await api('tfl',`/Line/91/Timetable/${stopId}`);const wd=lp(Date.now()).wd;const dt=/sat/i.test(wd)?/sat/i:/sun/i.test(wd)?/sun/i:/mon|fri|week/i;const m=[];
   for(const rt of j.timetable?.routes||[])for(const sc of rt.schedules||[])if(dt.test(sc.name||''))for(const k of sc.knownJourneys||[])m.push(+k.hour*60+ +k.minute);
-  S.sched=m.length?[...new Set(m)].sort((a,b)=>a-b):null}catch{S.sched=null}
+  if(S.stop?.id!==stopId)return;S.sched=m.length?[...new Set(m)].sort((a,b)=>a-b):null}catch{if(S.stop?.id===stopId)S.sched=null}
 }
 async function ensureSeq(dir){
  if(S.seq&&S.seq.stopId===S.stop.id)return;
@@ -436,11 +445,12 @@ async function loadWeather(){
 const WX=c=>c===0?'Clear':c<4?'Cloudy':c<50?'Fog':c<60?'Drizzle':c<70?'Rain':c<80?'Snow':c<90?'Showers':'Thunderstorms';
 let busy=false;
 async function refresh(){
- if(!S.stop||busy)return;busy=true;S.rate=false;
+ if(!S.stop||busy)return;busy=true;S.rate=false;const stopId=S.stop.id;
  try{
   if(S.demo){demoArr()}else{
    try{
-    const result=await arrivalsForStop(S.stop.id);
+    const result=await arrivalsForStop(stopId);
+    if(S.stop?.id!==stopId)return;
     S.arr=result.arr;S.arrSource=result.source;S.arrMode=result.arr.some(x=>x.predictionKind==='live')?'live':'scheduled';S.backupReason=result.reason;
     S.fetchedAt=Date.now();S.err=null;S.loading=false;
     if(result.source==='bt'){if(!S.bp?.gps||Date.now()-S.bp.gpsReadAt>90000)S.bp=null;S.vArr=null}
@@ -464,8 +474,8 @@ async function refresh(){
 
 function demoArr(){const n=Date.now();S.arr=[8,17,26].map((m,i)=>({vehicleId:'DEMO'+(i+1),lineName:'91',direction:'inbound',destinationName:'DEMO – not a real bus',expectedArrival:new Date(n+m*60000).toISOString(),timestamp:new Date(n).toISOString(),currentLocation:'Demonstration data',towards:'',naptanId:S.stop.id}));S.fetchedAt=n;S.err=null;S.arrSource='demo';S.arrMode='live'}
 /* ---------- bus choice, position, prediction ---------- */
-const walkSec=()=>Number.isFinite(+cfg.walkMinutes)&&+cfg.walkMinutes>0?+cfg.walkMinutes*60:(S.walk?S.walk.dist/(cfg.walkKmh/3.6):60);
-const walkDesc=()=>+cfg.walkMinutes>0?`${cfg.walkMinutes} min (your estimate)`:`${mins(walkSec())} min (mapped route)`;
+const walkSec=()=>S.stop?.id===HOME_STOP&&Number.isFinite(+cfg.walkMinutes)&&+cfg.walkMinutes>0?+cfg.walkMinutes*60:(S.walk?S.walk.dist/(cfg.walkKmh/3.6):60);
+const walkDesc=()=>S.stop?.id===HOME_STOP&&+cfg.walkMinutes>0?`${cfg.walkMinutes} min (your estimate)`:`${mins(walkSec())} min (mapped route)`;
 const catchableBuses=(now=Date.now())=>S.arr.filter(a=>Date.parse(a.expectedArrival)>=now+walkSec()*1000).sort((a,b)=>Date.parse(a.expectedArrival)-Date.parse(b.expectedArrival));
 function pickBus(now){
  const ok=catchableBuses(now);
@@ -568,8 +578,8 @@ function renderOverview(P){
  if(S.stopSource==='bt'&&S.stop)h+=`<div class="banner info">Bus stop found using bustimes.org because TfL stop lookup failed.</div>`;
  if(S.flags.has('location'))h+=`<div class="banner warn">Location unavailable: using your typed address instead.</div>`;
  if(!navigator.onLine)h+='<div class="banner warn">You are offline. Live arrivals need a connection; the last data shown may be out of date.</div>';
- if(S.stop&&S.stop.letter!=='A')h+=`<div class="banner warn">You chose Stop ${esc(S.stop.letter||'(no letter)')}, not Stop A.</div>`;
- h+=`<div id="hero"></div><div class="departure-route"><button class="ghost" data-go="map">Walking directions <span aria-hidden="true">↗</span></button></div>`;
+ h+=quickStopHTML();
+ h+=`<div id="hero"></div><div class="departure-route"><button class="ghost" id="journey-walk-map">Walking directions <span aria-hidden="true">↗</span></button></div>`;
  if(S.arr.length){
   const buses=catchableBuses(),a=buses[0],b=buses[1];
   const card=(x,label)=>`<div class="board-card"><div class="board-tile"><div class="board-head">${label}</div><div class="board-time">${x?Math.max(0,Math.ceil((Date.parse(x.expectedArrival)-Date.now())/60000)):'—'} <small>min</small></div></div>${x?`<div class="board-sub"><strong>${fmtT(Date.parse(x.expectedArrival))}</strong>${x.vehicleId?' · '+esc(x.vehicleId):''}<br>${esc(x.destinationName||'Route 91')}</div>${tag(x.predictionKind==='scheduled'?'sched':'live',x.source==='bt'?'bustimes.org':'TfL')}`:'<div class="board-sub">No catchable service shown</div>'}</div>`;
@@ -634,7 +644,7 @@ function renderBus(P){
  ${kv('Next timing point',nextTimingPoint()?esc(nextTimingPoint().name):null,'sched','bustimes.org trip · scheduled principal timing point')}
  ${S.timingPoints.length?`<h3 style="margin-top:16px">Published timing points</h3>${S.timingPoints.slice(0,12).map(timingRow).join('')}<p class="small mut">Timing points are scheduled stops, not live reports of a bus holding or its punctuality.</p>`:`<p class="small mut">Principal timing points will appear when bustimes.org links this vehicle to a trip.</p>`}
  <p class="small mut" style="margin-top:12px">London buses normally use TfL red livery, but a specific livery is only shown when the data confirms it. Nothing here is guessed.</p>
- <div class="row wrap" style="margin-top:8px">${b.vehicleId?`<button class="pri" id="followBtn">${cfg.followVid===b.vehicleId?'Following this bus ✓':'Follow this bus'}</button>`:''}<button data-go="map">Show on map</button></div></div>`;
+ <div class="row wrap" style="margin-top:8px">${b.vehicleId?`<button class="pri" id="followBtn">${cfg.followVid===b.vehicleId?'Following this bus ✓':'Follow this bus'}</button>`:''}<button id="journey-bus-map">Show on map</button></div></div>`;
 }
 function renderTraffic(P){
  const v=$('#view-traffic');let h=viewTitle('London · Route 91','Route status')+'<div class="glass"><h2>Traffic conditions</h2>';
@@ -680,7 +690,7 @@ function primeArrivalVehicles(){
 }
 function renderArrivals(P){
  const v=$('#view-arrivals');
- v.innerHTML=`${viewTitle('London · Route 91','Live bus arrivals',esc(S.stop?.name||'Select a stop')+' · Stop '+esc(S.stop?.letter||'?'))}<div class="glass arrival-list"><h2>91 · ${esc(S.arr[0]?.destinationName||'Route 91')}</h2><p class="arrival-source">${tag(S.demo?'demo':S.arrMode==='scheduled'?'sched':'live',S.demo?'Demo':S.arrSource==='bt'?'bustimes.org':'TfL Arrivals')}</p>${S.arr.length?S.arr.map(a=>{const t=Date.parse(a.expectedArrival),m=Math.max(0,Math.round((t-Date.now())/60000)),detail=arrivalVehicleDetails(a.vehicleId);return `<div class="arrival-row" data-arrival-vehicle="${esc(a.vehicleId||'')}"><div class="arrival-left"><b>${esc(a.destinationName||'Route 91')}</b><p><span class="arrival-fleet">${esc(detail.fleet)}</span>${a.predictionKind==='scheduled'?tag('sched'):''}<br><span class="arrival-model">${esc(detail.model)}</span>${a.currentLocation?`<br><span class="arrival-location">${esc(a.currentLocation)}</span>`:''}</p>${a.vehicleId?`<button class="ghost" data-follow="${esc(a.vehicleId)}">${cfg.followVid===a.vehicleId?'Following ✓':'Follow bus'}</button>`:''}</div><div class="arrival-right"><strong>${m===0?'Due':m+' <small>min</small>'}</strong><span>${fmtT(t)}</span></div></div>`}).join(''):'<p style="padding:18px">No buses found.</p>'}</div>`;
+ v.innerHTML=`${viewTitle('London · Route 91','Live bus arrivals',esc(S.stop?.name||'Select a stop')+' · Stop '+esc(S.stop?.letter||'?'))}${quickStopHTML()}<div class="glass arrival-list"><h2>91 · ${esc(S.arr[0]?.destinationName||'Route 91')}</h2><p class="arrival-source">${tag(S.demo?'demo':S.arrMode==='scheduled'?'sched':'live',S.demo?'Demo':S.arrSource==='bt'?'bustimes.org':'TfL Arrivals')}</p>${S.arr.length?S.arr.map(a=>{const t=Date.parse(a.expectedArrival),m=Math.max(0,Math.round((t-Date.now())/60000)),detail=arrivalVehicleDetails(a.vehicleId);return `<div class="arrival-row" data-arrival-vehicle="${esc(a.vehicleId||'')}"><div class="arrival-left"><b>${esc(a.destinationName||'Route 91')}</b><p><span class="arrival-fleet">${esc(detail.fleet)}</span>${a.predictionKind==='scheduled'?tag('sched'):''}<br><span class="arrival-model">${esc(detail.model)}</span>${a.currentLocation?`<br><span class="arrival-location">${esc(a.currentLocation)}</span>`:''}</p>${a.vehicleId?`<button class="ghost" data-follow="${esc(a.vehicleId)}">${cfg.followVid===a.vehicleId?'Following ✓':'Follow bus'}</button>`:''}</div><div class="arrival-right"><strong>${m===0?'Due':m+' <small>min</small>'}</strong><span>${fmtT(t)}</span></div></div>`}).join(''):'<p style="padding:18px">No buses found.</p>'}</div>`;
  primeArrivalVehicles();
 }
 
@@ -707,7 +717,7 @@ function renderExplain(P){
  <p class="small mut" style="margin-top:10px">Labels: ${tag('live')} from a live API · ${tag('calc')} computed by this app · ${tag('hist')} an assumption · ${tag('miss')} not supplied · ${tag('demo')} fake demonstration data.</p></div>`;
  v.innerHTML=h;
 }
-const WORKER=String.raw`/* Optional Cloudflare Worker for the Routes 91 and 6 PWA.
+const WORKER=String.raw`/* Optional Cloudflare Worker for the bus route explorer.
    Bind ALLOWED_ORIGIN to your HTTPS site's origin, e.g. https://example.pages.dev
    Secrets TFL_KEY and TOMTOM_KEY are optional. */
 export default {
@@ -1043,16 +1053,216 @@ function renderBristol6(){
 }
 
 /* ---------- Today's models: route-scoped journey history, not a guessed allocation list ---------- */
+/* ---------- Route explorer: service identity, live GPS and route geometry ---------- */
+const REGIONS={L:'London',SW:'South West',SE:'South East',W:'Wales',S:'Scotland',NW:'North West',NE:'North East',Y:'Yorkshire',EM:'East Midlands',WM:'West Midlands',EA:'East Anglia',NI:'Northern Ireland',GB:'Great Britain'};
+const ROUTES={key:'91',mode:'route',states:new Map(),search:[],query:'',next:null,searching:false,searchError:'',searchTicket:0,selected:null,detailTicket:0,profile:null,journey:null,detailLoading:false,detailError:'',stopSwitching:false};
+function registerRoute(service){
+ if(!/^\d+$/.test(String(service?.id))||!service.slug||!String(service.line_name||'').trim())throw new ApiErr('format','Invalid service');
+ const known=Object.keys(MODEL_ROUTES).find(key=>String(MODEL_ROUTES[key].id)===String(service.id)||MODEL_ROUTES[key].slug===service.slug);
+ const key=known||'service:'+service.id;
+ MODEL_ROUTES[key]={...MODEL_ROUTES[key],id:service.id,line:String(service.line_name).trim(),slug:service.slug,region:service.region_id,city:MODEL_ROUTES[key]?.city||REGIONS[service.region_id]||'Local service',description:service.description||'',operator:service.operator||[]};
+ return key;
+}
+function routeState(key=ROUTES.key){
+ if(!ROUTES.states.has(key))ROUTES.states.set(key,{key,items:[],lines:[],stops:[],geometryAt:0,updatedAt:0,source:'',loading:false,error:'',geometryError:'',request:0});
+ return ROUTES.states.get(key);
+}
+function routeMatches(report,route){
+ const sid=report.service_id??report.service?.id;
+ if(sid!=null)return String(sid)===String(route.id);
+ const slug=String(report.service?.url||report.service?.slug||'').replace(/\/$/,'').split('/').pop();
+ return !!slug&&slug===route.slug;
+}
+function routeRecords(data,route){
+ const unique=new Map();
+ for(const report of data){
+  if(!routeMatches(report,route)||!b6Coords(report)||!b6Id(report))continue;
+  const age=Date.now()-b6When(report);if(!Number.isFinite(age)||age< -30000||age>30*60000)continue;
+  const id=b6Id(report),old=unique.get(id);if(!old||b6When(report)>b6When(old))unique.set(id,report);
+ }
+ return [...unique.values()].sort((a,b)=>b6Fleet(a).localeCompare(b6Fleet(b),'en',{numeric:true}));
+}
+function parseRouteGeometry(data){
+ const coordinate=p=>Array.isArray(p)&&p.length>=2&&p.slice(0,2).every(Number.isFinite)&&Math.abs(p[0])<=180&&Math.abs(p[1])<=90;
+ const geometry=data?.geometry;
+ const lines=(geometry?.type==='LineString'?[geometry.coordinates]:geometry?.type==='MultiLineString'?geometry.coordinates:[]).filter(Array.isArray).map(line=>line.filter(coordinate)).filter(line=>line.length>1);
+ const stops=(data?.stops?.features||[]).filter(f=>coordinate(f.geometry?.coordinates)).map(f=>{const p=f.properties||{},id=/\/stops\/([^/?#]+)/.exec(p.url||'')?.[1];return{id,name:p.name||'Bus stop',lon:f.geometry.coordinates[0],lat:f.geometry.coordinates[1],letter:/\(Stop ([^)]+)\)/.exec(p.name||'')?.[1]||''}}).filter(s=>s.id);
+ if(!lines.length&&!stops.length)throw new ApiErr('format','No route geometry or stops');
+ return{lines,stops};
+}
+function routeBounds(state){
+ const points=state.lines.flat();if(!points.length)points.push(...state.stops.map(s=>[s.lon,s.lat]));
+ if(!points.length)points.push(...state.items.map(b6Coords));
+ if(!points.length)return null;
+ const xs=points.map(p=>p[0]),ys=points.map(p=>p[1]);return{lo:Math.min(...xs),hi:Math.max(...xs),south:Math.min(...ys),north:Math.max(...ys)};
+}
+async function ensureRouteIdentity(key){
+ const route=MODEL_ROUTES[key];if(!route)throw new ApiErr('nf');if(route.id)return route;
+ const data=await api('bt','/api/services/',{slug:route.slug});const service=(data.results||[]).find(s=>s.slug===route.slug);
+ if(!service)throw new ApiErr('nf','Route not found');registerRoute(service);return MODEL_ROUTES[key];
+}
+async function loadRoute(key=ROUTES.key,force=false){
+ const state=routeState(key);if(state.loading||(!force&&state.source===(cfg.proxy||'')&&Date.now()-state.updatedAt<18000))return;
+ state.loading=true;state.error='';state.source=cfg.proxy||'';const request=++state.request;
+ routeChanged();
+ try{
+  const route=await ensureRouteIdentity(key);
+  const geometry=async()=>{
+   if(state.geometryAt&&Date.now()-state.geometryAt<3600000)return;
+   try{const data=await api('bt','/services/'+route.id+'.json');Object.assign(state,parseRouteGeometry(data));state.geometryAt=Date.now();state.geometryError=''}
+   catch{state.geometryError='Route shape unavailable; showing available positions and stops.'}
+  };
+  const gps=async()=>{
+   const data=await api('bt','/vehicles.json',{service:route.id});if(!Array.isArray(data))throw new ApiErr('format','Tracking feed did not return vehicles');
+   return routeRecords(data,route);
+  };
+  const results=await Promise.allSettled([geometry(),gps()]);
+  if(state.request!==request)return;
+  if(results[1].status==='rejected')throw results[1].reason;
+  let items=results[1].value;
+  if(!items.length){
+   // The service index can be empty while the geographic feed still has buses.
+   const bounds=routeBounds(state);
+   if(bounds&&(bounds.hi-bounds.lo)*(bounds.north-bounds.south)<.15){
+    try{const data=await api('bt','/vehicles.json',{xmin:bounds.lo-.005,ymin:bounds.south-.005,xmax:bounds.hi+.005,ymax:bounds.north+.005});if(Array.isArray(data))items=routeRecords(data,route)}catch{}
+   }
+  }
+  state.items=items;state.updatedAt=Date.now();
+  if(ROUTES.key===key&&ROUTES.selected){
+   const selected=items.find(x=>b6Id(x)===ROUTES.selected);
+   if(selected)ROUTES.selectedReport=selected;
+  }
+ }catch(error){state.error=error.kind==='net'?'Tracking could not be reached. Check your connection and proxy in Settings.':'Tracking is unavailable for this route right now.'}
+ finally{state.loading=false;routeChanged();if(ROUTES.key===key&&S.view==='map'&&ROUTES.mode==='route'&&ROUTES.fittedKey!==key&&(state.geometryAt||state.items.length)){ROUTES.fittedKey=key;updateMap(true)}}
+}
+function routeChanged(){
+ if(S.view==='routes'){const node=$('#route-selected-status'),state=routeState();if(node)node.textContent=state.loading?'Checking tracking…':state.error||state.items.length+' recent vehicle positions'+(state.updatedAt?' · updated '+fmtT(state.updatedAt):'')}
+ if(S.view==='map'&&ROUTES.mode==='route'){renderRouteMapControls();updateMap();if(ROUTES.selected)renderRouteVehicle()}
+}
+async function selectRoute(key,openMap=true){
+ if(!MODEL_ROUTES[key])return;
+ ROUTES.key=key;ROUTES.fittedKey=null;MODELS.selected=key;ROUTES.selected=null;ROUTES.profile=null;ROUTES.journey=null;ROUTES.detailTicket++;
+ ROUTES.mode='route';ROUTES.stopTicket=(ROUTES.stopTicket||0)+1;$('#route-panel').hidden=true;$('#sheet').classList.remove('on');
+ if(openMap){go('map');await loadRoute(key);if(ROUTES.key===key&&S.view==='map')updateMap(true)}else{render();loadRoute(key)}
+}
+async function searchRoutes(more=false){
+ const input=$('#route-query'),query=more?ROUTES.query:input?.value.trim();if(!query)return;
+ const ticket=++ROUTES.searchTicket;ROUTES.query=query;ROUTES.searching=true;ROUTES.searchError='';if(!more){ROUTES.search=[];ROUTES.next=null}renderRouteResults();
+ try{
+  let params={search:query,mode:'bus',limit:100};
+  if(more&&ROUTES.next){const next=new URL(ROUTES.next,'https://bustimes.org');if(next.origin!=='https://bustimes.org'||next.pathname!=='/api/services/')throw new ApiErr('format');params=Object.fromEntries(next.searchParams)}
+  const data=await api('bt','/api/services/',params);if(ticket!==ROUTES.searchTicket)return;
+  if(!Array.isArray(data.results))throw new ApiErr('format');
+  const unique=new Map((more?ROUTES.search:[]).map(x=>[x.id,x]));
+  for(const service of data.results)if(service.mode==='bus'&&service.id&&service.slug)unique.set(service.id,service);
+  ROUTES.search=[...unique.values()].sort((a,b)=>(String(b.line_name).toLowerCase()===query.toLowerCase())-(String(a.line_name).toLowerCase()===query.toLowerCase())||String(a.line_name).localeCompare(String(b.line_name),'en',{numeric:true})||String(a.description).localeCompare(String(b.description)));
+  ROUTES.next=data.next;
+ }catch{if(ticket===ROUTES.searchTicket)ROUTES.searchError='Route search could not be loaded. Check your proxy in Settings and try again.'}
+ finally{if(ticket===ROUTES.searchTicket){ROUTES.searching=false;renderRouteResults()}}
+}
+function renderRouteResults(){
+ const box=$('#route-results');if(!box)return;
+ box.innerHTML=ROUTES.searchError?`<p role="alert">${esc(ROUTES.searchError)}</p><button class="ghost" data-go="settings">Settings</button>`:ROUTES.search.map(service=>`<button class="route-result" data-route-result="${service.id}"><span class="route-number">${esc(service.line_name)}</span><span><strong>${esc(service.description||'Route '+service.line_name)}</strong><small>${esc(REGIONS[service.region_id]||'Local service')} · ${esc((service.operator||[]).join(', '))}</small></span><span aria-hidden="true">›</span></button>`).join('');
+ if(ROUTES.searching)box.innerHTML+='<p class="models-status" role="status">Searching routes…</p>';
+ else if(ROUTES.next)box.innerHTML+='<button id="route-more" class="ghost">Load more routes</button>';
+ else if(ROUTES.query&&!ROUTES.search.length&&!ROUTES.searchError)box.innerHTML='<p class="models-status">No matching routes. Try the route number or a town on its route.</p>';
+}
+function routeChoiceHTML(){const keys=[...new Set(['91','6',ROUTES.key])];return `<div class="route-shortcuts" aria-label="Quick routes">${keys.map(key=>{const r=MODEL_ROUTES[key];return `<button data-route-key="${esc(key)}" aria-pressed="${ROUTES.key===key}"><b>${esc(r.line)}</b><span>${esc(r.city)}</span></button>`}).join('')}</div>`}
+function renderRoutes(){
+ const route=MODEL_ROUTES[ROUTES.key],state=routeState();
+ $('#view-routes').innerHTML=`${viewTitle('Explore','Find your route','Live vehicles, route maps and today’s models.')}<form id="route-search-form" class="route-search"><label for="route-query" class="small mut">Route number, town or destination</label><div><input id="route-query" type="search" value="${esc(ROUTES.query)}" placeholder="e.g. 91, 70 or Bristol" maxlength="120" autocomplete="off"><button class="pri" type="submit">Search</button></div></form>${routeChoiceHTML()}<div id="route-results" aria-live="polite"></div><section class="selected-route"><div class="route-title"><span class="route-number">${esc(route.line)}</span><div><h2>${esc(route.city)}</h2><p>${esc(route.description||'Selected route')}</p></div></div><div class="route-actions"><button class="pri" id="route-open-map">Live map <span aria-hidden="true">↗</span></button><button class="ghost" id="route-open-models">Models & liveries</button></div><p id="route-selected-status" class="models-status">${state.loading?'Checking tracking…':state.updatedAt?state.items.length+' recent vehicle positions · updated '+fmtT(state.updatedAt):'Open the map to load vehicle positions.'}</p></section><p class="models-status">Search bus services available on bustimes.org. Routes with no public GPS feed can still have a route map and recorded model history. Future workings are predictions where available.</p><button class="ghost" data-go="bristol6">Original Route 6 vehicle list <span aria-hidden="true">›</span></button>`;
+ renderRouteResults();
+}
+function renderRouteMapControls(){
+ const on=ROUTES.mode==='route',route=MODEL_ROUTES[ROUTES.key],state=routeState();
+ $('#map').setAttribute('aria-label',on?'Route '+route.line+' vehicle map':'Your walk and Route 91');$('#view-map').classList.toggle('route-map',on);$('#route-map-controls').hidden=!on;$('.mctl').hidden=on;
+ if(!on){$('#route-panel').hidden=true;return}
+ const fresh=state.items.filter(x=>Date.now()-b6When(x)<=300000).length;
+ const stale=state.items.length-fresh;
+ const listOpen=$('#route-bus-list')?.open;
+ $('#route-map-controls').innerHTML=`<div class="route-map-heading"><button class="map-route-choice" data-go="routes" aria-label="Change route ${esc(route.line)}"><span class="route-number">${esc(route.line)}</span><span><b>${esc(route.city)}</b><small>${state.loading?'Updating…':fresh+' recent bus'+(fresh===1?'':'es')}${stale?' · '+stale+' delayed':''}</small></span><span aria-hidden="true">⌄</span></button><button id="route-map-refresh" aria-label="Refresh route vehicles">↻</button></div><div class="route-map-actions"><button id="route-fit">Fit route</button><button id="route-map-models">Models</button><button id="route-my-walk">My 91 walk</button><button id="route-zoom-in" aria-label="Zoom in">+</button><button id="route-zoom-out" aria-label="Zoom out">−</button></div>${state.error?`<p class="map-feed-note" role="alert">${esc(state.error)}${state.items.length?' Retaining previous reports.':''}</p>`:''}${state.geometryError?`<p class="map-feed-note">${esc(state.geometryError)}</p>`:''}${!state.loading&&!state.items.length&&!state.error?'<p class="map-feed-note">No recent GPS positions reported. This does not mean no buses are running.</p>':''}<details id="route-bus-list" ${listOpen?'open':''}><summary>Vehicles <span>${state.items.length}</span></summary><div>${state.items.map(report=>`<button data-route-vehicle="${esc(b6Id(report))}" aria-label="Bus ${esc(b6Fleet(report))}, ${esc(report.destination||'destination unavailable')}"><b>${esc(b6Fleet(report))}</b><span>${esc(report.destination||'Destination unavailable')}<small>${Date.now()-b6When(report)>300000?'Delayed report · ':''}${fmtT(b6When(report))}</small></span></button>`).join('')}</div></details>`;
+}
+function routeStopName(id){return routeState().stops.find(s=>s.id===id)?.name||null}
+async function openRouteVehicle(id){
+ const report=routeState().items.find(x=>b6Id(x)===id);if(!report)return;
+ const ticket=++ROUTES.detailTicket,key=ROUTES.key;
+ ROUTES.stopTicket=(ROUTES.stopTicket||0)+1;ROUTES.selected=id;ROUTES.selectedReport=report;ROUTES.profile=null;ROUTES.journey=null;ROUTES.detailLoading=true;ROUTES.detailError='';$('#sheet').classList.remove('on');renderRouteVehicle();
+ const pos=b6Coords(report);V.z=Math.max(V.z,14.6);V.lon=W>800?unx(wx(pos[0],V.z)+180,V.z):pos[0];V.lat=W<=800?uny(wy(pos[1],V.z)+H*.25,V.z):pos[1];VT=null;want();
+ try{
+  const [profile,journey]=await Promise.allSettled([modelVehicle({id:report.id??report.vehicle?.id,slug:b6Slug(report),reg:b6Reg(report)}),report.journey_id?api('bt','/api/vehiclejourneys/'+encodeURIComponent(report.journey_id)+'/details/'):Promise.resolve(null)]);
+  if(ticket!==ROUTES.detailTicket||key!==ROUTES.key)return;
+  if(profile.status==='fulfilled')ROUTES.profile=profile.value;
+  if(journey.status==='fulfilled'&&String(journey.value?.id)===String(report.journey_id)&&String(journey.value?.service?.id)===String(MODEL_ROUTES[key].id))ROUTES.journey=journey.value;
+  if(!ROUTES.profile)ROUTES.detailError='Full vehicle details are unavailable; showing the tracking report.';
+ }finally{if(ticket===ROUTES.detailTicket){ROUTES.detailLoading=false;renderRouteVehicle()}}
+}
+function routeTime(value){const time=Date.parse(value);return Number.isFinite(time)?fmtT(time):/^(\d{1,2}:\d{2})/.exec(value||'')?.[1]||'—'}
+function renderRouteVehicle(){
+ const panel=$('#route-panel');$('#view-map').classList.toggle('vehicle-open',!!ROUTES.selected&&ROUTES.mode==='route');if(!ROUTES.selected||ROUTES.mode!=='route'){panel.hidden=true;return}
+ panel.hidden=false;
+ const route=MODEL_ROUTES[ROUTES.key],report=ROUTES.selectedReport,vehicle=ROUTES.profile,journey=ROUTES.journey;
+ const time=b6When(report),age=Date.now()-time,listed=routeState().items.some(x=>b6Id(x)===ROUTES.selected),live=listed&&age<=300000;
+ const positions=journey?.trip?.times||[],next=report.progress?.next_stop,previous=report.progress?.prev_stop;
+ const stopName=id=>routeStopName(id)||positions.find(x=>x.stop?.atco_code===id)?.stop?.name||null;
+ const source=vehicle||report,location=next?stopName(next):null;
+ const status=routeState().error?'Tracking refresh unavailable':!listed?'No longer in route feed':live?'Recent GPS report':'Delayed GPS report';
+ panel.innerHTML=`<div class="vehicle-panel-top"><span class="route-number">${esc(route.line)}</span><button id="route-close-vehicle" class="ghost" aria-label="Close vehicle details">×</button></div><h2>${esc(vehicle?.fleet_code||vehicle?.fleet_number||b6Fleet(report))}</h2><p class="vehicle-model">${esc(vehicle?.vehicle_type?.name||(ROUTES.detailLoading?'Loading bus details…':'Model not supplied'))}</p><p class="vehicle-destination">To ${esc(report.destination||journey?.destination||'destination unavailable')}</p><div class="vehicle-status ${live?'recent':''}"><span></span>${status} · ${Number.isFinite(time)?fmtT(time):'time unavailable'}</div>${ROUTES.detailError?`<p class="models-status">${esc(ROUTES.detailError)}</p>`:''}<dl class="vehicle-facts"><div><dt>Fleet number</dt><dd>${esc(vehicle?.fleet_code||vehicle?.fleet_number||b6Fleet(report))}</dd></div><div><dt>Registration</dt><dd>${esc(vehicle?.reg||b6Reg(report)||'Not supplied')}</dd></div><div><dt>Operator</dt><dd>${esc(vehicle?.operator?.name||'Not supplied')}</dd></div><div><dt>Livery</dt><dd class="vehicle-livery">${b6LiveryHTML(source,false)}<span>${esc(b6LiveryLabel(source)||(b6LiveryPreviewCSS(source)?'Unlabelled livery':'Not supplied'))}</span></dd></div>${vehicle?.branding?`<div><dt>Branding</dt><dd>${esc(vehicle.branding)}</dd></div>`:''}${vehicle?.special_features?.length?`<div><dt>Features</dt><dd>${esc(vehicle.special_features.join(' · '))}</dd></div>`:''}</dl>${location||previous?`<section class="vehicle-progress"><h3>On the route</h3>${previous&&stopName(previous)?`<p><small>Last stop</small>${esc(stopName(previous))}</p>`:''}${location?`<p><small>Next reported stop</small>${esc(location)}</p>`:''}</section>`:''}${positions.length?`<details class="vehicle-stops"><summary>Journey stops · ${positions.length}</summary><ol>${positions.map(stop=>`<li ${stop.stop?.atco_code===next?'aria-current="step"':''}><span>${esc(stop.stop?.name||'Bus stop')}</span><time>${esc(routeTime(stop.actual_departure_time||stop.expected_departure_time||stop.aimed_departure_time||stop.aimed_arrival_time))}</time></li>`).join('')}</ol><p class="models-status">Stop times are scheduled unless the feed supplies an actual or expected time.</p></details>`:''}<button class="ghost" id="route-map-models">Today’s models & liveries <span aria-hidden="true">›</span></button><p class="models-status">Positions are reported by bustimes.org and may have moved. ${live?'Reports up to five minutes old are shown as recent.':'This report is over five minutes old; current activity is unconfirmed.'}</p>`;
+}
+function fitRouteView(){
+ const state=routeState(),bounds=routeBounds(state);if(!bounds||!W)return;
+ let z=17;const width=Math.max(160,W-(W>800?430:60)),height=Math.max(160,H-310);
+ while(z>2&&(Math.abs(wx(bounds.hi,z)-wx(bounds.lo,z))>width||Math.abs(wy(bounds.north,z)-wy(bounds.south,z))>height))z-=.25;
+ V.lon=(bounds.lo+bounds.hi)/2;V.lat=(bounds.south+bounds.north)/2;V.z=z;VT=null;want();
+}
+function drawRouteOverlay(path,dot){
+ const state=routeState();M.stops=state.stops;
+ for(const line of state.lines){path(line);ctx.strokeStyle=isDark()?'#181c1e':'#fff';ctx.lineWidth=8;ctx.stroke();ctx.strokeStyle=isDark()?'#d77369':'#b8483e';ctx.lineWidth=4;ctx.stroke()}
+ if(V.z>=14)for(const stop of state.stops){const p=scr(stop.lon,stop.lat);if(p[0]<0||p[0]>W||p[1]<0||p[1]>H)continue;dot(p,4,isDark()?'#1b2021':'#fff',isDark()?'#d77369':'#b8483e',2);M.hits.push({x:p[0],y:p[1],r:11,t:'route-stop',s:stop})}
+ for(const report of state.items){
+  const pos=b6Coords(report),p=scr(...pos);if(p[0]<-40||p[0]>W+40||p[1]<-40||p[1]>H+40)continue;
+  const selected=ROUTES.selected===b6Id(report),delayed=Date.now()-b6When(report)>300000;
+  ctx.save();ctx.translate(...p);ctx.fillStyle=delayed?'#777b7b':'#c63f35';ctx.strokeStyle=selected?'#ffe66b':'#fff';ctx.lineWidth=selected?4:2;
+  ctx.beginPath();ctx.roundRect(-15,-15,30,30,7);ctx.fill();ctx.stroke();
+  // A bus silhouette keeps the fleet label optional at wider route scales.
+  ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.strokeRect(-7,-9,14,16);ctx.beginPath();ctx.moveTo(-7,-1);ctx.lineTo(7,-1);ctx.moveTo(-5,7);ctx.lineTo(-5,10);ctx.moveTo(5,7);ctx.lineTo(5,10);ctx.stroke();ctx.fillStyle='#fff';ctx.fillRect(-5,3,2,2);ctx.fillRect(3,3,2,2);
+  if(Number.isFinite(+report.heading)){ctx.rotate(+report.heading*rad);ctx.beginPath();ctx.moveTo(0,-21);ctx.lineTo(-4,-16);ctx.lineTo(4,-16);ctx.closePath();ctx.fill()}
+  ctx.restore();
+  if(V.z>=14.5||selected){const text=b6Fleet(report);ctx.font='600 10px sans-serif';const tw=ctx.measureText(text).width+12;ctx.fillStyle=isDark()?'#25292c':'#fff';ctx.fillRect(p[0]-tw/2,p[1]+20,tw,17);ctx.fillStyle=isDark()?'#fff':'#17191c';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(text,p[0],p[1]+29)}
+  M.hits.push({x:p[0],y:p[1],r:22,t:'route-bus',id:b6Id(report)});
+ }
+}
+async function showRouteStop(stop){
+ ROUTES.selected=null;ROUTES.detailTicket++;$('#route-panel').hidden=true;want();
+ const key=ROUTES.key,route=MODEL_ROUTES[key];const ticket=(ROUTES.stopTicket||0)+1;ROUTES.stopTicket=ticket;
+ sheet(`<h3>${esc(stop.name)}</h3><p class="models-status">Loading Route ${esc(route.line)} departures…</p>`);
+ try{
+  let arrivals;
+  if(route.region==='L')try{const data=await api('tfl','/StopPoint/'+encodeURIComponent(stop.id)+'/Arrivals');if(!Array.isArray(data))throw new ApiErr('format');arrivals=data.filter(x=>String(x.lineName).toLowerCase()===route.line.toLowerCase()).map(x=>({...x,predictionKind:'live'}))}catch{}
+  if(!arrivals){const html=await api('bt','/stops/'+encodeURIComponent(stop.id)+'/departures',{},'text');arrivals=btDeparturesFromHTML(html,stop.id,Date.now(),route.line)}
+  if(key!==ROUTES.key||ticket!==ROUTES.stopTicket)return;
+  arrivals=arrivals.filter(x=>Date.parse(x.expectedArrival)>Date.now()-30000).sort((a,b)=>Date.parse(a.expectedArrival)-Date.parse(b.expectedArrival));
+  sheet(`<h3>${esc(stop.name)}</h3><p class="small mut">Route ${esc(route.line)}</p>${arrivals.slice(0,8).map(x=>`<div class="kv"><div class="k">${esc(x.destinationName||'Bus')}<br><small>${x.predictionKind==='scheduled'?'Scheduled':'Expected'}</small></div><div class="v">${fmtT(Date.parse(x.expectedArrival))}</div></div>`).join('')||'<p>No departures reported for this route.</p>'}`);
+ }catch{if(key===ROUTES.key&&ticket===ROUTES.stopTicket)sheet(`<h3>${esc(stop.name)}</h3><p>Departures unavailable right now.</p>`)}
+}
+const QUICK_91_STOPS=[{id:HOME_STOP,name:'Caledonian Road Station',letter:'A',lat:51.54809,lon:-.11796,lines:['91']},{id:'490012867L',name:'Upper Woburn Place / Euston Road',letter:'L',lat:51.52716,lon:-.13078,lines:['91']}];
+function quickStopHTML(){return `<div class="quick-91-stops" role="group" aria-label="Route 91 arrival stop">${QUICK_91_STOPS.map(stop=>`<button data-quick-stop="${stop.id}" aria-pressed="${S.stop?.id===stop.id}" ${ROUTES.stopSwitching?'disabled':''}><span class="stop-letter">${stop.letter}</span><span>${stop.letter==='A'?'Caledonian Road':'Upper Woburn Place'}<small>Stop ${stop.letter}</small></span></button>`).join('')}</div>${ROUTES.stopSwitching?`<p class="models-status" role="status">Switching to Stop ${esc(ROUTES.stopSwitchTarget)}…</p>`:''}`}
+async function switch91Stop(id){
+ const stop=QUICK_91_STOPS.find(stop=>stop.id===id);if(!stop||ROUTES.stopSwitching||S.stop?.id===id)return;
+ ROUTES.stopSwitchTarget=stop.letter;ROUTES.stopSwitching=true;render();
+ try{while(busy)await new Promise(resolve=>setTimeout(resolve,50));S.stopSource='tfl';S.bootErr=null;await choose({...stop});toast('Route 91 · Stop '+stop.letter)}
+ finally{ROUTES.stopSwitching=false;render()}
+}
+
 const MODEL_ROUTES={
- '91':{line:'91',city:'London',region:'L',slug:'91-crouch-end-hornsey-rise-nags-head-caledonian-ro'},
- '6':{line:'6',city:'Bristol',region:'SW',slug:ROUTE6_SLUG}
+ '91':{id:71778,line:'91',city:'London',description:'Wood Green ↔ Trafalgar Square',region:'L',slug:'91-crouch-end-hornsey-rise-nags-head-caledonian-ro'},
+ '6':{id:60071,line:'6',city:'Bristol',description:'Bristol city centre ↔ Kingswood',region:'SW',slug:ROUTE6_SLUG}
 };
 const MODELS={selected:'91',routes:{},vehicleCache:new Map()};
 const modelToday=()=>londonKey(londonCalendar(Date.now()));
 const modelTextKey=text=>String(text||'').normalize('NFKC').toLowerCase().replace(/[^a-z0-9]/g,'');
 function modelState(line){
- const date=modelToday(),old=MODELS.routes[line];
- if(!old||old.date!==date)MODELS.routes[line]={line,date,serviceId:old?.serviceId||null,refs:new Map(),groups:[],loading:false,checkedAt:0,source:'',historyComplete:false,historyError:null,expectedError:null,unknown:0,progress:'',ticket:0};
+ const date=modelToday(),old=MODELS.routes[line],route=MODEL_ROUTES[line];
+ if(!old||old.date!==date)MODELS.routes[line]={key:line,line:route.line,date,serviceId:old?.serviceId||route.id||null,refs:new Map(),groups:[],loading:false,checkedAt:0,source:'',historyComplete:false,historyError:null,expectedError:null,unknown:0,progress:'',ticket:0};
  return MODELS.routes[line];
 }
 function modelRefKey(ref){return ref?.reg?'reg:'+vehicleKey(ref.reg):ref?.id!=null?'id:'+ref.id:ref?.slug?'slug:'+ref.slug:null}
@@ -1066,7 +1276,7 @@ function modelAddRef(state,ref,evidence){
  for(const field of ['upcomingAt','expectedAt'])if(Number.isFinite(evidence[field]))entry[field]=entry[field]?Math.min(entry[field],evidence[field]):evidence[field];
  if(evidence.journeyAt&&evidence.journeyId&&(!entry.lastJourney||evidence.journeyAt>=entry.lastJourney.at))entry.lastJourney={id:evidence.journeyId,at:evidence.journeyAt};
 }
-function modelCurrent(state,ticket){return MODELS.routes[state.line]===state&&state.date===modelToday()&&state.ticket===ticket}
+function modelCurrent(state,ticket){return MODELS.routes[state.key]===state&&state.date===modelToday()&&state.ticket===ticket}
 function modelRebuild(state){
  const groups=new Map();let unknown=0;
  for(const item of state.refs.values()){
@@ -1076,7 +1286,7 @@ function modelRebuild(state){
   if(!group){group={name,seen:false,upcoming:false,expected:false,predicted:false,predictedAt:null,liveries:new Map()};groups.set(key,group)}
   for(const field of ['seen','upcoming','expected','predicted'])group[field]||=item[field];
   modelMergeTiming(group,item);
-  if(state.line==='6'){
+  {
    const livery=b6LiveryData(item.vehicle),label=String(livery?.name||'').trim();
    const background=b6LiveryPreviewCSS(item.vehicle);
    const lkey=label?'name:'+modelTextKey(label):background?'pattern:'+background:'unknown';
@@ -1165,7 +1375,7 @@ async function modelVehicle(ref){
 }
 async function modelService(state){
  if(state.serviceId)return state.serviceId;
- const route=MODEL_ROUTES[state.line],data=await api('bt','/api/services/',{slug:route.slug});
+ const route=MODEL_ROUTES[state.key],data=await api('bt','/api/services/',{slug:route.slug});
  const service=(Array.isArray(data)?data:data.results||[]).find(v=>v.slug===route.slug&&String(v.line_name).trim()===route.line&&v.region_id===route.region);
  if(!service?.id)throw new ApiErr('nf','The route could not be identified');
  state.serviceId=service.id;return service.id;
@@ -1184,7 +1394,7 @@ async function modelHistory(state,ticket){
    modelAddRef(state,journey.vehicle,{seen:!Number.isFinite(when)||when<=Date.now(),upcoming:Number.isFinite(when)&&when>Date.now(),journeyAt:Number.isFinite(when)&&when<=Date.now()?when:null,journeyId:journey.id,upcomingAt:when>Date.now()?when:null});
   }
   state.progress=`Reading today's journeys · ${state.refs.size} distinct vehicles found`;
-  if(S.view==='models'&&MODELS.selected===state.line&&page%5===0)renderModels();
+  if(S.view==='models'&&MODELS.selected===state.key&&page%5===0)renderModels();
   if(!data.next){state.historyComplete=true;return}
   const next=new URL(data.next,'https://bustimes.org');
   if(next.origin!=='https://bustimes.org'||next.pathname!=='/api/vehiclejourneys/')throw new ApiErr('format','Unexpected journey pagination');
@@ -1195,25 +1405,25 @@ async function modelHistory(state,ticket){
  throw new ApiErr('partial','Journey history is too large to finish in one refresh');
 }
 async function modelExpected(state){
- if(state.line==='91'){
-  const data=await api('tfl','/Line/91/Arrivals');if(!Array.isArray(data))throw new ApiErr('format');
-  for(const arrival of data){
-   const time=Date.parse(arrival.expectedArrival),stamp=Date.parse(arrival.timestamp);
-   if(String(arrival.lineId||arrival.lineName).toLowerCase()!=='91'||!arrival.vehicleId||!Number.isFinite(time)||time<Date.now()||time>Date.now()+2*3600000||londonKey(londonCalendar(time))!==state.date)continue;
-   if(Number.isFinite(stamp)&&(Date.now()-stamp>5*60000||stamp>Date.now()+30000))continue;
-   modelAddRef(state,{reg:arrival.vehicleId},{expected:true,expectedAt:time,activeAt:Number.isFinite(stamp)?stamp:null});
-  }
- }else{
+ const route=MODEL_ROUTES[state.key],checks=[];
+ checks.push((async()=>{
   const data=await api('bt','/vehicles.json',{service:state.serviceId});if(!Array.isArray(data))throw new ApiErr('format');
   for(const report of data){
-   const time=b6When(report),line=String(report.service?.line_name||report.route_name||'').trim();
-   if((line&&line!=='6')||!Number.isFinite(time)||time>Date.now()+30000||londonKey(londonCalendar(time))!==state.date)continue;
-   const serviceUrl=String(report.service?.url||'');
-   if(serviceUrl&&!serviceUrl.replace(/\/$/,'').endsWith('/'+MODEL_ROUTES['6'].slug))continue;
+   const time=b6When(report);if(!routeMatches(report,route)||!Number.isFinite(time)||time>Date.now()+30000||londonKey(londonCalendar(time))!==state.date)continue;
    const vehicle=report.vehicle||{};
-   modelAddRef(state,{id:vehicle.id??report.vehicle_id,reg:b6Reg(report),slug:b6Slug(report)},{seen:true,trackedAt:time,activeAt:time});
+   modelAddRef(state,{id:report.id??vehicle.id,reg:b6Reg(report),slug:b6Slug(report)},{seen:true,trackedAt:time,activeAt:time});
   }
- }
+ })());
+ if(route.region==='L')checks.push((async()=>{
+  const data=await api('tfl','/Line/'+encodeURIComponent(state.line.toLowerCase())+'/Arrivals');if(!Array.isArray(data))throw new ApiErr('format');
+  for(const arrival of data){
+   const time=Date.parse(arrival.expectedArrival),stamp=Date.parse(arrival.timestamp);
+   if(String(arrival.lineId||arrival.lineName).toLowerCase()!==state.line.toLowerCase()||!arrival.vehicleId||!Number.isFinite(time)||time<Date.now()||time>Date.now()+2*3600000||londonKey(londonCalendar(time))!==state.date)continue;
+   if(Number.isFinite(stamp)&&(Date.now()-stamp>5*60000||stamp>Date.now()+30000))continue;
+   modelAddRef(state,{reg:arrival.vehicleId},{expected:true,expectedAt:time});
+  }
+ })());
+ const results=await Promise.allSettled(checks);if(results.every(result=>result.status==='rejected'))throw results[0].reason;
 }
 async function loadModels(line=MODELS.selected,force=false){
  if(!MODEL_ROUTES[line])return;
@@ -1283,7 +1493,7 @@ async function predictionText(cache,key,path,date,force){
  cache.set(key,{html,until:Date.now()+5*60000});return html;
 }
 async function modelFutureTrips(state,force){
- const key=state.line+'/'+state.date,old=MODELS.tripCache.get(key);
+ const key=state.serviceId+'/'+state.date,old=MODELS.tripCache.get(key);
  if(!force&&old&&old.until>Date.now())return old.trips;
  const trips=[],cursors=new Set();let cursor;
  for(let page=0;page<50;page++){
@@ -1305,10 +1515,10 @@ async function modelPredictedWorkings(state,ticket,force){
   if(ref.id||ref.slug)candidates.set(String(ref.id||ref.slug),ref);
  }
  let tripIds=null;
- if(state.line==='6'){
+ {
   try{
-   state.progress='Checking Route 6 timetable blocks…';if(S.view==='models'&&MODELS.selected===state.line)renderModels();
-   const trips=await modelFutureTrips(state,force);tripIds=new Set(trips.map(trip=>String(trip.id)));
+   state.progress='Checking route timetable blocks…';if(S.view==='models'&&MODELS.selected===state.key)renderModels();
+   const trips=await modelFutureTrips(state,force);tripIds=MODEL_ROUTES[state.key].region==='L'?null:new Set(trips.map(trip=>String(trip.id)));
    const blocks=new Map();
    for(const trip of trips){
     if(!trip.block)continue;
@@ -1358,7 +1568,7 @@ async function modelPredictedWorkings(state,ticket,force){
    }
   }
   done++;state.progress=`Checking predicted workings · ${done} of ${refs.length} buses`;modelRebuild(state);
-  if(S.view==='models'&&MODELS.selected===state.line)renderModels();
+  if(S.view==='models'&&MODELS.selected===state.key)renderModels();
  }};await Promise.all([worker(),worker()]);
  state.predictionsChecked=true;
 }
@@ -1367,21 +1577,21 @@ function renderModels(){
  const state=modelState(MODELS.selected),route=MODEL_ROUTES[MODELS.selected],view=$('#view-models');if(!view)return;
  if(S.view==='models')$('#statchip').innerHTML=`<span class="chip">${state.loading?'Updating':'Today'}</span>`;
  const day=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',day:'numeric',month:'long'}).format(Date.now());
- let html=`${viewTitle('Models','Today’s bus models',day)}<div class="model-route-switch" role="group" aria-label="Choose a route">${['91','6'].map(line=>`<button data-model-route="${line}" aria-pressed="${line===MODELS.selected}"><b>Route ${line}</b><span>${MODEL_ROUTES[line].city}</span></button>`).join('')}</div><div class="models-heading"><h2>${state.groups.length?state.groups.length+' model'+(state.groups.length===1?'':'s'):'Models'}</h2><button id="modelsRefresh" aria-label="Refresh today’s bus models" ${state.loading?'disabled':''}>↻</button></div>`;
+ let html=`${viewTitle('Models','Today’s models & liveries',day)}<div class="model-selected-route"><span class="route-number">${esc(route.line)}</span><div><strong>${esc(route.city)}</strong><small>${esc(route.description||'Selected route')}</small></div><button class="ghost" data-go="routes">Change route</button><button class="ghost" id="route-open-map">Map ↗</button></div><div class="models-heading"><h2>${state.groups.length?state.groups.length+' model'+(state.groups.length===1?'':'s'):'Models'}</h2><button id="modelsRefresh" aria-label="Refresh today’s bus models" ${state.loading?'disabled':''}>↻</button></div>`;
  if(state.loading)html+=`<p class="models-status" role="status">${esc(state.progress)}</p>`;
  else if(state.checkedAt)html+=`<p class="models-status">Updated ${fmtT(state.checkedAt)}</p>`;
  if(state.historyError)html+=`<div class="banner warn">${state.groups.length?'Today’s history is incomplete. Showing the reports available.':'Journey history could not be loaded.'} ${!cfg.proxy?'If your browser blocks bustimes.org, add your proxy in Settings.':''}<button class="ghost" data-go="settings">Settings</button></div>`;
  if(state.groups.length){
   html+='<div class="model-list">'+state.groups.map(group=>{
    const evidence=modelTiming(group,state.line);
-   return `<article class="model-item"><h3>${esc(group.name)}</h3><p class="model-evidence">${esc(evidence)}</p>${state.line==='6'?`<ul class="model-liveries" aria-label="Liveries for ${esc(group.name)}">${[...group.liveries.values()].sort((a,b)=>a.label.localeCompare(b.label)).map(livery=>`<li>${b6LiveryHTML(livery.vehicle,false)}<span>${esc(livery.label)}<small class="predicted-livery">${esc(modelTiming(livery,state.line))}</small></span></li>`).join('')}</ul>`:''}</article>`;
+   return `<article class="model-item"><h3>${esc(group.name)}</h3><p class="model-evidence">${esc(evidence)}</p>${`<ul class="model-liveries" aria-label="Liveries for ${esc(group.name)}">${[...group.liveries.values()].sort((a,b)=>a.label.localeCompare(b.label)).map(livery=>`<li>${b6LiveryHTML(livery.vehicle,false)}<span>${esc(livery.label)}<small class="predicted-livery">${esc(modelTiming(livery,state.line))}</small></span></li>`).join('')}</ul>`}</article>`;
   }).join('')+'</div>';
  }else if(!state.loading&&!state.historyError)html+='<p class="models-empty">No identified models have been reported on this route today.</p>';
  if(state.unknown&&!state.loading)html+=`<p class="models-status">${state.unknown} vehicle record${state.unknown===1?' is':'s are'} missing model information.</p>`;
  if(state.activityErrors&&!state.loading)html+='<p class="models-status">Some GPS histories were unavailable; those entries show journey start times.</p>';
- if(state.expectedError&&!state.loading)html+=`<p class="models-status">${state.line==='91'?'Near-term arrival predictions':'The current tracking feed'} could not be checked.</p>`;
+ if(state.expectedError&&!state.loading)html+=`<p class="models-status">The current tracking feed could not be checked.</p>`;
  if(state.predictionsChecked&&!state.loading&&(state.predictionErrors||state.predictionDiscoveryError))html+='<p class="models-status">Some future buses could not be checked. If a livery is missing, refresh or update the proxy Worker from Settings; it must support vehicle and timetable-block pages.</p>';
- html+=`<details class="models-coverage"><summary>About this list</summary><p>Build 25 Oct · model timings 2</p><p>One entry per named bus model. ${state.line==='6'?'Each livery is listed once beneath its model. Livery names describe the vehicle record and may have changed since a journey.':''}</p><p>${state.historyComplete?'All pages of today’s available journey history have been checked.':'Journey history may be incomplete.'} Missing tracking or model records can leave buses out.</p><p>Active now uses a report from the last five minutes (TfL arrivals for 91, GPS for 6). Earlier times use the last recorded position on that route; when it is unavailable, the last journey’s start is labelled explicitly. Times describe the latest bus of that model or livery. “Predicted later” comes from bustimes.org’s vehicle-page predictions, inferred from recent workings and timetable blocks. For Route 6, its timetable blocks are also checked for buses switching in from other routes. Predictions can change and are not operator-confirmed allocations; coverage can still be incomplete. If a refresh fails, an unexpired saved prediction is labelled “Previously predicted”.</p><p>Today uses the Europe/London calendar date. Model names come from bustimes.org; different named variants remain separate.</p></details>`;
+ html+=`<details class="models-coverage"><summary>About this list</summary><p>Build 25 Oct · route explorer 3</p><p>One entry per named bus model. Each livery is listed once beneath its model, including London services. Livery names describe the current vehicle record and may have changed since a journey.</p><p>${state.historyComplete?'All pages of today’s available journey history have been checked.':'Journey history may be incomplete.'} Missing tracking or model records can leave buses out.</p><p>Active now uses a GPS report from the last five minutes. TfL arrivals also provide expected bus times for London routes. Earlier times use the last recorded position on that route; when it is unavailable, the last journey’s start is labelled explicitly. Times describe the latest bus of that model or livery. “Predicted later” comes from bustimes.org’s vehicle-page predictions, inferred from recent workings and timetable blocks. Timetable blocks are also checked for buses switching in from other routes. Some routes have no block data or future predictions; the app cannot list unreported allocations. Predictions can change and are not operator-confirmed allocations; coverage can still be incomplete. If a refresh fails, an unexpired saved prediction is labelled “Previously predicted”.</p><p>Today uses the Europe/London calendar date. Model names come from bustimes.org; different named variants remain separate.</p></details>`;
  view.innerHTML=html;
 }
 
@@ -1395,7 +1605,7 @@ function render(){
  const P=calc();const si=stateInfo(P);
  $('#statchip').innerHTML=S.view==='models'?`<span class="chip">${modelState(MODELS.selected).loading?'Updating':'Today'}</span>`:S.view==='bristol6'?`<span class="chip ${B6.error?'bad':B6.items.length?'ok live':''}"><i class="dot"></i>${B6.loading?'Loading':B6.error?'Offline':B6.items.length+' buses'}</span>`:`<span class="chip ${si.c}"><i class="dot"></i>${si.l}</span>`;
  const w=$('#wx');w.textContent=S.weather?`${Math.round(S.weather.temperature_2m)}°C · ${WX(S.weather.weather_code)}`:'';
- ({overview:renderOverview,bus:renderBus,traffic:renderTraffic,arrivals:renderArrivals,bristol6:renderBristol6,models:renderModels,explain:renderExplain,settings:renderSettings,pick:renderPick}[S.view]||(()=>{}))(P);
+ ({routes:renderRoutes,overview:renderOverview,bus:renderBus,traffic:renderTraffic,arrivals:renderArrivals,bristol6:renderBristol6,models:renderModels,explain:renderExplain,settings:renderSettings,pick:renderPick}[S.view]||(()=>{}))(P);
  if(S.view==='map')mapSheetRefresh();
  notifyCheck(P);
 }
@@ -1405,8 +1615,8 @@ function applyView(v){
  $$('.view').forEach(e=>e.classList.toggle('on',e.id==='view-'+v));S.view=v;
  $$('.tab').forEach(t=>t.setAttribute('aria-current',t.dataset.go===v?'page':'false'));
  $('#app').style.visibility=v==='map'?'hidden':'visible';
- const br=v==='bristol6',models=v==='models';$('.app-heading b').textContent='Bus tracker';$('.app-heading span').textContent=models?'Models · Routes 91 & 6':br?'Bristol · Route 6':'London · Route 91';$('footer.f').innerHTML=models?'Journey history · bustimes.org<br>Near-term predictions · TfL (Route 91)':br?'Vehicle positions · bustimes.org<br>GPS fixes may be delayed.':'TfL primary · bustimes.org backup<br>Always check the stop display before travelling.';
- if(br)loadBristol6();if(models)loadModels();
+ const br=v==='bristol6',models=v==='models';$('.app-heading b').textContent='Bus tracker';$('.app-heading span').textContent=models?'Models · Route '+MODEL_ROUTES[ROUTES.key].line:v==='routes'?'Explore bus routes':br?'Bristol · Route 6':'London · Route 91';$('footer.f').innerHTML=models?'Tracking and journey history · bustimes.org<br>London arrival predictions · TfL':v==='routes'?'Route search, maps and vehicle positions · bustimes.org':br?'Vehicle positions · bustimes.org<br>GPS fixes may be delayed.':'TfL primary · bustimes.org backup<br>Always check the stop display before travelling.';
+ if(br)loadBristol6();if(models){MODELS.selected=ROUTES.key;loadModels()}if(v==='routes')loadRoute();if(v==='map'){renderRouteMapControls();if(ROUTES.mode==='route')loadRoute()}
  render();mapOn=v==='map';if(v==='map'){initMap();setTimeout(()=>{mapResize();updateMap(true)},60)}else window.scrollTo(0,0);
 }
 function go(v,morph){
@@ -1516,6 +1726,7 @@ function draw(t){
  if(!vectorReady)for(let x=x0;x<=x1;x++)for(let y=y0;y<=y1;y++){const im=tile(tz,x,y);if(im&&im.ok)bctx.drawImage(im,Math.round(W/2+(x*TS-cx)*sc),Math.round(H/2+(y*TS-cy)*sc),Math.ceil(TS*sc)+1,Math.ceil(TS*sc)+1)}
  const path=pts=>{ctx.beginPath();pts.forEach((p,i)=>{const s=scr(p[0],p[1]);i?ctx.lineTo(s[0],s[1]):ctx.moveTo(s[0],s[1])})};
  ctx.lineJoin=ctx.lineCap='round';M.hits=[];
+ if(ROUTES.mode==='route'){const dot=(p,r,fill,stroke,lw)=>{ctx.beginPath();ctx.arc(p[0],p[1],r,0,7);ctx.fillStyle=fill;ctx.fill();ctx.strokeStyle=stroke;ctx.lineWidth=lw;ctx.stroke()};drawRouteOverlay(path,dot);if(busy)want();return}
  if(M.route){path(M.route);ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=9;ctx.stroke();ctx.strokeStyle='#dc241f';ctx.lineWidth=5;ctx.stroke()}
  if(M.prog){path(M.prog);ctx.setLineDash([2,9]);ctx.strokeStyle='#fff';ctx.lineWidth=3;ctx.stroke();ctx.setLineDash([])}
  if(M.walk){path(M.walk);ctx.setLineDash([2,9]);ctx.strokeStyle=isDark()?'#86bcae':'#386f60';ctx.lineWidth=5;ctx.stroke();ctx.setLineDash([])}
@@ -1535,7 +1746,9 @@ function panBy(dx,dy){VT=null;V.lon=unx(wx(V.lon,V.z)-dx,V.z);V.lat=uny(wy(V.lat
 function zoomBy(dz){VT=null;V.z=clamp(V.z+dz,2,19);want()}
 function tap(x,y){
  for(const h of [...M.hits].reverse())if(Math.hypot(h.x-x,h.y-y)<=h.r+6){
-  if(h.t==='stop')showStopSheet(h.s.id,h.s.name,h.s.letter);
+  if(h.t==='route-bus')openRouteVehicle(h.id);
+  else if(h.t==='route-stop')showRouteStop(h.s);
+  else if(h.t==='stop')showStopSheet(h.s.id,h.s.name,h.s.letter);
   else if(h.t==='timing')sheet(`<h3>Principal timing point</h3><p>${esc(h.p.name)}</p><p class="small mut">Scheduled timing point according to bustimes.org; not an actual or forecast waiting time.</p>`);
   else if(h.t==='inc')sheet(`<h3>${esc(h.i.cat)} · ${esc(h.i.sev)}</h3><p>${esc(h.i.text)}</p><p class="small mut">${esc(h.i.eff)}</p>`);
   else if(h.t==='bus'&&S.chosen)sheet(`<h3>Bus ${esc(S.chosen.vehicleId)}</h3><p>${esc(S.chosen.currentLocation||'')}</p><p class="small mut">${S.bp?.gps?'Recent bustimes.org GPS position; may have moved.':'Position estimated from TfL’s next-stop prediction, not GPS.'}</p><button class="pri" data-go="bus">Bus details</button>`);
@@ -1559,6 +1772,7 @@ function initMap(){
  updateMap(true);
 }
 function fitView(){
+ if(ROUTES.mode==='route'){fitRouteView();return}
  if(!M.sp||!W)return;const pts=[M.sp];if(S.start)pts.push(S.start);if(S.bp)pts.push(S.bp.pos);
  const lo=Math.min(...pts.map(p=>p[0])),hi=Math.max(...pts.map(p=>p[0])),a=Math.min(...pts.map(p=>p[1])),b=Math.max(...pts.map(p=>p[1]));
  let z=17;while(z>3&&(Math.abs(wx(hi,z)-wx(lo,z))>W-110||Math.abs(wy(a,z)-wy(b,z))>H-320))z-=.25;
@@ -1566,6 +1780,7 @@ function fitView(){
 }
 function sliceLine(line,a,b){const n=p=>{let bi=0,bd=1e9;line.forEach((v,i)=>{const d=hav(v,p);if(d<bd){bd=d;bi=i}});return bi};const i=n(a),j=n(b);return i<=j?line.slice(i,j+1):line.slice(j,i+1).reverse()}
 function updateMap(fit){
+ if(ROUTES.mode==='route'){if(fit&&mapOn)fitRouteView();want();return}
  if(!S.stop||S.stop.id==='demo')return;
  const sp=[S.stop.lon,S.stop.lat];M.sp=sp;M.route=S.seq?S.seq.line:null;M.walk=showWalk&&S.walk?S.walk.geom:null;
  M.prog=S.bp&&S.seq?sliceLine(S.seq.line,S.bp.pos,sp):null;
@@ -1575,7 +1790,7 @@ function updateMap(fit){
  if(fit&&mapOn)fitView();want();
 }
 function sheet(h){const s=$('#sheet');s.innerHTML=h+'<button class="ghost" id="shClose" style="margin-top:8px">Close</button>';s.classList.add('on')}
-function mapSheetRefresh(){}
+function mapSheetRefresh(){if(ROUTES.mode==='route')renderRouteVehicle()}
 async function showStopSheet(id,name,letter){
  sheet(`<h3>${esc(name)}${letter?' · Stop '+esc(letter):''}</h3><p class="mut">Loading arrivals…</p>`);
  try{const result=await arrivalsForStop(id);const a=result.arr.slice(0,4);
@@ -1586,17 +1801,30 @@ async function showStopSheet(id,name,letter){
 /* ---------- events ---------- */
 document.addEventListener('click',async e=>{
  const t=e.target.closest('button,[data-go],[data-pick],[data-geo],[data-b6-id],[data-model-route]');if(!t)return;
+ if(t.dataset.quickStop){await switch91Stop(t.dataset.quickStop);return}
+ if(t.dataset.routeKey){await selectRoute(t.dataset.routeKey);return}
+ if(t.dataset.routeResult){const service=ROUTES.search.find(x=>String(x.id)===t.dataset.routeResult);if(service)await selectRoute(registerRoute(service));return}
+ if(t.dataset.routeVehicle){await openRouteVehicle(t.dataset.routeVehicle);return}
+ if(t.id==='route-more'){await searchRoutes(true);return}
+ if(t.id==='route-open-map'){ROUTES.mode='route';go('map');return}
+ if(t.id==='route-open-models'||t.id==='route-map-models'){MODELS.selected=ROUTES.key;go('models');return}
+ if(t.id==='route-map-refresh'){await loadRoute(ROUTES.key,true);return}
+ if(t.id==='route-fit'){fitRouteView();return}
+ if(t.id==='route-zoom-in'){zoomBy(1);return}
+ if(t.id==='route-zoom-out'){zoomBy(-1);return}
+ if(t.id==='route-close-vehicle'){ROUTES.selected=null;ROUTES.detailTicket++;renderRouteVehicle();want();return}
+ if(t.id==='route-my-walk'||t.id==='journey-walk-map'||t.id==='journey-bus-map'){ROUTES.mode='journey';ROUTES.selected=null;renderRouteMapControls();go('map');updateMap(true);return}
  if(t.dataset.modelRoute){MODELS.selected=t.dataset.modelRoute;renderModels();loadModels();return}
  if(t.id==='modelsRefresh'){loadModels(MODELS.selected,true);return}
- if(t.dataset.go){if(t.dataset.go==='models'&&S.view==='bristol6')MODELS.selected='6';go(t.dataset.go);return}
+ if(t.dataset.go){if(t.dataset.go==='models'&&S.view==='bristol6'){ROUTES.key='6';MODELS.selected='6'}if(t.dataset.go==='map')ROUTES.mode='route';go(t.dataset.go);return}
  if(t.dataset.b6Id){await chooseBristol6(t.dataset.b6Id);return}
- if(t.id==='busCard'){go('map',true);return}
+ if(t.id==='busCard'){ROUTES.mode='journey';go('map',true);return}
  if(t.dataset.pick!=null){await choose(S.cands[+t.dataset.pick]);return}
  if(t.dataset.geo){const g=S.geoAlt[+t.dataset.geo];S.start=[g.lon,g.lat];S.startLabel=g.label;S.geoAlt=[g,...S.geoAlt.filter(x=>x!==g)];await resolveStop();render();return}
  if(t.dataset.follow){cfg.followVid=cfg.followVid===t.dataset.follow?null:t.dataset.follow;persist();render();refresh();return}
  if(t.dataset.usestop){const s=S.nearby.find(x=>x.id===t.dataset.usestop);if(s){await choose(s);$('#sheet').classList.remove('on');toast('Now tracking '+s.name)}return}
  switch(t.id){
-  case 'btnRefresh':case 'bRefresh':if(S.view==='models'){await loadModels(MODELS.selected,true)}else if(S.view==='bristol6'){B6.loadedAt=0;await loadBristol6(true)}else{toast('Refreshing…');S.weatherAt=0;S.roadsAt=0;await refresh()}break;
+  case 'btnRefresh':case 'bRefresh':if(S.view==='routes'||S.view==='map'&&ROUTES.mode==='route'){await loadRoute(ROUTES.key,true)}else if(S.view==='models'){await loadModels(MODELS.selected,true)}else if(S.view==='bristol6'){B6.loadedAt=0;await loadBristol6(true)}else{toast('Refreshing…');S.weatherAt=0;S.roadsAt=0;await refresh()}break;
   case 'b6Refresh':B6.loadedAt=0;await loadBristol6(true);break;
   case 'b6Back':B6.selected=null;B6.details=null;B6.journey=null;renderBristol6();break;
   case 'retryBoot':S.bootErr=null;S.err=null;boot();break;
@@ -1614,7 +1842,7 @@ document.addEventListener('click',async e=>{
   case 'mWalk':showWalk=!showWalk;t.setAttribute('aria-pressed',showWalk);updateMap();break;
   case 'mTraffic':cfg.traffic=!cfg.traffic;t.setAttribute('aria-pressed',cfg.traffic);persist();updateMap();break;
   case 'mTiming':cfg.timing=!cfg.timing;t.setAttribute('aria-pressed',String(cfg.timing));persist();if(cfg.timing&&S.veh?.id)loadBtJourneyInfo(S.veh,S.arrSource==='bt').then(()=>{render();updateMap()});updateMap();toast(cfg.timing?'Showing available published timing points':'Timing points hidden');break;
-  case 'shClose':$('#sheet').classList.remove('on');break;
+  case 'shClose':ROUTES.stopTicket=(ROUTES.stopTicket||0)+1;$('#sheet').classList.remove('on');break;
   case 'bLook':{const a=$('#sAddr').value.trim();if(!a)break;cfg.address=a;cfg.startCoords=null;cfg.stopId=null;persist();toast('Looking up…');try{await resolveStart();await resolveStop();toast('Start confirmed');render()}catch{toast('Address not found')}break}
   case 'bClearAddr':cfg.address=DEF_ADDR;cfg.startCoords=null;cfg.stopId=HOME_STOP;persist();toast('Restored your home address');renderSettings();break;
   case 'bDelete':try{localStorage.removeItem('b91')}catch{}cfg={...DEF};S.notified={};toast('Saved journey deleted');applyTheme();renderSettings();break;
@@ -1622,6 +1850,8 @@ document.addEventListener('click',async e=>{
   case 'bCopy':try{await navigator.clipboard.writeText(WORKER);toast('Worker code copied')}catch{toast('Select and copy the code below')}break;
  }
 });
+document.addEventListener('submit',e=>{if(e.target.id==='route-search-form'){e.preventDefault();searchRoutes()}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){ROUTES.selected=null;ROUTES.detailTicket++;ROUTES.stopTicket=(ROUTES.stopTicket||0)+1;renderRouteVehicle();$('#sheet').classList.remove('on');want()}});
 document.addEventListener('input',e=>{const t=e.target;
  if(t.id==='sWalk'){cfg.walkKmh=+t.value;$('#vWalk').textContent=fmtS(cfg.walkKmh);persist();if(S.walk)render()}
  if(t.id==='sBuf'){cfg.buffer=+t.value;$('#vBuf').textContent=cfg.buffer+' min';persist()}
@@ -1649,9 +1879,9 @@ async function boot(){
 }
 applyTheme();pwa();
 matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',applyTheme);
-addEventListener('online',()=>{if(S.view==='models')loadModels();else if(S.view==='bristol6')loadBristol6(true);else refresh()});addEventListener('offline',render);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(S.view==='models')loadModels();else if(S.view==='bristol6')loadBristol6(true);else refresh()}});
-setInterval(tick,1000);setInterval(()=>{if(S.view==='models')loadModels();else if(S.view==='bristol6')loadBristol6(true);else refresh()},20000);tick();
+addEventListener('online',()=>{if(S.view==='models')loadModels();else if(S.view==='routes'||S.view==='map'&&ROUTES.mode==='route')loadRoute();else if(S.view==='bristol6')loadBristol6(true);else refresh()});addEventListener('offline',render);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(S.view==='models')loadModels();else if(S.view==='routes'||S.view==='map'&&ROUTES.mode==='route')loadRoute();else if(S.view==='bristol6')loadBristol6(true);else refresh()}});
+setInterval(tick,1000);setInterval(()=>{if(S.view==='models')loadModels();else if(S.view==='routes'||S.view==='map'&&ROUTES.mode==='route')loadRoute();else if(S.view==='bristol6')loadBristol6(true);else refresh()},20000);tick();
 boot();
 })();
 </script>
