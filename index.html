@@ -12,7 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Bus 91">
-<meta name="referrer" content="no-referrer">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <style>
 :root{--red:#dc241f;--ink:#f6f1e9;--mut:rgba(246,241,233,.64);--bg1:#0b1630;--bg2:#101319;--glass:rgba(255,255,255,.07);--line:rgba(255,255,255,.17);--ok:#5fd39a;--warn:#f5b84a;--bad:#ff7a70;--blue:#86b4ff;--spring:cubic-bezier(.2,1.25,.35,1);--sat:env(safe-area-inset-top);--sab:env(safe-area-inset-bottom)}
 html[data-theme=light]{--ink:#14181f;--mut:rgba(20,24,31,.62);--bg1:#e8edf6;--bg2:#f6f1e9;--glass:rgba(255,255,255,.55);--line:rgba(20,24,31,.12)}
@@ -69,7 +69,8 @@ input[type=range]{width:100%;min-height:44px;accent-color:var(--red)}
 #view-map.on{display:block}
 #map{position:absolute;inset:0}
 #map canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;display:block}
-.attr{position:absolute;right:8px;bottom:calc(var(--sab) + 70px);z-index:11;font-size:10px;color:var(--mut);background:var(--glass);padding:2px 8px;border-radius:8px;pointer-events:none}
+#mb{pointer-events:none}html[data-theme=dark] #mb{filter:invert(1) hue-rotate(180deg) saturate(.55) brightness(1) contrast(.72)}
+.attr{position:absolute;right:8px;bottom:calc(var(--sab) + 106px);z-index:11;font-size:11px;color:#f6f1e9;background:rgba(12,20,32,.88);padding:5px 9px;border-radius:9px;pointer-events:auto}.attr a{color:inherit;text-decoration:underline;text-underline-offset:2px}
 .mctl{position:absolute;left:12px;right:12px;top:calc(var(--sat) + 10px);z-index:12;display:flex;gap:8px;flex-wrap:wrap}
 .mctl button{min-height:46px;font-size:14px;padding:0 14px}
 .mctl button[aria-pressed=true]{background:var(--red);color:#fff;border-color:transparent}
@@ -152,7 +153,7 @@ html[data-theme=light] #busCard{background:#fff}
 </div>
 
 <section class="view" id="view-map" aria-label="Interactive map">
- <div id="map" role="application" aria-label="Map of your walk and Route 91"><canvas id="mc"></canvas><div class="attr">© OpenStreetMap contributors © CARTO</div></div>
+ <div id="map" role="application" aria-label="Map of your walk and Route 91"><canvas id="mb" aria-hidden="true"></canvas><canvas id="mc"></canvas><div class="attr"><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap contributors</a></div></div>
  <div class="mctl">
   <button id="mBack" aria-label="Back to journey">‹ Back</button>
   <button id="mZin" aria-label="Zoom in">+</button>
@@ -165,7 +166,7 @@ html[data-theme=light] #busCard{background:#fff}
   <button id="mDetails" aria-label="Show bus details">Details</button>
  </div>
  <div id="sheet" class="glass" role="dialog" aria-label="Details"></div>
- <div id="mapmsg" class="banner bad" hidden style="position:absolute;top:120px;left:12px;right:12px;z-index:13">The map library could not load (offline?). The rest of the app still works.</div>
+ <div id="mapmsg" class="banner bad" hidden style="position:absolute;top:120px;left:12px;right:12px;z-index:13">The map cannot start in this browser. The rest of the app still works.</div>
 </section>
 
 <nav class="tabs" aria-label="Main navigation">
@@ -740,7 +741,7 @@ function renderSettings(){
  <li>Microphone and camera are never used. Precise location is used only if you switch it on above.</li>
  <li>Error log below never contains coordinates or the address.</li></ul>
  <h3 style="margin-top:12px">Data sources</h3>
- <ul class="small"><li>Primary arrivals, route sequence, timetable, service status, road disruptions, journey planner: TfL Unified API</li><li>Fallback nearby stops and departure times: bustimes.org (can include scheduled times only)</li><li>Vehicle fleet number, model, livery: bustimes.org using reg=</li><li>Geocoding: OpenStreetMap Nominatim</li><li>Walking route: FOSSGIS routing on OpenStreetMap data</li><li>Traffic: TfL road disruptions without a key; optional TomTom traffic speed using your Worker key</li><li>Principal timing points: bustimes.org vehiclejourneys/details, when linked to a trip</li><li>Map tiles: OpenStreetMap contributors</li></ul></div>
+ <ul class="small"><li>Primary arrivals, route sequence, timetable, service status, road disruptions, journey planner: TfL Unified API</li><li>Fallback nearby stops and departure times: bustimes.org (can include scheduled times only)</li><li>Vehicle fleet number, model, livery: bustimes.org using reg=</li><li>Geocoding: OpenStreetMap Nominatim</li><li>Walking route: FOSSGIS routing on OpenStreetMap data</li><li>Traffic: TfL road disruptions without a key; optional TomTom traffic speed using your Worker key</li><li>Principal timing points: bustimes.org vehiclejourneys/details, when linked to a trip</li><li>Map tiles: OpenStreetMap standard raster tiles (key-free; dark recolouring is applied locally; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">attribution</a>)</li></ul></div>
  <div class="glass"><h2>Install on iPhone</h2><p class="small mut">Host these files on an HTTPS website, open in iPhone Safari, tap Share → Add to Home Screen, and select Open as Web App. The tracker then opens like an app instead of in an HTML viewer.</p></div>
  <div class="glass"><h2>Proxy &amp; API keys</h2><p class="small mut">A single HTML file cannot keep a secret. Without a proxy, TfL is called directly without a key. bustimes.org may block direct browser requests because of CORS. For reliable automatic fallback, deploy the Worker below and paste its URL. Never place a key in this page.</p>
  <input type="url" id="sProxy" placeholder="https://your-proxy.workers.dev" value="${esc(cfg.proxy)}" aria-label="Proxy URL"><div class="row" style="margin-top:10px"><button id="bProxy">Save proxy URL</button><button id="bCopy" class="ghost">Copy Worker code</button></div>
@@ -777,8 +778,8 @@ function go(v,morph){
   t.finished.finally(()=>{$('#view-map').style.viewTransitionName=''});
  }else applyView(v);
 }
-/* ---------- map: own canvas renderer (no external map library) ---------- */
-let mapOn=false,showWalk=true,camFollow=false,cur=null,anim=null,VT=null,ctx=null,W=0,H=0,dpr=1,raf=0,mInit=false;
+/* ---------- map: key-free OpenStreetMap standard raster tiles + canvas overlays ---------- */
+let mapOn=false,showWalk=true,camFollow=false,cur=null,anim=null,VT=null,ctx=null,bctx=null,W=0,H=0,dpr=1,raf=0,mInit=false;
 const V={lon:-0.118,lat:51.54,z:15.3},M={hits:[],stops:[]},TS=256,tiles=new Map();
 const wx=(lon,z)=>(lon+180)/360*TS*2**z;
 const wy=(lat,z)=>{const s=Math.sin(lat*rad);return(.5-Math.log((1+s)/(1-s))/(4*Math.PI))*TS*2**z};
@@ -789,10 +790,19 @@ const want=()=>{if(!raf&&mapOn)raf=requestAnimationFrame(draw)};
 const isDark=()=>document.documentElement.dataset.theme==='dark';
 function tile(z,x,y){
  const n=2**z;x=((x%n)+n)%n;if(y<0||y>=n)return null;
- const d=isDark(),r=dpr>1.5?'@2x':'',k=(d?'d':'l')+r+z+'/'+x+'/'+y;let t=tiles.get(k);
- if(!t){t=new Image();t.referrerPolicy='no-referrer';t.onload=()=>{t.ok=1;want()};t.onerror=()=>{t.bad=1};
-  t.src=`https://${'abcd'[(x+y)%4]}.basemaps.cartocdn.com/rastertiles/${d?'dark_all':'voyager'}/${z}/${x}/${y}${r}.png`;
-  tiles.set(k,t);if(tiles.size>500)tiles.delete(tiles.keys().next().value)}
+ const k=z+'/'+x+'/'+y;let t=tiles.get(k);
+ if(!t){
+  t=new Image();
+  // OSM requires a valid website origin on tile requests; never send the address or full path.
+  t.referrerPolicy='strict-origin-when-cross-origin';
+  t.onload=()=>{t.ok=1;$('#mapmsg').hidden=true;want()};
+  t.onerror=()=>{t.bad=1;if(mapOn&&![...tiles.values()].some(a=>a.ok)){
+   const msg=$('#mapmsg');msg.textContent='Map background unavailable. Check your connection; route and stop markers can still be shown.';msg.hidden=false;
+  }};
+  // No key, account, vendor SDK or paid map service required. Browser caching honours OSM tile policy.
+  t.src=`https://tile.openstreetmap.org/${z}/${x}/${y}.png`;
+  tiles.set(k,t);if(tiles.size>500)tiles.delete(tiles.keys().next().value);
+ }
  return t;
 }
 function draw(t){
@@ -800,10 +810,14 @@ function draw(t){
  if(VT){const k=clamp((t-VT.t0)/VT.d,0,1),e=1-(1-k)**3;V.lon=VT.f.lon+(VT.t.lon-VT.f.lon)*e;V.lat=VT.f.lat+(VT.t.lat-VT.f.lat)*e;V.z=VT.f.z+(VT.t.z-VT.f.z)*e;if(k>=1)VT=null;else busy=true}
  if(anim){const k=clamp((t-anim.t0)/1800,0,1),e=1-(1-k)**3;cur=[anim.f[0]+(anim.t[0]-anim.f[0])*e,anim.f[1]+(anim.t[1]-anim.f[1])*e];if(k>=1)anim=null;else busy=true}
  if(camFollow&&cur&&!VT&&ptrs.size===0){V.lon+=(cur[0]-V.lon)*.1;V.lat+=(cur[1]-V.lat)*.1;busy=true}
- const dark=isDark();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle=dark?'#1b1f27':'#e9e5dc';ctx.fillRect(0,0,W,H);
+ // Keep the map tiles in a dedicated canvas. A CSS filter colours only that layer,
+ // because CanvasRenderingContext2D.filter is not supported in iPhone Safari.
+ bctx.setTransform(dpr,0,0,dpr,0,0);bctx.clearRect(0,0,W,H);
+ bctx.fillStyle='#e9e5dc';bctx.fillRect(0,0,W,H);
+ ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);
  const tz=clamp(Math.round(V.z),2,19),sc=2**(V.z-tz),cx=wx(V.lon,tz),cy=wy(V.lat,tz);
  const x0=Math.floor((cx-W/2/sc)/TS),x1=Math.floor((cx+W/2/sc)/TS),y0=Math.floor((cy-H/2/sc)/TS),y1=Math.floor((cy+H/2/sc)/TS);
- for(let x=x0;x<=x1;x++)for(let y=y0;y<=y1;y++){const im=tile(tz,x,y);if(im&&im.ok)ctx.drawImage(im,Math.round(W/2+(x*TS-cx)*sc),Math.round(H/2+(y*TS-cy)*sc),Math.ceil(TS*sc)+1,Math.ceil(TS*sc)+1)}
+ for(let x=x0;x<=x1;x++)for(let y=y0;y<=y1;y++){const im=tile(tz,x,y);if(im&&im.ok)bctx.drawImage(im,Math.round(W/2+(x*TS-cx)*sc),Math.round(H/2+(y*TS-cy)*sc),Math.ceil(TS*sc)+1,Math.ceil(TS*sc)+1)}
  const path=pts=>{ctx.beginPath();pts.forEach((p,i)=>{const s=scr(p[0],p[1]);i?ctx.lineTo(s[0],s[1]):ctx.moveTo(s[0],s[1])})};
  ctx.lineJoin=ctx.lineCap='round';M.hits=[];
  if(M.route){path(M.route);ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=9;ctx.stroke();ctx.strokeStyle='#dc241f';ctx.lineWidth=5;ctx.stroke()}
@@ -820,7 +834,7 @@ function draw(t){
  if(busy)want();
 }
 const ptrs=new Map();let down=null,pinch=null;
-function mapResize(){const c=$('#mc');if(!c)return;dpr=Math.min(3,devicePixelRatio||1);W=c.clientWidth;H=c.clientHeight;c.width=Math.round(W*dpr);c.height=Math.round(H*dpr);ctx=c.getContext('2d');want()}
+function mapResize(){const c=$('#mc'),bg=$('#mb');if(!c||!bg)return;dpr=Math.min(3,devicePixelRatio||1);W=c.clientWidth;H=c.clientHeight;c.width=bg.width=Math.round(W*dpr);c.height=bg.height=Math.round(H*dpr);ctx=c.getContext('2d');bctx=bg.getContext('2d');want()}
 function panBy(dx,dy){VT=null;V.lon=unx(wx(V.lon,V.z)-dx,V.z);V.lat=uny(wy(V.lat,V.z)-dy,V.z);want()}
 function zoomBy(dz){VT=null;V.z=clamp(V.z+dz,2,19);want()}
 function tap(x,y){
