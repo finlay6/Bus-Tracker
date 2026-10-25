@@ -1,0 +1,944 @@
+<!doctype html>
+<html lang="en-GB" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Route 91 · Caledonian Road</title>
+<meta name="theme-color" content="#070a10">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="color-scheme" content="dark light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bus 91">
+<meta name="referrer" content="no-referrer">
+<style>
+:root{--red:#dc241f;--ink:#f6f1e9;--mut:rgba(246,241,233,.64);--bg1:#0b1630;--bg2:#101319;--glass:rgba(255,255,255,.07);--line:rgba(255,255,255,.17);--ok:#5fd39a;--warn:#f5b84a;--bad:#ff7a70;--blue:#86b4ff;--spring:cubic-bezier(.2,1.25,.35,1);--sat:env(safe-area-inset-top);--sab:env(safe-area-inset-bottom)}
+html[data-theme=light]{--ink:#14181f;--mut:rgba(20,24,31,.62);--bg1:#e8edf6;--bg2:#f6f1e9;--glass:rgba(255,255,255,.55);--line:rgba(20,24,31,.12)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--bg2);color:var(--ink);font:16px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;-webkit-text-size-adjust:100%}
+body{background:radial-gradient(900px 500px at 85% -10%,rgba(220,36,31,.22),transparent 60%),radial-gradient(700px 600px at -10% 20%,rgba(70,110,220,.25),transparent 60%),linear-gradient(165deg,var(--bg1),var(--bg2)) fixed;padding:calc(var(--sat) + 8px) 14px calc(var(--sab) + 96px)}
+#app{max-width:560px;margin:0 auto}
+.glass{position:relative;background:linear-gradient(145deg,rgba(255,255,255,.17),rgba(255,255,255,.03) 55%),var(--glass);-webkit-backdrop-filter:blur(26px) saturate(170%);backdrop-filter:blur(26px) saturate(170%);border:1px solid var(--line);border-radius:28px;box-shadow:0 12px 40px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.28);padding:18px;margin:0 0 14px;overflow:hidden}
+.glass::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(115deg,rgba(255,255,255,.14) 0%,transparent 28%)}
+h1,h2,h3{margin:0;font-weight:700;letter-spacing:-.01em}h2{font-size:20px}h3{font-size:15px;color:var(--mut);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+p{margin:.4em 0}.mut{color:var(--mut)}.small{font-size:13px}
+header.top{display:flex;align-items:center;gap:10px;padding:6px 4px 12px}
+.clock{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.sp{flex:1}
+button,.btn{font:inherit;color:inherit;border:1px solid var(--line);background:var(--glass);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border-radius:999px;min-height:48px;min-width:48px;padding:0 18px;cursor:pointer;transition:transform .35s var(--spring),background .2s}
+button:active{transform:scale(.95)}
+button.pri{background:var(--red);border-color:transparent;color:#fff;font-weight:600}
+button.ghost{background:transparent}
+.badge{display:inline-flex;align-items:center;justify-content:center;background:var(--red);color:#fff;font-weight:800;font-size:22px;min-width:58px;height:42px;border-radius:12px;padding:0 10px;box-shadow:0 4px 14px rgba(220,36,31,.45)}
+.row{display:flex;align-items:center;gap:10px}.wrap{flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;font-size:13px;font-weight:600;border:1px solid var(--line);background:var(--glass)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--mut)}
+.ok .dot{background:var(--ok)}.warn .dot{background:var(--warn)}.bad .dot{background:var(--bad)}
+.live .dot{animation:pulse 1.8s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(95,211,154,.7)}100%{box-shadow:0 0 0 10px rgba(95,211,154,0)}}
+.count{font-size:46px;line-height:1.05;font-weight:800;letter-spacing:-.03em;margin:10px 0 4px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cell{padding:12px 14px;border-radius:20px;background:rgba(127,127,127,.1);border:1px solid var(--line)}
+.cell b{display:block;font-size:20px;font-variant-numeric:tabular-nums}.cell span.l{font-size:12px;color:var(--mut)}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}.kv:last-child{border:0}
+.kv .k{color:var(--mut);flex:0 0 42%}.kv .v{text-align:right;flex:1;font-weight:600;word-break:break-word}
+.tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.05em;padding:2px 7px;border-radius:7px;margin-left:6px;vertical-align:middle;text-transform:uppercase}
+.t-live{background:rgba(95,211,154,.2);color:var(--ok)}.t-calc{background:rgba(134,180,255,.2);color:var(--blue)}.t-hist{background:rgba(245,184,74,.2);color:var(--warn)}.t-miss{background:rgba(150,150,150,.25);color:var(--mut)}.t-demo{background:rgba(190,120,255,.25);color:#c9a0ff}
+.missing{color:var(--mut);font-weight:500;font-style:italic}
+.banner{padding:12px 14px;border-radius:18px;margin:0 0 12px;font-size:14px;border:1px solid var(--line)}
+.banner.warn{background:rgba(245,184,74,.14)}.banner.bad{background:rgba(255,122,112,.14)}.banner.demo{background:rgba(190,120,255,.16)}.banner.info{background:rgba(134,180,255,.12)}
+.view{display:none}.view.on{display:block;animation:vin .55s var(--spring)}
+@keyframes vin{from{opacity:0;transform:translateY(16px) scale(.985)}to{opacity:1;transform:none}}
+nav.tabs{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--sab) + 10px);width:min(540px,calc(100% - 20px));z-index:50;display:flex;gap:4px;padding:6px;border-radius:30px;background:linear-gradient(145deg,rgba(255,255,255,.18),rgba(255,255,255,.04)),rgba(20,24,34,.55);-webkit-backdrop-filter:blur(30px) saturate(180%);backdrop-filter:blur(30px) saturate(180%);border:1px solid var(--line);box-shadow:0 14px 40px rgba(0,0,0,.4)}
+html[data-theme=light] nav.tabs{background:rgba(255,255,255,.7)}
+.tab{flex:1;min-height:52px;border:0;border-radius:24px;background:transparent;font-size:11.5px;font-weight:600;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0 2px;color:var(--mut)}
+.tab svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tab[aria-current=page]{background:rgba(255,255,255,.16);color:var(--ink)}.tab[aria-current=page] svg{stroke:var(--red)}
+input[type=text],input[type=url],select{font:inherit;font-size:16px;color:inherit;background:rgba(127,127,127,.12);border:1px solid var(--line);border-radius:16px;min-height:48px;padding:0 14px;width:100%}
+input[type=range]{width:100%;min-height:44px;accent-color:var(--red)}
+.sw{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:52px;padding:6px 0;border-bottom:1px solid var(--line)}
+.sw:last-child{border:0}
+.sw input[type=checkbox]{appearance:none;-webkit-appearance:none;width:56px;height:34px;border-radius:20px;background:rgba(127,127,127,.35);position:relative;flex:0 0 56px;transition:background .25s;cursor:pointer}
+.sw input[type=checkbox]::after{content:"";position:absolute;top:3px;left:3px;width:28px;height:28px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.35);transition:transform .35s var(--spring)}
+.sw input[type=checkbox]:checked{background:var(--ok)}.sw input[type=checkbox]:checked::after{transform:translateX(22px)}
+.list button.item{display:flex;width:100%;text-align:left;border-radius:20px;margin-bottom:8px;padding:12px 16px;justify-content:space-between;align-items:center;gap:10px;min-height:60px}
+.bar{height:8px;border-radius:6px;background:rgba(127,127,127,.25);overflow:hidden;margin-top:8px}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--red),#ff8a5c);border-radius:6px;transition:width .8s var(--spring)}
+#view-map{position:fixed;inset:0;z-index:10;padding:0;background:var(--bg2)}
+#view-map.on{display:block}
+#map{position:absolute;inset:0}
+#map canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;display:block}
+.attr{position:absolute;right:8px;bottom:calc(var(--sab) + 70px);z-index:11;font-size:10px;color:var(--mut);background:var(--glass);padding:2px 8px;border-radius:8px;pointer-events:none}
+.mctl{position:absolute;left:12px;right:12px;top:calc(var(--sat) + 10px);z-index:12;display:flex;gap:8px;flex-wrap:wrap}
+.mctl button{min-height:46px;font-size:14px;padding:0 14px}
+.mctl button[aria-pressed=true]{background:var(--red);color:#fff;border-color:transparent}
+#sheet{position:absolute;left:10px;right:10px;bottom:calc(var(--sab) + 84px);z-index:12;max-height:46vh;overflow:auto;display:none}
+#sheet.on{display:block;animation:vin .45s var(--spring)}
+#toast{position:fixed;left:50%;top:calc(var(--sat) + 10px);transform:translate(-50%,-140%);z-index:90;max-width:90%;padding:12px 18px;border-radius:20px;background:rgba(20,24,34,.92);color:#fff;border:1px solid var(--line);transition:transform .5s var(--spring);font-size:14px}
+#toast.on{transform:translate(-50%,0)}
+footer.f{text-align:center;font-size:12px;color:var(--mut);padding:8px 10px 0}
+pre{white-space:pre-wrap;word-break:break-word;font-size:12px;background:rgba(0,0,0,.25);padding:12px;border-radius:14px;max-height:260px;overflow:auto;color:#f6f1e9}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+::view-transition-group(morph){animation-duration:.6s;animation-timing-function:var(--spring)}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.35s}
+html[data-motion=reduced] *,html[data-motion=reduced] *::before,html[data-motion=reduced] *::after{animation:none!important;transition:none!important}
+html[data-motion=reduced]::view-transition-group(*),html[data-motion=reduced]::view-transition-old(*),html[data-motion=reduced]::view-transition-new(*){animation:none!important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+/* Route 91 – Midnight refresh. Keep contrasts legible in bright daylight. */
+:root{--red:#ef5149;--ink:#f4f6f9;--mut:#9ba7b9;--bg1:#080b12;--bg2:#0c111b;--glass:#111925;--line:rgba(183,200,225,.13);--ok:#70e1ba;--warn:#f2c77b;--blue:#8fb7ff;--spring:cubic-bezier(.2,.85,.3,1)}
+html[data-theme=light]{--red:#c62d33;--ink:#18212b;--mut:#627080;--bg1:#eff3fa;--bg2:#f4f6fa;--glass:#fff;--line:rgba(20,35,54,.16);--ok:#147d54;--warn:#996321;--blue:#255dbf}
+body{background:radial-gradient(750px 420px at 110% -6%,rgba(190,56,66,.15),transparent 66%),radial-gradient(700px 460px at -25% 12%,rgba(32,79,140,.11),transparent 72%),linear-gradient(175deg,var(--bg1),var(--bg2)) fixed;padding:calc(var(--sat) + 10px) 16px calc(var(--sab) + 105px)}
+#app{max-width:560px}
+.glass{background:var(--glass);border:1px solid var(--line);border-radius:23px;box-shadow:0 12px 25px rgba(0,0,0,.10);padding:19px;margin-bottom:12px;overflow:hidden}
+.glass::after{display:none}
+header.top{padding:5px 2px 18px;gap:10px}
+.clock{font-size:24px;font-weight:750;letter-spacing:-.04em}
+.app-mark{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:15px;background:var(--red);color:#fff;font-size:26px;font-weight:900;letter-spacing:-.055em;flex-shrink:0;box-shadow:0 7px 20px rgba(205,55,65,.18)}
+.app-heading{display:flex;flex-direction:column;gap:2px;min-width:0}.app-heading b{font-size:16px;letter-spacing:-.02em}.app-heading span{font-size:11px;color:var(--mut);white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+header.top .clock{font-size:14px;color:var(--ink)}header.top #wx{font-size:10px}
+header.top #statchip .chip{font-size:11px;padding:5px 8px}
+header.top button{min-width:40px;min-height:43px;padding:0 10px;border-radius:14px;font-size:21px}
+button,.btn{background:#182231;border-color:var(--line)}button.pri{background:var(--red);color:#fff}
+html[data-theme=light] button{background:#edf1f7}html[data-theme=light] button.pri{background:var(--red)}
+.badge{background:var(--red);border-radius:14px;box-shadow:none;font-size:24px;min-width:60px;height:50px}
+#hero{padding:24px 20px 23px;border-color:rgba(239,81,73,.3);background:linear-gradient(145deg,rgba(123,37,51,.28),rgba(20,29,42,.88) 50%,#111925)}
+html[data-theme=light] #hero{background:linear-gradient(140deg,#fff2f1,#fff 64%)}
+#hero .count{font-size:clamp(34px,10vw,52px);letter-spacing:-.052em;line-height:1.13;margin:21px 0 10px}
+#hero .mut{font-size:14px;line-height:1.6}
+.chip{background:#1b2735;border-color:var(--line)}html[data-theme=light] .chip{background:#edf1f6}
+.grid{gap:9px}.cell{background:#131d2a;border-color:var(--line);border-radius:17px;padding:15px}.cell b{font-size:21px;margin-top:3px}.cell span.l{font-size:11px;line-height:1.4;display:block}
+html[data-theme=light] .cell{background:#f5f7fb}
+.tag{border-radius:6px;letter-spacing:.035em;margin-left:3px}.t-live{background:rgba(112,225,186,.13)}.t-hist{background:rgba(242,199,123,.13)}
+nav.tabs{background:rgba(12,18,27,.96);border:1px solid rgba(176,197,225,.16);box-shadow:0 12px 35px rgba(0,0,0,.42);border-radius:25px}
+nav.tabs .tab{min-height:58px;border-radius:20px}nav.tabs .tab[aria-current=page]{background:#202b3a;color:#fff}
+nav.tabs .tab[aria-current=page] svg{stroke:#ff8079}
+.banner{border-radius:14px;line-height:1.5}.kv{padding:12px 0}.kv .k{font-size:13px}.kv .v{font-size:14px}
+.board{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.board-card{background:#131f2d;border:1px solid var(--line);border-radius:22px;padding:15px;min-width:0}
+.board-card:first-child{background:linear-gradient(160deg,rgba(239,81,73,.17),#131f2d 68%);border-color:rgba(239,81,73,.31)}
+html[data-theme=light] .board-card{background:#fff}html[data-theme=light] .board-card:first-child{background:#fff2f2}
+.board-head{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--mut);font-weight:800}
+.board-time{font-size:clamp(26px,7.5vw,38px);line-height:1.2;letter-spacing:-.055em;font-weight:820;font-variant-numeric:tabular-nums;margin:10px 0 4px}
+.board-sub{font-size:12px;line-height:1.45;color:var(--mut)}.board-card .tag{margin:8px 0 0}
+.info-strip{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--mut);margin:2px 0 14px;padding:0 4px}
+#busCard{background:linear-gradient(160deg,#182436,#101925)}
+html[data-theme=light] #busCard{background:#fff}
+#view-settings .glass h2,#view-traffic .glass h2{margin-bottom:13px}
+@media(max-width:360px){header.top #wx,header.top .app-heading span{display:none}.app-heading b{font-size:13px}header.top .clock{font-size:12px}#hero .count{font-size:34px}}
+</style>
+</head>
+<body>
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="app">
+ <header class="top">
+  <span class="app-mark" aria-label="Route 91">91</span>
+  <div class="app-heading"><b>Route 91</b><span>Caledonian Road · Stop A</span></div>
+   <div class="sp"></div>
+   <div style="text-align:right"><div class="clock" id="clock" aria-label="Current time">--:--</div><div class="small mut" id="wx"></div><span id="statchip"></span></div>
+  <button id="btnRefresh" aria-label="Refresh live data">↻</button>
+  <button id="btnSettings" aria-label="Settings and privacy">⚙︎</button>
+ </header>
+ <main>
+  <section class="view on" id="view-overview" aria-label="Journey overview"></section>
+  <section class="view" id="view-bus" aria-label="Bus details"></section>
+  <section class="view" id="view-traffic" aria-label="Traffic conditions"></section>
+  <section class="view" id="view-arrivals" aria-label="Stop arrivals"></section>
+  <section class="view" id="view-explain" aria-label="Prediction explanation"></section>
+  <section class="view" id="view-settings" aria-label="Settings and privacy"></section>
+  <section class="view" id="view-pick" aria-label="Select your bus stop"></section>
+ </main>
+ <footer class="f">TfL primary · bustimes.org backup<br>Always check the stop display before travelling.</footer>
+</div>
+
+<section class="view" id="view-map" aria-label="Interactive map">
+ <div id="map" role="application" aria-label="Map of your walk and Route 91"><canvas id="mc"></canvas><div class="attr">© OpenStreetMap contributors © CARTO</div></div>
+ <div class="mctl">
+  <button id="mBack" aria-label="Back to journey">‹ Back</button>
+  <button id="mZin" aria-label="Zoom in">+</button>
+  <button id="mZout" aria-label="Zoom out">−</button>
+  <button id="mRecenter" aria-label="Recenter map">Recenter</button>
+  <button id="mFollow" aria-pressed="false" aria-label="Follow bus">Follow bus</button>
+  <button id="mWalk" aria-pressed="true" aria-label="Show walking route">Walk</button>
+  <button id="mTraffic" aria-pressed="true" aria-label="Show traffic incidents">Traffic</button>
+  <button id="mTiming" aria-pressed="true" aria-label="Show timing points">Timing pts</button>
+  <button id="mDetails" aria-label="Show bus details">Details</button>
+ </div>
+ <div id="sheet" class="glass" role="dialog" aria-label="Details"></div>
+ <div id="mapmsg" class="banner bad" hidden style="position:absolute;top:120px;left:12px;right:12px;z-index:13">The map library could not load (offline?). The rest of the app still works.</div>
+</section>
+
+<nav class="tabs" aria-label="Main navigation">
+ <button class="tab" data-go="overview" aria-current="page"><svg viewBox="0 0 24 24"><path d="M4 12l8-8 8 8M6 10v9h12v-9"/></svg>Journey</button>
+ <button class="tab" data-go="map"><svg viewBox="0 0 24 24"><path d="M9 4l-6 2v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/></svg>Map</button>
+ <button class="tab" data-go="bus"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="15" rx="3"/><path d="M4 11h16M8 21v-3M16 21v-3"/></svg>Bus</button>
+ <button class="tab" data-go="traffic"><svg viewBox="0 0 24 24"><path d="M12 3l10 18H2zM12 10v4M12 17.5v.5"/></svg>Traffic</button>
+ <button class="tab" data-go="arrivals"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Arrivals</button>
+</nav>
+
+<script>
+(()=>{'use strict';
+/* ---------- constants & helpers ---------- */
+const NS='Not supplied by the live feed',DEF_ADDR='465 Caledonian Road, London N7 9GU',HOME_STOP='490000035A',SEG_SEC=70;
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rad=Math.PI/180;
+const hav=(a,b)=>{const R=6371000,dl=(b[1]-a[1])*rad,dn=(b[0]-a[0])*rad,x=Math.sin(dl/2)**2+Math.cos(a[1]*rad)*Math.cos(b[1]*rad)*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(x))};
+const fmtT=ms=>new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(ms);
+const fmtTS=ms=>new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).format(ms);
+function lp(ms){const p=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',hour:'2-digit',minute:'2-digit',second:'2-digit',weekday:'long',hourCycle:'h23'}).formatToParts(ms);const g=t=>p.find(x=>x.type===t).value;return{h:+g('hour'),m:+g('minute'),s:+g('second'),wd:g('weekday')}}
+const mins=s=>Math.round(s/60);
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
+/* ---------- settings (local only) ---------- */
+const DEF={walkKmh:4.8,walkMinutes:1,buffer:2,units:'km',theme:'dark',motion:false,traffic:true,timing:true,saveAddress:true,address:DEF_ADDR,startCoords:null,stopId:HOME_STOP,proxy:'',weather:false,useLoc:false,notify:false,leaveNow:false,followVid:null,homeVersion:2};
+let cfg={...DEF};try{Object.assign(cfg,JSON.parse(localStorage.getItem('b91')||'{}'))}catch{}
+const persist=()=>{const c={...cfg};if(!c.saveAddress){c.startCoords=null;c.stopId=null}try{localStorage.setItem('b91',JSON.stringify(c))}catch{}};
+// Previous versions could retain an incorrect geocoded pin; resolve this precise address afresh.
+if(cfg.homeVersion!==2){cfg={...cfg,address:DEF_ADDR,stopId:HOME_STOP,startCoords:null,saveAddress:true,useLoc:false,walkMinutes:1,theme:'dark',timing:true,homeVersion:2};persist()}
+const fmtD=m=>cfg.units==='mi'?(m<400?Math.round(m*1.0936)+' yd':(m/1609.34).toFixed(2)+' mi'):(m<1000?Math.round(m)+' m':(m/1000).toFixed(2)+' km');
+const fmtS=k=>cfg.units==='mi'?(k/1.609).toFixed(1)+' mph':k.toFixed(1)+' km/h';
+/* ---------- state ---------- */
+const S={start:null,startLabel:'',stop:null,cands:[],nearby:[],arr:[],arrSource:null,arrMode:null,stopSource:null,backupReason:null,fetchedAt:0,err:null,rate:false,seq:null,walk:null,jp:null,lineStatus:null,roads:[],roadsAt:0,roadsErr:false,inc:[],sched:null,schedFor:null,veh:null,vehId:null,vehErr:null,vArr:null,btGpsAt:0,timingPoints:[],timingFor:null,timingAt:0,traffic:null,trafficErr:null,weather:null,weatherAt:0,demo:false,log:[],view:'overview',passed:null,loading:true,chosen:null,bp:null,notified:{},stopClosed:false,flags:new Set(),srcs:{},geoAlt:[]};
+class ApiErr extends Error{constructor(k,m){super(m||k);this.kind=k}}
+const logE=m=>{S.log.unshift(fmtTS(Date.now())+' '+String(m).replace(/-?\d+\.\d{3,}/g,'•').slice(0,180));S.log.length=Math.min(S.log.length,30)};
+async function api(kind,path,params={},type='json'){
+ const px=(cfg.proxy||'').trim().replace(/\/$/,'');
+ const base=px?px+'/'+kind:(kind==='tfl'?'https://api.tfl.gov.uk':'https://bustimes.org');
+ const u=new URL(base+path);for(const[k,v]of Object.entries(params))if(v!=null)u.searchParams.set(k,v);
+ let r;try{r=await fetch(u,{cache:'no-store',signal:AbortSignal.timeout?AbortSignal.timeout(10000):undefined})}catch(e){logE(kind+' '+path+' network/CORS error');throw new ApiErr('net')}
+ if(r.status===429){logE(kind+' '+path+' 429');if(kind==='tfl')S.rate=true;throw new ApiErr('rate')}
+ if(!r.ok){logE(kind+' '+path+' HTTP '+r.status);throw new ApiErr('http',String(r.status))}
+ try{return type==='text'?await r.text():await r.json()}catch{logE(kind+' '+path+' invalid response');throw new ApiErr('format')}
+}
+
+/* bustimes.org's API contains metadata; stop departures are a separate HTML
+   fragment at /stops/{ATCO}/departures. Never mistake scheduled for live. */
+const tflStopId=id=>String(id||'').trim().toUpperCase();
+function londonCalendar(ms){
+ const p=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(ms);
+ const n=k=>+p.find(x=>x.type===k).value;
+ return{y:n('year'),mo:n('month'),d:n('day'),h:n('hour'),mi:n('minute')};
+}
+const londonKey=p=>[p.y,String(p.mo).padStart(2,'0'),String(p.d).padStart(2,'0')].join('-');
+function wallTimeMs(hm,day){
+ const a=/^(\d{1,2}):(\d{2})$/.exec(hm||'');if(!a)return null;
+ const utc=Date.UTC(day.y,day.mo-1,day.d,+a[1],+a[2]);
+ // Test both GMT and BST: handles the October clock change without relying on device timezone.
+ const options=[utc,utc-3600000].filter(t=>{const p=londonCalendar(t);return p.y===day.y&&p.mo===day.mo&&p.d===day.d&&p.h===+a[1]&&p.mi===+a[2]});
+ return options.length?options:null;
+}
+function btClockMs(hm,now,dayHint){
+ const base=londonCalendar(now),ans=[];
+ for(let offset=0;offset<3;offset++){
+  const d=new Date(Date.UTC(base.y,base.mo-1,base.d+offset));
+  const day={y:d.getUTCFullYear(),mo:d.getUTCMonth()+1,d:d.getUTCDate()};
+  if(dayHint&&londonKey(day)!==dayHint)continue;
+  ans.push(...(wallTimeMs(hm,day)||[]));
+ }
+ return ans.filter(x=>x>=now-90000).sort((a,b)=>a-b)[0]??null;
+}
+function btDeparturesFromHTML(html,stopId,now=Date.now()){
+ const dom=new DOMParser().parseFromString(html,'text/html');
+ if(!dom.querySelector('#departures')){if(!dom.body.textContent.trim())return [];throw new ApiErr('format','No departures panel')}
+ const out=[],tables=[...dom.querySelectorAll('#departures table')];
+ for(const table of tables){
+  const heads=[...table.querySelectorAll('thead th')].map(x=>x.textContent.replace(/\s/g,'').toLowerCase());
+  const si=heads.findIndex(x=>x.includes('sched')),ei=heads.findIndex(x=>x.includes('expected'));
+  for(const [i,tr] of [...table.querySelectorAll('tbody tr')].entries()){
+   const td=[...tr.children].filter(x=>x.tagName==='TD');
+   if(td.length<3||td[0].textContent.trim()!=='91')continue;
+   const live=ei>=0?td[ei]?.textContent.trim():'',sched=si>=0?td[si]?.textContent.trim():'';
+   const chosen=/^\d{1,2}:\d{2}$/.test(live)?live:/^\d{1,2}:\d{2}$/.test(sched)?sched:'';
+   if(!chosen)continue;
+   const time=btClockMs(chosen,now);if(time==null||time>now+3*3600000)continue;
+   const link=td[1].querySelector('.vehicle a[href*="/vehicles/"]');
+   const v=td[1].querySelector('.vehicle');
+   const vtext=v?.textContent.trim()||'';
+   const reg=vtext.match(/\b[A-Z]{2}\s?\d{2}\s?[A-Z]{3}\b/i)?.[0]?.replace(/\s/g,'').toUpperCase()||'';
+   const dest=td[1].cloneNode(true);dest.querySelector('.vehicle')?.remove();
+    out.push({vehicleId:reg,lineName:'91',naptanId:stopId,direction:'',towards:'',destinationName:dest.textContent.trim(),currentLocation:reg?'Vehicle on bustimes.org':null,
+    expectedArrival:new Date(time).toISOString(),timestamp:new Date(now).toISOString(),timeToStation:Math.max(0,Math.round((time-now)/1000)),source:'bt',predictionKind:live&&chosen===live?'live':'scheduled',vehiclePage:link?.getAttribute('href')||null});
+  }
+ }
+ // Missing Route 91 on a genuine departures panel is valid: no services shown.
+ return out.sort((a,b)=>Date.parse(a.expectedArrival)-Date.parse(b.expectedArrival));
+}
+async function arrivalsForStop(stopId){
+ try{
+  const a=await api('tfl',`/StopPoint/${encodeURIComponent(stopId)}/Arrivals`);
+  if(!Array.isArray(a))throw new ApiErr('format','TfL arrivals not an array');
+  return{arr:a.filter(x=>x.lineName==='91'&&Number.isFinite(Date.parse(x.expectedArrival))).map(x=>({...x,source:'tfl',predictionKind:'live'})).sort((x,y)=>Date.parse(x.expectedArrival)-Date.parse(y.expectedArrival)),source:'tfl',reason:null};
+ }catch(e){
+  logE('TfL arrivals unavailable; trying bustimes.org');
+  const html=await api('bt',`/stops/${encodeURIComponent(stopId)}/departures`,{},'text');
+  return{arr:btDeparturesFromHTML(html,stopId),source:'bt',reason:e.kind||'err'};
+ }
+}
+function btStopFromFeature(f){
+ const p=f.properties||{},coords=f.geometry?.coordinates||[];
+ const id=(p.url||'').match(/\/stops\/([^/?#]+)/)?.[1];
+ if(!id||coords.length<2)return null;
+ const ind=p.indicator||p.icon||'',letter=String(p.icon||ind.replace(/^Stop\s+/i,'')).trim().toUpperCase();
+ return{id:tflStopId(id),name:p.name||'Bus stop',ind,letter,lat:+coords[1],lon:+coords[0],lines:Array.isArray(p.services)?p.services:String(p.services||'').split(/,\s*/),towards:'',dist:hav(S.start,coords),source:'bt'};
+}
+async function nearbyBtStops(){
+ const [lon,lat]=S.start,dy=0.006,dx=0.010;
+ const j=await api('bt','/stops.json',{xmin:lon-dx,ymin:lat-dy,xmax:lon+dx,ymax:lat+dy});
+ if(!Array.isArray(j.features))throw new ApiErr('format','Stop search not GeoJSON');
+ return j.features.map(btStopFromFeature).filter(x=>x&&x.dist<=650);
+}
+
+/* ---------- boot / data flow ---------- */
+async function geocode(q){
+ const r=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=4&countrycodes=gb&q='+encodeURIComponent(q),{referrerPolicy:'no-referrer'});
+ if(!r.ok)throw new ApiErr('http');const j=await r.json();if(!j.length)throw new ApiErr('nf','Address not found');
+ return j.map(x=>({lat:+x.lat,lon:+x.lon,label:x.display_name}));
+}
+async function resolveStart(){
+ S.step='address lookup (OpenStreetMap geocoder)';S.flags.delete('location');
+ if(cfg.useLoc){try{const p=await new Promise((ok,no)=>navigator.geolocation.getCurrentPosition(ok,no,{enableHighAccuracy:true,timeout:10000}));S.start=[p.coords.longitude,p.coords.latitude];S.startLabel='Your current location (device GPS, enabled by you)';S.srcs.start='Device location';return}catch{S.flags.add('location')}}
+ if(cfg.saveAddress&&cfg.startCoords){S.start=cfg.startCoords;S.startLabel=cfg.address||'Saved address';S.srcs.start='Saved on this device';return}
+ const g=await geocode(cfg.address||DEF_ADDR);S.geoAlt=g;S.start=[g[0].lon,g[0].lat];S.startLabel=cfg.address||DEF_ADDR;S.srcs.start='OpenStreetMap Nominatim geocoder';
+ if(cfg.saveAddress){cfg.startCoords=S.start;persist()}
+}
+const norm=s=>{const tw=(s.additionalProperties||[]).find(p=>/towards/i.test(p.key));return{id:s.naptanId||s.id,name:s.commonName,ind:s.indicator||'',letter:(s.stopLetter||(s.indicator||'').replace(/^Stop\s+/i,'')).toUpperCase().trim(),lat:s.lat,lon:s.lon,dist:s.distance,lines:(s.lines||[]).map(l=>l.name||l.id),towards:tw?.value||''}};
+async function resolveStop(){
+ S.step='stop lookup (TfL then bustimes.org)';S.stop=null;S.stopSource=null;
+ if(!cfg.useLoc&&cfg.saveAddress&&cfg.stopId){
+  try{const s=norm(await api('tfl','/StopPoint/'+encodeURIComponent(cfg.stopId)));if(s.id){S.stopSource='tfl';await choose(s);return}}catch{}
+  try{const j=await api('bt','/api/stops/',{atco_code:cfg.stopId});const x=(j.results||[]).find(x=>tflStopId(x.atco_code)===tflStopId(cfg.stopId));if(x&&x.location){const s={id:x.atco_code,name:x.name||x.common_name,lat:x.location[1],lon:x.location[0],letter:x.icon||x.indicator||'',lines:x.line_names||[],dist:hav(S.start,x.location)};S.stopSource='bt';await choose(s);return}}catch{}
+ }
+ try{
+  const j=await api('tfl','/StopPoint',{lat:S.start[1],lon:S.start[0],'location.lat':S.start[1],'location.lon':S.start[0],stopTypes:'NaptanPublicBusCoachTram',radius:600,modes:'bus'});
+  if(!Array.isArray(j.stopPoints))throw new ApiErr('format');
+  S.nearby=j.stopPoints.map(norm);S.stopSource='tfl';
+ }catch(e){
+  logE('TfL stop lookup unavailable; trying bustimes.org nearby stops');
+  S.nearby=await nearbyBtStops();S.stopSource='bt';
+ }
+ S.cands=S.nearby.filter(s=>s.lines.some(l=>String(l).toUpperCase()==='91')).sort((a,b)=>a.dist-b.dist);
+ const A=S.cands.filter(s=>s.letter==='A');
+ if(A.length===1){await choose(A[0])}else{go('pick')}
+}
+
+async function choose(s){
+ S.stop=s;S.arr=[];S.arrSource=null;S.arrMode=null;S.backupReason=null;S.seq=null;S.sched=null;S.schedFor=null;S.fetchedAt=0;S.chosen=null;S.bp=null;S.vArr=null;S.veh=null;S.vehId=null;S.btGpsAt=0;S.timingPoints=[];S.timingFor=null;S.timingAt=0;
+ if(cfg.saveAddress){cfg.stopId=s.id;persist()}
+ loadWalk();loadSched();loadStopBt();
+ if(S.view==='pick')go('overview');
+ await refresh();
+}
+async function loadStopBt(){S.stopBt=null;try{const j=await api('bt','/api/stops/',{atco_code:S.stop.id});S.stopBt=(j.results||[]).find(r=>r.atco_code===S.stop.id)||null}catch{S.stopBt=null}render()}
+async function loadWalk(){
+ const a=S.start,b=[S.stop.lon,S.stop.lat];
+ try{const r=await fetch(`https://routing.openstreetmap.de/routed-foot/route/v1/driving/${a[0].toFixed(5)},${a[1].toFixed(5)};${b[0]},${b[1]}?overview=full&geometries=geojson`,{referrerPolicy:'no-referrer'});const j=await r.json();const rt=j.routes[0];S.walk={dist:rt.distance,geom:rt.geometry.coordinates,src:'FOSSGIS foot routing (OpenStreetMap data)',live:true}}
+ catch{logE('walking route failed');S.walk={dist:hav(a,b)*1.25,geom:[a,b],src:'Straight-line distance × 1.25 (walking router unavailable)',live:false}}
+ try{const j=await api('tfl',`/Journey/JourneyResults/${a[1].toFixed(5)},${a[0].toFixed(5)}/to/${S.stop.id}`,{mode:'walking',walkingSpeed:cfg.walkKmh<4?'slow':cfg.walkKmh>5.6?'fast':'average'});S.jp=j.journeys&&j.journeys[0]?{min:j.journeys[0].duration}:null}catch{S.jp=null}
+ render();updateMap();
+}
+async function loadSched(){
+ if(S.schedFor===S.stop.id)return;S.schedFor=S.stop.id;
+ try{const j=await api('tfl',`/Line/91/Timetable/${S.stop.id}`);const wd=lp(Date.now()).wd;const dt=/sat/i.test(wd)?/sat/i:/sun/i.test(wd)?/sun/i:/mon|fri|week/i;const m=[];
+  for(const rt of j.timetable?.routes||[])for(const sc of rt.schedules||[])if(dt.test(sc.name||''))for(const k of sc.knownJourneys||[])m.push(+k.hour*60+ +k.minute);
+  S.sched=m.length?[...new Set(m)].sort((a,b)=>a-b):null}catch{S.sched=null}
+}
+async function ensureSeq(dir){
+ if(S.seq&&S.seq.stopId===S.stop.id)return;
+ for(const d of dir?[dir,dir==='inbound'?'outbound':'inbound']:['inbound','outbound']){
+  try{const j=await api('tfl','/Line/91/Route/Sequence/'+d,{serviceTypes:'Regular'});let best=null;
+   for(const sq of j.stopPointSequences||[]){const st=sq.stopPoint||[];if(st.some(x=>x.id===S.stop.id)&&(!best||st.length>best.length))best=st}
+   if(!best)continue;
+   const stops=best.map(x=>({id:x.id,name:x.name,lat:x.lat,lon:x.lon}));
+   let lines=(j.lineStrings||[]).map(s=>{try{const p=JSON.parse(s);return Array.isArray(p[0][0])?p[0]:p}catch{return null}}).filter(Boolean);
+   const sp=[S.stop.lon,S.stop.lat];let line=null,bd=1e9;
+   for(const l of lines){let m=1e9;for(const v of l)m=Math.min(m,hav(v,sp));if(m<bd||(m===bd&&l.length>line.length)){bd=m;line=l}}
+   S.seq={stopId:S.stop.id,dir:d,stops,line:line||stops.map(s=>[s.lon,s.lat])};return}catch(e){if(e.kind==='rate')throw e}
+ }
+}
+async function loadVehicle(b){
+ if(!b?.vehicleId)return;
+ const vehicleId=String(b.vehicleId).trim();
+ if(b.source==='tfl'){
+  try{S.vArr=(await api('tfl','/Vehicle/'+encodeURIComponent(vehicleId)+'/Arrivals')).filter(x=>x.lineName==='91').sort((a,c)=>a.timeToStation-c.timeToStation)}catch{S.vArr=null}
+ }else S.vArr=null;
+ if(S.vehId!==vehicleId){S.vehId=vehicleId;S.veh=null;S.vehErr=null;S.btGpsAt=0;S.timingFor=null;S.timingPoints=[];S.timingAt=0;
+  try{const j=await api('bt','/api/vehicles/',{reg:vehicleId});const nz=q=>String(q||'').toUpperCase().replace(/[^A-Z0-9]/g,'');const v=(j.results||[]).find(r=>nz(r.reg)===nz(vehicleId));S.veh=v||null;if(!v)S.vehErr='nf'}catch(e){S.vehErr=e.kind||'err'}
+ }
+ if(S.veh?.id&&S.vehId===vehicleId&&cfg.timing)await loadBtJourneyInfo(S.veh,b.source==='bt');
+}
+/* bustimes.org's public API serializer exposes trip.times[].timing_status:
+   PTP = principal timing point, OTH = other stop. These are scheduled
+   timing points, NOT proof that the bus is holding or will be on time. */
+async function loadBtJourneyInfo(vehicle,includeGps){
+ const vehicleId=S.vehId;
+ if(S.timingFor===vehicleId&&Date.now()-S.timingAt<90000)return;
+ S.timingAt=Date.now();S.timingFor=vehicleId;
+ try{
+  const j=await api('bt','/api/vehiclejourneys/',{vehicle:vehicle.id,date:londonKey(londonCalendar(Date.now()))});
+  const now=Date.now(),journeys=(j.results||[]).filter(x=>String(x.route_name||'').trim()==='91'&&Number.isFinite(Date.parse(x.datetime))&&Date.parse(x.datetime)>now-6*3600000&&Date.parse(x.datetime)<now+45*60000).slice(0,3);
+  for(const trip of journeys){
+   const d=await api('bt',`/api/vehiclejourneys/${trip.id}/details/`);
+   const times=d.trip?.times;
+   if(!Array.isArray(times))continue;
+   const points=times.filter(x=>x.timing_status==='PTP'&&Array.isArray(x.stop?.location)&&x.stop.location.length===2).map(x=>({id:x.stop.atco_code||'',name:x.stop.name||'Timing point',pos:x.stop.location,aimed:x.aimed_departure_time||x.aimed_arrival_time||null,expected:x.expected_departure_time||x.expected_arrival_time||null,actual:x.actual_departure_time||x.actual_arrival_time||null}));
+   if(S.vehId!==vehicleId)return;
+   S.timingPoints=points;S.timingFor=vehicleId;
+   const live=(d.live||[]).find(x=>String(x.journey_id)===String(trip.id));
+   const pos=live?.coordinates,ts=Date.parse(live?.datetime);
+   if(includeGps&&Array.isArray(pos)&&pos.length===2&&pos.every(Number.isFinite)&&Number.isFinite(ts)&&Math.abs(now-ts)<120000){
+    const dist=hav(pos,[S.stop.lon,S.stop.lat]);if(dist<15000)S.bp={pos,dist,stopsAway:null,next:null,nextTts:null,estimated:false,gps:true,vehicleId,gpsReadAt:Date.now(),age:now-ts};
+   }
+   if(points.length||live)break;
+  }
+ }catch{logE('bustimes.org timing points unavailable for this bus')}
+}
+function nextTimingPoint(){
+ if(!S.timingPoints.length||!S.seq?.stops?.length)return null;
+ const ids=S.seq.stops.map(x=>String(x.id).toUpperCase());
+ const from=S.bp?.next?.id?ids.indexOf(String(S.bp.next.id).toUpperCase()): -1;
+ if(from<0)return null; // Without a vehicle position, don't guess which timing point is next.
+ const candidates=S.timingPoints.map(p=>({...p,index:ids.indexOf(String(p.id).toUpperCase())})).filter(p=>p.index>=from);
+ return candidates.sort((a,b)=>a.index-b.index)[0]||null;
+}
+function timingRow(p){return `<div class="kv"><div class="k">${esc(p.name)}</div><div class="v">${p.aimed?esc(String(p.aimed).slice(11,16)||p.aimed):'Scheduled time unknown'}<br>${tag('sched','bustimes.org · principal timing point')}</div></div>`}
+
+function dpt(d){try{if(d.geography?.type==='Point')return d.geography.coordinates;if(d.point){const a=typeof d.point==='string'?JSON.parse(d.point):d.point;const p=Array.isArray(a)?a:a?.coordinates;if(Array.isArray(p)&&Number.isFinite(+p[0])&&Number.isFinite(+p[1]))return p.map(Number)}const g=d.geometry?.coordinates;if(g){const f=x=>typeof x[0]==='number'?x:f(x[0]);return f(g)}}catch{}return null}
+async function loadRoads(){
+ if(!cfg.traffic){S.inc=[];S.roads=[];S.roadsErr=false;return}
+ if(Date.now()-S.roadsAt>300000){
+  S.roadsAt=Date.now();
+  try{const d=await api('tfl','/Road/all/Disruption',{stripContent:'true'});if(!Array.isArray(d))throw new ApiErr('format');S.roads=d;S.roadsErr=false}
+  catch{S.roadsErr=true;logE('TfL road incident feed unavailable')}
+ }
+ try{S.lineStatus=(await api('tfl','/Line/91/Status'))[0]?.lineStatuses||null}catch{S.lineStatus=null}
+ try{const d=await api('tfl','/StopPoint/'+encodeURIComponent(S.stop.id)+'/Disruption');S.stopClosed=Array.isArray(d)&&d.some(x=>/clos/i.test((x.description||'')+(x.type||'')))}catch{S.stopClosed=false}
+ computeInc();
+}
+function computeInc(){
+ S.inc=[];if(!cfg.traffic||!S.stop)return;
+ const st=S.seq?.stops||[],line=S.seq?.line||[],it=st.findIndex(s=>s.id===S.stop.id);
+ const nextId=S.bp?.next?.id,idx=nextId?st.findIndex(s=>s.id===nextId):-1;
+ const ahead=it>=0&&idx>=0&&idx<=it?st.slice(idx,it+1).map(s=>[s.lon,s.lat]):[];
+ const stopPos=[S.stop.lon,S.stop.lat];
+ for(const d of S.roads||[]){
+  const p=dpt(d);if(!p||!Number.isFinite(p[0])||!Number.isFinite(p[1]))continue;
+  const nearRoute=line.length>0?line.some(v=>hav(v,p)<280):hav(stopPos,p)<850;
+  if(!nearRoute)continue;
+  const isAhead=ahead.length>0&&ahead.some(a=>hav(a,p)<350),sev=(d.severity||'').toLowerCase();
+  const closure=(d.streets||[]).some(s=>/clos/i.test(s.closure||''))||/clos/i.test(d.comments||'')||/clos/i.test(d.category||'');
+  const add=!isAhead?0:closure?60:/serious|severe/.test(sev)?45:15;
+  const eff=!ahead.length?'Near your stop or route; we cannot confirm if this is ahead of the bus.':!isAhead?'Not confirmed between the bus and your stop.':closure?'Road closure reported ahead. The prediction range is widened, not the estimated arrival time.':/serious|severe/.test(sev)?'Significant incident ahead; the prediction range is widened.':'Incident reported ahead; the prediction range is widened.';
+  S.inc.push({id:d.id,cat:d.category||'Road incident',sub:d.subCategory||'',sev:d.severity||'Unknown',text:d.currentUpdate||d.comments||d.location||'',loc:d.location||'',pt:p,ahead:isAhead,closure,add,eff,status:d.status||''});
+ }
+ S.inc.sort((a,b)=>b.add-a.add);
+}
+async function loadTraffic(){
+ S.traffic=null;if(!cfg.traffic){S.trafficErr='off';return}
+ if(!(cfg.proxy||'').trim()){S.trafficErr='optional';return}
+ // A real traffic journey must span upstream bus stops; walking 1 min from home is not useful.
+ const st=S.seq?.stops||[],it=st.findIndex(x=>x.id===S.stop.id);
+ if(it<1){S.trafficErr='noRoute';return}
+ const origin=S.bp?.pos||[st[Math.max(0,it-5)].lon,st[Math.max(0,it-5)].lat];
+ const dest=[S.stop.lon,S.stop.lat];
+ if(hav(origin,dest)<350){S.trafficErr='shortRoute';return}
+ try{
+  const j=await api('traffic','/route',{from:origin[1].toFixed(5)+','+origin[0].toFixed(5),to:dest[1].toFixed(5)+','+dest[0].toFixed(5)});
+  if(!Number.isFinite(+j.trafficDelaySec)||!Number.isFinite(+j.travelTimeSec))throw new ApiErr('format');
+  S.traffic={delay:Math.max(0,+j.trafficDelaySec),travel:+j.travelTimeSec,src:j.provider||'Traffic provider via your proxy'};S.trafficErr=null;
+ }catch{S.trafficErr='optional';logE('Optional traffic-speed provider not configured/available')}
+}
+
+async function loadWeather(){
+ if(!cfg.weather||!S.start||Date.now()-S.weatherAt<900000)return;S.weatherAt=Date.now();
+ try{const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${S.start[1].toFixed(2)}&longitude=${S.start[0].toFixed(2)}&current=temperature_2m,weather_code,precipitation`);const j=await r.json();S.weather=j.current}catch{S.weather=null}
+}
+const WX=c=>c===0?'Clear':c<4?'Cloudy':c<50?'Fog':c<60?'Drizzle':c<70?'Rain':c<80?'Snow':c<90?'Showers':'Thunderstorms';
+let busy=false;
+async function refresh(){
+ if(!S.stop||busy)return;busy=true;S.rate=false;
+ try{
+  if(S.demo){demoArr()}else{
+   try{
+    const result=await arrivalsForStop(S.stop.id);
+    S.arr=result.arr;S.arrSource=result.source;S.arrMode=result.arr.some(x=>x.predictionKind==='live')?'live':'scheduled';S.backupReason=result.reason;
+    S.fetchedAt=Date.now();S.err=null;S.loading=false;
+    if(result.source==='bt'){if(!S.bp?.gps||Date.now()-S.bp.gpsReadAt>90000)S.bp=null;S.vArr=null}
+    render(); // Show arrivals immediately; optional vehicle/road lookups can finish later.
+   }catch(e){S.err=e.kind||'err';S.backupReason='both';logE('TfL and bustimes.org arrivals unavailable')}
+  }
+  S.loading=false;
+  const pre=pickBus(Date.now());
+  if(S.lastVid&&S.arrSource==='tfl'&&!S.arr.find(x=>x.vehicleId===S.lastVid)&&S.lastTts<=150&&!S.demo){S.passed={vid:S.lastVid,at:Date.now()}}
+  if(pre?.vehicleId){S.lastVid=pre.vehicleId;S.lastTts=(Date.parse(pre.expectedArrival)-Date.now())/1000}
+  if(!pre?.vehicleId){S.veh=null;S.vehId=null;S.vehErr=null}
+  if(!S.demo&&pre){
+   if(S.arrSource==='tfl'){
+    await Promise.allSettled([ensureSeq(pre.direction),loadVehicle(pre)]);S.bp=busPos(pre);
+   }else{if(!S.bp?.gps||S.bp.vehicleId!==pre.vehicleId||Date.now()-S.bp.gpsReadAt>90000)S.bp=null;if(pre.vehicleId)await loadVehicle(pre)}
+  }else if(!S.demo&&!S.seq){try{await ensureSeq(null)}catch{}}
+  if(!S.demo){await Promise.allSettled([loadRoads(),loadTraffic(),loadWeather()]);computeInc()}
+ }finally{busy=false}
+ render();updateMap();
+}
+
+function demoArr(){const n=Date.now();S.arr=[8,17,26].map((m,i)=>({vehicleId:'DEMO'+(i+1),lineName:'91',direction:'inbound',destinationName:'DEMO – not a real bus',expectedArrival:new Date(n+m*60000).toISOString(),timestamp:new Date(n).toISOString(),currentLocation:'Demonstration data',towards:'',naptanId:S.stop.id}));S.fetchedAt=n;S.err=null;S.arrSource='demo';S.arrMode='live'}
+/* ---------- bus choice, position, prediction ---------- */
+const walkSec=()=>Number.isFinite(+cfg.walkMinutes)&&+cfg.walkMinutes>0?+cfg.walkMinutes*60:(S.walk?S.walk.dist/(cfg.walkKmh/3.6):60);
+const walkDesc=()=>+cfg.walkMinutes>0?`${cfg.walkMinutes} min (your estimate)`:`${mins(walkSec())} min (mapped route)`;
+const catchableBuses=(now=Date.now())=>S.arr.filter(a=>Date.parse(a.expectedArrival)>=now+walkSec()*1000).sort((a,b)=>Date.parse(a.expectedArrival)-Date.parse(b.expectedArrival));
+function pickBus(now){
+ const ok=catchableBuses(now);
+ const f=cfg.followVid&&ok.find(a=>a.vehicleId===cfg.followVid);return f||ok[0]||null;
+}
+function busPos(b){
+ if(!S.seq||!S.vArr||!S.vArr.length)return null;
+ const st=S.seq.stops,it=st.findIndex(s=>s.id===S.stop.id),nx=S.vArr[0],ix=st.findIndex(s=>s.id===nx.naptanId);
+ if(it<0||ix<0||ix>it)return null;
+ const n=st[ix],p=st[ix-1]||n,frac=p===n?0:clamp(nx.timeToStation/SEG_SEC,0,1);
+ const seg=hav([p.lon,p.lat],[n.lon,n.lat]);let dist=seg*frac;for(let i=ix;i<it;i++)dist+=hav([st[i].lon,st[i].lat],[st[i+1].lon,st[i+1].lat]);
+ return{pos:[n.lon+(p.lon-n.lon)*frac,n.lat+(p.lat-n.lat)*frac],dist,stopsAway:it-ix,next:n,nextTts:nx.timeToStation,estimated:true}
+}
+function schedFor(expMs){
+ if(!S.sched)return null;const p=lp(expMs),cur=p.h*60+p.m+p.s/60;let best=null;
+ for(const m of S.sched)if(best===null||Math.abs(m-cur)<Math.abs(best-cur))best=m;
+ if(best===null||Math.abs(best-cur)>15)return null;return{ms:expMs-(cur-best)*60000,diffMin:cur-best};
+}
+function calc(){
+ const now=Date.now(),b=pickBus(now);S.chosen=b;if(!b)return null;
+ const exp0=Date.parse(b.expectedArrival),walk=walkSec(),buf=cfg.buffer*60;
+ const feedTs=Date.parse(b.timestamp)||S.fetchedAt,age=Math.max(0,(now-feedTs)/1000);
+ const sc=b.predictionKind==='scheduled'?null:schedFor(exp0),bp=S.bp,usingBt=b.source==='bt',timetableOnly=b.predictionKind==='scheduled';
+ const tAdj=0; // No speculative road-traffic minutes added to a live TfL ETA.
+ const expected=exp0+tAdj*1000;
+ const tts=Math.max(0,(exp0-now)/1000),stopsAway=bp?bp.stopsAway:null;
+ const aheadAdd=Math.min(180,S.inc.reduce((t,i)=>t+i.add,0));
+ const early=sc&&sc.diffMin<-1,late=sc&&sc.diffMin>1;
+ const spread=Math.max(30,.08*tts)+(stopsAway!=null?4*stopsAway:15)+age*.5+aheadAdd+30;
+ const lo=expected-spread*1000,hi=expected+spread*1000+(early?60000:0);
+ const planAt=expected-walk*1000-buf*1000-Math.min(spread*500,90000);
+ const leaveIn=(planAt-now)/60000;
+ const reasons=[];let score=100;
+ if(S.demo){score=0;reasons.push('Demonstration data: not a real prediction.')}
+ else{
+  if(age>90){score-=35;reasons.push('The arrivals data is over 90 s old.')}else if(age>45){score-=15;reasons.push('The arrivals data is a little old ('+Math.round(age)+' s).')}else reasons.push('The arrivals data was refreshed '+Math.round(age)+' s ago.');
+  if(stopsAway==null){score-=12;reasons.push(bp?.gps?'Recent GPS location available, but stops remaining is unknown.':'Bus position could not be worked out, so stops remaining is unknown.')}else if(stopsAway>10){score-=20;reasons.push(stopsAway+' stops to go: far-off predictions drift more.')}else if(stopsAway>5){score-=10;reasons.push(stopsAway+' stops to go.')}else reasons.push('Only '+stopsAway+' stop'+(stopsAway===1?'':'s')+' to go.');
+  score-=10;reasons.push('A hold at a timing point cannot be ruled out.');
+  if(!sc){score-=5;reasons.push('No matching timetable entry, so delay against schedule is unknown.')}
+  if(!S.traffic){score-=3;reasons.push('Live congestion speeds are optional; TfL road incidents are checked separately.')}
+  const bad=S.inc.filter(i=>i.ahead&&i.add>=45).length;if(bad){score-=Math.min(30,bad*15);reasons.push(bad+' serious or closure incident'+(bad>1?'s':'')+' ahead of the bus.')}
+  if(usingBt){score-=20;reasons.push('Using bustimes.org because TfL arrivals failed.')}if(timetableOnly){score=Math.min(score,30);reasons.push('Only a scheduled time is available, not a live arrival prediction.')}if(!b.vehicleId)score-=15;
+ }
+ const level=score>=75?'High':score>=50?'Medium':'Low';
+ const L=[];
+ L.push(`Your walk to ${S.stop.name} (Stop ${S.stop.letter||'?'}) is ${walkDesc()}; mapped walking distance ${S.walk?fmtD(S.walk.dist):'not available'}.`);
+ L.push(timetableOnly?`bustimes.org lists Route 91 for ${fmtT(exp0)} in the timetable; the bus is not confirmed live.`:`Route 91 ${b.vehicleId?'bus '+b.vehicleId:''} is expected at ${fmtT(exp0)} according to ${usingBt?'bustimes.org':'TfL'}.`);
+ if(sc)L.push(Math.abs(sc.diffMin)<1?'That is on time against the timetable.':`That is about ${Math.round(Math.abs(sc.diffMin))} min ${sc.diffMin>0?'late':'early'} against the timetable. TfL\u2019s prediction already includes this, so it is not added again.`+(late?' We do not assume the bus will recover the delay.':'')+(early?' An early bus may wait at a timing point, so the range extends later.':''));
+ else if(!timetableOnly)L.push('No matching timetable time was found, so the delay against schedule is unknown.');
+ L.push(timetableOnly?'This is a timetable-based planning estimate; it cannot account for a bus running early or late.':S.traffic?`Road traffic provider reports ${Math.round(S.traffic.delay/60)} min delay on a nearby driving route. This is not added to the bus prediction.`:S.roadsErr?'Road incident information could not be refreshed.':'TfL road incidents are checked separately. Live congestion speed requires an optional provider.');
+ if(aheadAdd)L.push(`Incidents ahead widen the range by ${aheadAdd} s.`);
+ L.push(leaveIn<=0?`Leave now to arrive with about a ${cfg.buffer}-minute buffer.`:`Leave in ${Math.ceil(leaveIn)} min to arrive with a ${cfg.buffer}-minute buffer.`);
+ return{b,exp0,expected,lo,hi,walk,buf,age,sc,tAdj,spread,aheadAdd,leaveIn,planAt,tts,stopsAway,score:Math.max(0,score),level,reasons,text:L,early,late,timetableOnly};
+}
+/* ---------- UI helpers ---------- */
+const tag=(t,src)=>{const m={live:['t-live','Live'],calc:['t-calc','Calculated'],hist:['t-hist','Assumption'],miss:['t-miss','Missing'],demo:['t-demo','Demo'],sched:['t-hist','Timetable']}[t];return `<span class="tag ${m[0]}" title="${esc(src||'')}">${m[1]}</span>`+(src?`<span class="small mut"> ${esc(src)}</span>`:'')};
+const kv=(k,v,t,src)=>`<div class="kv"><div class="k">${esc(k)}</div><div class="v">${v==null||v===''?`<span class="missing">${NS}</span>${tag('miss')}`:v+(t?`<br>${tag(t,src)}`:'')}</div></div>`;
+function stateInfo(P){
+ const age=S.fetchedAt?(Date.now()-S.fetchedAt)/1000:null;
+ if(S.demo)return{k:'demo',l:'Demo data',c:'warn'};
+ if(S.loading)return{k:'loading',l:'Loading',c:''};
+ if(S.rate&&S.arrSource!=='bt')return{k:'rate',l:'Rate limited',c:'bad'};
+ if(S.err&&!S.arr.length)return{k:'unavail',l:'Unavailable',c:'bad'};
+ if(S.stopClosed)return{k:'closed',l:'Stop closed',c:'bad'};
+ if(!S.arr.length)return{k:'none',l:S.arrSource==='bt'?'No 91 departures':'No buses found',c:'warn'};
+ if(S.err||age>120)return{k:'stale',l:'Stale data',c:'warn'};
+ if(S.arrSource==='bt')return S.arrMode==='scheduled'?{k:'scheduled',l:'bustimes timetable',c:'warn'}:{k:'backup',l:'bustimes live',c:'warn'};
+ if(S.lineStatus&&S.lineStatus.some(x=>x.statusSeverity!==10))return{k:'disr',l:'Route disrupted',c:'warn'};
+ return{k:'live',l:'Live',c:'ok live'};
+}
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),4200)}
+const reduced=()=>cfg.motion||matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* ---------- renderers ---------- */
+function renderHero(P){
+ const el=$('#hero');if(!el)return;
+ if(!S.stop){el.innerHTML='<p>Finding your stop…</p>';return}
+ let big,sub;
+ if(!P){big=S.loading?'Loading…':S.err?'Arrivals unavailable':'No buses found';sub=S.passed?`Bus ${esc(S.passed.vid)} has passed. Waiting for the next Route 91 service.`:'No catchable Route 91 bus is currently predicted at this stop.'}
+ else if(cfg.leaveNow){const arrive=Date.now()+P.walk*1000,margin=(P.exp0-arrive)/60000;big=margin>=0?'Leaving now':'You may miss it';sub=`You would reach the stop at ${fmtT(arrive)}; ${P.timetableOnly?'scheduled':'bus expected'} ${fmtT(P.exp0)} (${margin>=0?Math.round(margin)+' min to spare':Math.round(-margin)+' min late'}).`}
+ else{const m=P.leaveIn;big=m<=0?'Leave now':m<1?'Leave in under 1 min':'Leave in '+Math.floor(m)+' min';sub=`Walk ${walkDesc()} · buffer ${cfg.buffer} min · ${P.timetableOnly?'timetable':'expected'} ${fmtT(P.lo)}–${fmtT(P.hi)}`}
+ el.innerHTML=`<div class="row wrap"><span class="badge" aria-label="Route 91">91</span><div><div style="font-weight:700">${esc(S.stop.name)}</div><div class="small mut">Stop ${esc(S.stop.letter||'?')}${S.stop.towards?' · towards '+esc(S.stop.towards):''}</div></div></div>
+ <div class="count" id="countdown" ${P&&!cfg.leaveNow?'':'aria-live="polite"'}>${esc(big)}</div><div class="mut">${esc(sub)}</div>
+ ${P?`<div class="row wrap" style="margin-top:12px"><span class="chip ${P.level==='High'?'ok':P.level==='Medium'?'warn':'bad'}"><i class="dot"></i>${P.level} confidence</span><button class="ghost" data-go="explain" style="min-height:40px;font-size:14px">Why?</button></div><div class="bar" aria-hidden="true"><i style="width:${P.score}%"></i></div>`:''}`;
+}
+function renderOverview(P){
+ const v=$('#view-overview'),si=stateInfo(P);let h='';
+ if(S.demo)h+=`<div class="banner demo"><b>FALLBACK DEMONSTRATION DATA.</b> Nothing below is a real bus. <button class="ghost" id="demoOff" style="min-height:40px">Exit demo</button></div>`;
+ if(S.passed&&Date.now()-S.passed.at<300000)h+=`<div class="banner info">Bus ${esc(S.passed.vid)} has already passed ${esc(S.stop?.name||'your stop')}. Showing the next live Route 91 service instead.</div>`;
+ if(P&&S.arr[0]&&S.arr[0]!==P.b)h+=`<div class="banner info">An earlier 91 arrives before your walk would finish. Showing the next catchable service.</div>`;
+ if(S.bootErr&&!S.stop)h+=`<div class="banner bad"><b>Failed at ${esc(S.bootErr)}</b><br><span class="small">Page address: ${esc(location.protocol+'//'+(location.host||'(local file)'))}</span> <button id="retryBoot" class="ghost" style="min-height:40px">Retry</button></div>`;
+ if(S.err&&!S.demo)h+=`<div class="banner bad">Both TfL and bustimes.org could not be reached. ${S.arr.length?'Showing the last available results; they may be out of date.':'Configure the CORS proxy in Settings if your browser blocks bustimes.org.'} <button id="demoOn" class="ghost" style="min-height:40px">Show labelled demo data</button></div>`;
+ if(S.arrSource==='bt'&&!S.err&&!S.demo)h+=`<div class="banner ${S.arrMode==='scheduled'?'warn':'info'}"><b>Using bustimes.org.</b> TfL arrivals failed, so the tracker switched automatically. ${S.arrMode==='scheduled'?'Showing scheduled departures, not confirmed live bus arrivals.':'Showing available expected departure times.'} TfL will be tried again on every refresh.</div>`;
+ if(S.stopSource==='bt'&&S.stop)h+=`<div class="banner info">Bus stop found using bustimes.org because TfL stop lookup failed.</div>`;
+ if(S.flags.has('location'))h+=`<div class="banner warn">Location unavailable: using your typed address instead.</div>`;
+ if(!navigator.onLine)h+='<div class="banner warn">You are offline. Live arrivals need a connection; the last data shown may be out of date.</div>';
+ if(S.stop&&S.stop.letter!=='A')h+=`<div class="banner warn">You chose Stop ${esc(S.stop.letter||'(no letter)')}, not Stop A.</div>`;
+ h+=`<div class="info-strip"><span>●</span><span>FROM ${esc(DEF_ADDR)}</span></div><div class="glass" id="hero"></div>`;
+ if(S.arr.length){
+  const buses=catchableBuses(),a=buses[0],b=buses[1];
+  const card=(x,label)=>`<div class="board-card"><div class="board-head">${label}</div>${x?`<div class="board-time">${fmtT(Date.parse(x.expectedArrival))}</div><div class="board-sub">${Math.max(0,Math.ceil((Date.parse(x.expectedArrival)-Date.now())/60000))} min away<br>${esc(x.destinationName||'Route 91')}${x.vehicleId?` · ${esc(x.vehicleId)}`:''}</div>${tag(x.predictionKind==='scheduled'?'sched':'live',x.source==='bt'?'bustimes.org':'TfL')}`:'<div class="board-time">—</div><div class="board-sub">No catchable service shown</div>'}</div>`;
+  h+=`<div class="board">${card(a,'Next bus')}${card(b,'One after')}</div>`;
+  if(S.inc.length)h+=`<div class="info-strip"><button class="chip warn" data-go="traffic">⚠ ${S.inc.length} road incident${S.inc.length===1?'':'s'} near route · details</button></div>`;
+ }
+
+ if(P){
+  const b=P.b,bp=S.bp,df=P.sc?Math.round(P.sc.diffMin*10)/10:null;
+  h+=`<div class="grid" style="margin-bottom:14px">
+  <div class="cell"><span class="l">${P.timetableOnly?'Scheduled departure':'Expected arrival'}</span><b>${fmtT(P.exp0)}</b>${tag(S.demo?'demo':P.timetableOnly?'sched':'live',S.demo?'Demo':b.source==='bt'?'bustimes.org':'TfL Arrivals')}</div>
+  <div class="cell"><span class="l">Timetable comparison</span><b>${P.timetableOnly?fmtT(P.exp0):P.sc?fmtT(P.sc.ms):'—'}</b>${P.timetableOnly?tag('sched','bustimes.org'):P.sc?tag('calc','TfL timetable, nearest match'):tag('miss')}</div>
+  <div class="cell"><span class="l">Scheduled vs predicted</span><b>${df==null?'—':(df===0?'On time':Math.abs(df)+' min '+(df>0?'late':'early'))}</b>${df==null?tag('miss'):tag('calc')}</div>
+  <div class="cell"><span class="l">Bus distance from stop</span><b>${bp?fmtD(bp.dist):'—'}</b>${bp?bp.gps?tag('live','bustimes.org GPS · straight-line distance'):tag('calc','estimated along route'):tag('miss')}</div>
+  <div class="cell"><span class="l">Walk from home</span><b>${walkDesc()}</b>${tag(+cfg.walkMinutes>0?'hist':S.walk?.live?'calc':'hist',+cfg.walkMinutes>0?'Set by you':S.walk?.src)}</div>
+  <div class="cell"><span class="l">Leave at</span><b>${fmtT(P.planAt)}</b>${tag('calc')}</div>
+  <div class="cell"><span class="l">Last API update</span><b>${fmtTS(S.fetchedAt)}</b><span class="small mut">${Math.round(P.age)} s old</span></div>
+  <div class="cell"><span class="l">Data freshness</span><b>${P.age<45?'Fresh':P.age<120?'Ageing':'Stale'}</b>${tag('calc')}</div></div>
+  <button class="glass" id="busCard" style="width:100%;text-align:left;border-radius:28px;padding:18px;display:block" aria-label="Open bus map">
+   <div class="row"><span class="badge">91</span><div><b>${esc(b.vehicleId||'Vehicle not identified')}</b> <span class="small mut">to ${esc(b.destinationName||'')}</span><div class="small mut">${esc(b.currentLocation||NS)}</div></div><div class="sp"></div><span aria-hidden="true">›</span></div>
+   <div class="small mut" style="margin-top:8px">Fleet: ${esc(S.veh?.fleet_code||S.veh?.fleet_number||NS)} · Model: ${esc(S.veh?.vehicle_type?.name||NS)}</div>
+   <div class="small" style="margin-top:6px">${bp?.next?`Next stop: ${esc(bp.next.name)} · ${bp.stopsAway} stop${bp.stopsAway===1?'':'s'} before yours`:bp?.gps?'Bus GPS location available on the map':'Next stop: '+NS}</div>
+  </button>`;
+  h+=`<div class="glass"><h3>Route 91 information</h3>${S.timingPoints.length?`<p class="small mut">${S.timingPoints.length} published principal timing points for this bus · bustimes.org</p>`:`<p class="small mut">Timing points appear when bustimes.org identifies the current vehicle journey.</p>`}<button class="ghost" data-go="arrivals" style="width:100%;margin-top:8px">Full arrival board</button></div>`;
+ }
+ if(S.stop)h+=`<div class="glass"><h3>Confirmed journey</h3>${kv('Start',esc(S.startLabel),S.srcs.start?'live':null,S.srcs.start)}${kv('Stop',esc(S.stop.name)+' · Stop '+esc(S.stop.letter||'?'),'live',S.stopSource==='bt'?'bustimes.org stop data':'TfL StopPoint lookup')}${kv('Walking',walkDesc()+(S.walk?' · '+fmtD(S.walk.dist)+' mapped distance':''),+cfg.walkMinutes>0?'hist':S.walk?.live?'calc':'hist',+cfg.walkMinutes>0?'Your personal estimate; map used for distance':S.walk?.src)}${S.stopBt?kv('Stop facing (bearing)',S.stopBt.bearing?esc(S.stopBt.bearing):null,'live','bustimes.org')+(S.stopBt.line_names&&S.stopBt.line_names.length?kv('Routes serving this stop',esc(S.stopBt.line_names.join(', ')),'live','bustimes.org'):''):''}${S.jp?kv('TfL journey planner walk',S.jp.min+' min','live','TfL Journey'):''}<button class="ghost" id="chgStop" style="width:100%;margin-top:8px">Select another matching stop</button></div>`;
+ else h+=`<div class="glass"><p>${S.loading?'Looking up your location and the nearest Bus Stop A…':'No stop selected yet.'}</p></div>`;
+ v.innerHTML=h;renderHero(P);
+}
+function renderBus(P){
+ const v=$('#view-bus');if(!P){v.innerHTML='<div class="glass"><h2>Bus details</h2><p>No bus selected.</p></div>';return}
+ const b=P.b,bp=S.bp,x=S.veh||{};const vt=x.vehicle_type||{};const feat=[vt.style,vt.double_decker===true?'Double-decker':vt.double_decker===false?'Single-decker':null,vt.electric?'Electric':vt.fuel,vt.coach?'Coach':null,x.special_features&&String(x.special_features)].filter(Boolean).join(', ');
+ const lv=x.livery?.name||null;
+ v.innerHTML=`<div class="glass"><div class="row"><span class="badge">91</span><h2>${esc(b.vehicleId||'Vehicle not identified')}</h2></div>
+ ${S.vehErr?`<div class="banner warn" style="margin-top:12px">Vehicle details unavailable${S.vehErr==='net'?' (bustimes.org could not be reached from the browser; use a proxy)':''}.</div>`:''}
+ ${kv('Fleet number',x.fleet_code||x.fleet_number,'live','bustimes.org')}
+ ${kv('Bus model',x.vehicle_type?.name,'live','bustimes.org')}
+ ${kv('Route','91',P.timetableOnly?'sched':'live',b.source==='bt'?'bustimes.org':'TfL Arrivals')}
+ ${kv('Direction',b.direction?esc(b.direction)+(b.towards?' · towards '+esc(b.towards):''):null,'live',b.source==='bt'?'bustimes.org':'TfL Arrivals')}
+ ${kv('Destination',b.destinationName?esc(b.destinationName):null,P.timetableOnly?'sched':'live',b.source==='bt'?'bustimes.org':'TfL Arrivals')}
+ ${kv('Vehicle registration',b.vehicleId?esc(b.vehicleId):null,'live',b.source==='bt'?'bustimes.org':'TfL Arrivals vehicleId')}
+ ${kv('Livery',lv?esc(lv)+((x.livery.left||x.livery.left_css)?` <span style="display:inline-block;width:46px;height:14px;border-radius:7px;vertical-align:middle;border:1px solid var(--line);background:${esc((x.livery.left||x.livery.left_css))}"></span>`:''):null,'live','bustimes.org (volunteer-contributed)')}
+ ${kv('Operator',x.operator?.name?esc(x.operator.name):null,'live','bustimes.org')}
+ ${kv('Garage',x.garage?.name?esc(x.garage.name):null,'live','bustimes.org')}
+ ${kv('Vehicle type details',feat?esc(feat):null,'live','bustimes.org')}
+ ${kv('Accessibility (low floor, wheelchair space)',null)}
+ ${kv('Open-top',/open/i.test(vt.style||'')?'Open-top':null,'live','bustimes.org')}
+ ${kv('Current delay',P.sc?(Math.abs(P.sc.diffMin)<1?'On time':Math.round(Math.abs(P.sc.diffMin))+' min '+(P.sc.diffMin>0?'late':'early')):null,'calc','prediction vs TfL timetable')}
+ ${kv('Current location',b.currentLocation?esc(b.currentLocation):null,'live',b.source==='bt'?'bustimes.org':'TfL Arrivals')}
+ ${kv('Map position',bp?bp.gps?'Recent GPS location':'Between stops (estimated)':null,bp?.gps?'live':'calc',bp?.gps?'bustimes.org vehiclejourneys':'from next-stop prediction')}
+ ${kv('Next stop',bp?.next?esc(bp.next.name)+' in '+Math.round(bp.nextTts)+' s':null,'live','TfL Vehicle arrivals')}
+ ${kv('Next timing point',nextTimingPoint()?esc(nextTimingPoint().name):null,'sched','bustimes.org trip · scheduled principal timing point')}
+ ${S.timingPoints.length?`<h3 style="margin-top:16px">Published timing points</h3>${S.timingPoints.slice(0,12).map(timingRow).join('')}<p class="small mut">Timing points are scheduled stops, not live reports of a bus holding or its punctuality.</p>`:`<p class="small mut">Principal timing points will appear when bustimes.org links this vehicle to a trip.</p>`}
+ <p class="small mut" style="margin-top:12px">London buses normally use TfL red livery, but a specific livery is only shown when the data confirms it. Nothing here is guessed.</p>
+ <div class="row wrap" style="margin-top:8px">${b.vehicleId?`<button class="pri" id="followBtn">${cfg.followVid===b.vehicleId?'Following this bus ✓':'Follow this bus'}</button>`:''}<button data-go="map">Show on map</button></div></div>`;
+}
+function renderTraffic(P){
+ const v=$('#view-traffic');let h='<div class="glass"><h2>Traffic conditions</h2>';
+ const ls=S.lineStatus;
+ h+=ls?ls.map(s=>`<div class="kv"><div class="k">Route 91 service</div><div class="v">${esc(s.statusSeverityDescription)}${s.reason?`<br><span class="small mut">${esc(s.reason)}</span>`:''}<br>${tag('live','TfL Line Status')}</div></div>`).join(''):kv('Route 91 service',null);
+ h+=S.traffic?kv('Live traffic delay',S.traffic.delay>0?'+'+mins(S.traffic.delay)+' min':'No extra delay','live',S.traffic.src):`<div class="kv"><div class="k">Live traffic</div><div class="v">${S.trafficErr==='off'?'Turned off':'Speed-based congestion requires an optional provider; TfL road incidents are available below.'}<br>${tag('miss')}${S.trafficErr==='optional'?'<div class="small mut">Add a TomTom key to the Worker for speed-based congestion. TfL road disruptions need no key.</div>':''}</div></div>`;
+ h+='</div>';
+ h+=`<div class="glass"><h3>Roadworks and incidents ${S.seq?'along Route 91':'near your stop'}</h3>${S.roadsErr?'<p class="mut">TfL road disruption feed unavailable.</p>':!S.inc.length?'<p>No reported disruptions were found along the available route area. This is not a live traffic-speed reading.</p>'+tag('live','TfL Road Disruption'):S.inc.slice(0,12).map(i=>`<div class="kv"><div class="k">${esc(i.cat)}<br><span class="small mut">${esc(i.sev)}${i.ahead?' · ahead':''}</span></div><div class="v">${esc(i.loc||i.text).slice(0,160)}<br><span class="small mut" style="font-weight:500">${esc(i.eff)}</span>${tag('live','TfL')}</div></div>`).join('')}</div>`;
+ v.innerHTML=h;
+}
+function renderArrivals(P){
+ const v=$('#view-arrivals');
+ v.innerHTML=`<div class="glass"><h2>${esc(S.stop?.name||'Stop')} · Stop ${esc(S.stop?.letter||'?')}</h2><p class="small mut">Route 91 only · ${tag(S.demo?'demo':S.arrMode==='scheduled'?'sched':'live',S.demo?'Demo':S.arrSource==='bt'?'bustimes.org':'TfL Arrivals')}</p>${S.arr.length?S.arr.map(a=>{const t=Date.parse(a.expectedArrival);return `<div class="kv"><div class="k"><b>${esc(a.vehicleId||'Route 91')}</b>${a.predictionKind==='scheduled'?tag('sched'):''}<br><span class="small">${esc(a.destinationName||'')}</span></div><div class="v">${fmtT(t)}<br><span class="small mut">${Math.max(0,Math.round((t-Date.now())/60000))} min · ${esc(a.currentLocation||'')}</span>${a.vehicleId?`<br><button class="ghost" data-follow="${esc(a.vehicleId)}" style="min-height:44px;margin-top:6px">${cfg.followVid===a.vehicleId?'Following ✓':'Follow'}</button>`:''}</div></div>`}).join(''):'<p>No buses found.</p>'}</div>`;
+}
+function renderExplain(P){
+ const v=$('#view-explain'),si=stateInfo(P);
+ const states=[['Loading',S.loading],['Live',si.k==='live'],['Stale',si.k==='stale'],['Temporarily unavailable',!!S.err],['No buses found',!S.arr.length&&!S.loading],['Bus passed',!!S.passed],['Stop closed',S.stopClosed],['Route disrupted',!!(S.lineStatus&&S.lineStatus.some(x=>x.statusSeverity!==10))],['API rate limit reached',S.rate],['Location unavailable',S.flags.has('location')],['Traffic data unavailable',!S.traffic],['Vehicle details unavailable',!S.veh]];
+ let h='<div class="glass"><h2>How this estimate is made</h2>';
+ if(!P)h+='<p>No bus to explain yet.</p>';else{
+  h+=`<p style="font-size:17px">${P.text.map(esc).join(' ')}</p></div>
+  <div class="glass"><h3>Components</h3>
+  ${kv('Walk',mins(P.walk)+' min ('+fmtD(S.walk.dist)+' @ '+fmtS(cfg.walkKmh)+')',S.walk.live?'calc':'hist',S.walk.src)}
+  ${kv('Safety buffer',cfg.buffer+' min','calc','your setting')}
+  ${kv(P.timetableOnly?'Scheduled departure':'Expected arrival',fmtT(P.exp0),S.demo?'demo':P.timetableOnly?'sched':'live',S.arrSource==='bt'?'bustimes.org':'TfL Arrivals')}
+  ${kv('Delay vs timetable',P.sc?(Math.round(P.sc.diffMin*10)/10)+' min (already inside the prediction)':null,'calc','TfL Timetable')}
+  ${kv('Traffic adjustment',S.traffic?'+'+mins(P.tAdj)+' min':null,'calc',S.traffic?S.traffic.src:'')}
+  ${kv('Stops before yours',S.bp?S.bp.stopsAway:null,'calc','TfL route sequence')}
+  ${kv('Dwell time per stop','Already inside TfL\u2019s prediction; not added again','hist','')}
+  ${kv('Timing-point behaviour',null)}
+  ${kv('Uncertainty (±)',Math.round(P.spread)+' s','calc','distance, freshness, incidents')}
+  ${kv('Expected arrival range',fmtT(P.lo)+'–'+fmtT(P.hi),'calc')}
+  ${kv('Leave at',fmtT(P.planAt),'calc')}</div>
+  <div class="glass"><h3>${P.level} confidence · ${Math.round(P.score)}/100</h3><div class="bar"><i style="width:${P.score}%"></i></div><ul>${P.reasons.map(r=>`<li>${esc(r)}</li>`).join('')}</ul></div>`;}
+ h+=`<div class="glass"><h3>Data states</h3>${states.map(s=>`<div class="kv"><div class="k">${s[0]}</div><div class="v">${s[1]?'● active':'<span class="mut">–</span>'}</div></div>`).join('')}
+ <p class="small mut" style="margin-top:10px">Labels: ${tag('live')} from a live API · ${tag('calc')} computed by this app · ${tag('hist')} an assumption · ${tag('miss')} not supplied · ${tag('demo')} fake demonstration data.</p></div>`;
+ v.innerHTML=h;
+}
+const WORKER=String.raw`/* Optional Cloudflare Worker for the Route 91 PWA.
+   Bind ALLOWED_ORIGIN to your HTTPS site's origin, e.g. https://example.pages.dev
+   Secrets TFL_KEY and TOMTOM_KEY are optional. */
+export default {
+ async fetch(req,env){
+  const origin=req.headers.get('Origin')||'';
+  const allowed=env.ALLOWED_ORIGIN||'';
+  const cors={
+   'access-control-allow-origin':allowed||'*',
+   'access-control-allow-methods':'GET, OPTIONS',
+   'access-control-allow-headers':'Content-Type',
+   'vary':'Origin'
+  };
+  if(allowed&&origin&&origin!==allowed)return new Response('Origin not allowed',{status:403});
+  if(req.method==='OPTIONS')return new Response(null,{status:204,headers:cors});
+  if(req.method!=='GET')return new Response('Method not allowed',{status:405,headers:cors});
+  const u=new URL(req.url),m=u.pathname.match(/^\/(tfl|bt|traffic)(\/.*)$/);
+  if(!m)return new Response('Not found',{status:404,headers:cors});
+  try{
+   if(m[1]==='traffic'){
+    if(!env.TOMTOM_KEY)return new Response(JSON.stringify({error:'TomTom traffic key not configured'}),{status:503,headers:{...cors,'content-type':'application/json'}});
+    const f=u.searchParams.get('from'),t=u.searchParams.get('to');
+    if(!/^-?\d{1,2}\.\d+,-?\d{1,3}\.\d+$/.test(f||'')||! /-?\d{1,2}\.\d+,-?\d{1,3}\.\d+/.test(t||''))return new Response('Invalid route',{status:400,headers:cors});
+    const target='https://api.tomtom.com/routing/1/calculateRoute/'+encodeURIComponent(f)+':'+encodeURIComponent(t)+'/json?traffic=true&key='+encodeURIComponent(env.TOMTOM_KEY);
+    const r=await fetch(target,{headers:{'accept':'application/json'}});
+    if(!r.ok)return new Response('Traffic provider unavailable',{status:r.status,headers:cors});
+    const j=await r.json(),v=j.routes?.[0]?.summary;
+    if(!v||!Number.isFinite(v.trafficDelayInSeconds)||!Number.isFinite(v.travelTimeInSeconds))return new Response('Invalid traffic response',{status:502,headers:cors});
+    return new Response(JSON.stringify({trafficDelaySec:v.trafficDelayInSeconds,travelTimeSec:v.travelTimeInSeconds,provider:'TomTom routing · nearby driving segment'}),{headers:{...cors,'content-type':'application/json','cache-control':'no-store'}});
+   }
+   if(m[1]==='tfl'&&env.TFL_KEY)u.searchParams.set('app_key',env.TFL_KEY);
+   const dest=(m[1]==='tfl'?'https://api.tfl.gov.uk':'https://bustimes.org')+m[2]+u.search;
+   const html=m[1]==='bt'&&/^\/stops\/[^/]+\/departures\/?$/.test(m[2]);
+   const r=await fetch(dest,{headers:{accept:html?'text/html':'application/json'}});
+   return new Response(r.body,{status:r.status,headers:{...cors,'content-type':r.headers.get('content-type')||(html?'text/html':'application/json'),'cache-control':'no-store'}});
+  }catch{return new Response('Upstream unavailable',{status:502,headers:cors})}
+ }
+};`;
+
+function renderSettings(){
+ const v=$('#view-settings');
+ v.innerHTML=`<div class="glass"><h2>Settings</h2>
+ <div class="sw"><label for="sKnownWalk">Walk to Stop A<br><span class="small mut">1 minute is your estimate. Select mapped route to use automatic walking time.</span></label><select id="sKnownWalk" style="width:146px"><option value="1" ${+cfg.walkMinutes===1?'selected':''}>1 min (mine)</option><option value="2" ${+cfg.walkMinutes===2?'selected':''}>2 min</option><option value="3" ${+cfg.walkMinutes===3?'selected':''}>3 min</option><option value="0" ${+cfg.walkMinutes===0?'selected':''}>Mapped route</option></select></div>
+ <label class="small mut" for="sWalk">Walking speed: <b id="vWalk">${fmtS(cfg.walkKmh)}</b></label><input id="sWalk" type="range" min="2.5" max="7" step=".1" value="${cfg.walkKmh}">
+ <label class="small mut" for="sBuf">Safety buffer: <b id="vBuf">${cfg.buffer} min</b></label><input id="sBuf" type="range" min="0" max="10" step="1" value="${cfg.buffer}">
+ <div class="sw"><label for="cLeave">Leave-now mode</label><input id="cLeave" type="checkbox" ${cfg.leaveNow?'checked':''}></div>
+ <div class="sw"><label for="cNotify">Notify me when it is time to leave<br><span class="small mut">Works while the app is open (installed web apps on iOS 16.4+ can show notifications).</span></label><input id="cNotify" type="checkbox" ${cfg.notify?'checked':''}></div>
+ <div class="sw"><label for="cTraffic">Show traffic</label><input id="cTraffic" type="checkbox" ${cfg.traffic?'checked':''}></div>
+ <div class="sw"><label for="cTiming">Show timing points</label><input id="cTiming" type="checkbox" ${cfg.timing?'checked':''}></div>
+ <div class="sw"><label for="cMo">Reduced motion</label><input id="cMo" type="checkbox" ${cfg.motion?'checked':''}></div>
+ <div class="sw"><label for="sUnits">Distance units</label><select id="sUnits" style="width:140px"><option value="km" ${cfg.units==='km'?'selected':''}>Kilometres</option><option value="mi" ${cfg.units==='mi'?'selected':''}>Miles</option></select></div>
+ <div class="sw"><label for="sTheme">Appearance</label><select id="sTheme" style="width:140px"><option value="auto" ${cfg.theme==='auto'?'selected':''}>Match device</option><option value="dark" ${cfg.theme==='dark'?'selected':''}>Dark</option><option value="light" ${cfg.theme==='light'?'selected':''}>Light</option></select></div>
+ <div class="sw"><label for="cWx">Show weather (Open-Meteo; sends coarse area only)</label><input id="cWx" type="checkbox" ${cfg.weather?'checked':''}></div>
+ <div class="sw"><label for="cLoc">Use my current location as start<br><span class="small mut">Off by default. Asks iOS for precise location.</span></label><input id="cLoc" type="checkbox" ${cfg.useLoc?'checked':''}></div>
+ <div class="row wrap" style="margin-top:12px"><button class="pri" id="bRefresh">Refresh live data</button><button id="bStop">Select another matching stop</button></div></div>
+ <div class="glass"><h2>Your starting point</h2><p class="small mut">Set to 465 Caledonian Road, London N7 9GU by default, with Caledonian Road Station Stop A. You can still change it below.</p>
+ <input type="text" id="sAddr" value="${esc(cfg.address||DEF_ADDR)}" aria-label="Start address" autocomplete="off">
+ <div class="row wrap" style="margin-top:10px"><button id="bLook">Look up</button></div>
+ <div class="sw"><label for="cSave">Save address &amp; stop on this device</label><input id="cSave" type="checkbox" ${cfg.saveAddress?'checked':''}></div>
+ <div class="row wrap" style="margin-top:10px"><button id="bClearAddr">Clear saved address</button><button id="bDelete" class="ghost">Delete my saved journey</button></div></div>
+ <div class="glass"><h2>Privacy</h2><ul class="small"><li>Your address is stored locally only if you turn saving on.</li>
+ <li>The address text is sent to OpenStreetMap Nominatim to find coordinates when it needs to be resolved. Then only coordinates go to TfL (stop lookup, journey planner), bustimes.org (if TfL stop lookup fails), and a walking router. The full address is not sent to bustimes.org.</li>
+ <li>No API key is in this page. Add keys only to a server-side proxy (below).</li>
+ <li>Microphone and camera are never used. Precise location is used only if you switch it on above.</li>
+ <li>Error log below never contains coordinates or the address.</li></ul>
+ <h3 style="margin-top:12px">Data sources</h3>
+ <ul class="small"><li>Primary arrivals, route sequence, timetable, service status, road disruptions, journey planner: TfL Unified API</li><li>Fallback nearby stops and departure times: bustimes.org (can include scheduled times only)</li><li>Vehicle fleet number, model, livery: bustimes.org using reg=</li><li>Geocoding: OpenStreetMap Nominatim</li><li>Walking route: FOSSGIS routing on OpenStreetMap data</li><li>Traffic: TfL road disruptions without a key; optional TomTom traffic speed using your Worker key</li><li>Principal timing points: bustimes.org vehiclejourneys/details, when linked to a trip</li><li>Map tiles: OpenStreetMap contributors</li></ul></div>
+ <div class="glass"><h2>Install on iPhone</h2><p class="small mut">Host these files on an HTTPS website, open in iPhone Safari, tap Share → Add to Home Screen, and select Open as Web App. The tracker then opens like an app instead of in an HTML viewer.</p></div>
+ <div class="glass"><h2>Proxy &amp; API keys</h2><p class="small mut">A single HTML file cannot keep a secret. Without a proxy, TfL is called directly without a key. bustimes.org may block direct browser requests because of CORS. For reliable automatic fallback, deploy the Worker below and paste its URL. Never place a key in this page.</p>
+ <input type="url" id="sProxy" placeholder="https://your-proxy.workers.dev" value="${esc(cfg.proxy)}" aria-label="Proxy URL"><div class="row" style="margin-top:10px"><button id="bProxy">Save proxy URL</button><button id="bCopy" class="ghost">Copy Worker code</button></div>
+ <p class="small mut">Cloudflare Worker secrets (optional): TFL_KEY and TOMTOM_KEY. Restrict CORS to your own website when deploying publicly.</p><pre>${esc(WORKER)}</pre></div>
+ <div class="glass"><h3>Error log (no addresses)</h3><pre>${esc(S.log.join('\n')||'No errors.')}</pre></div>`;
+}
+function renderPick(){
+ const v=$('#view-pick');
+ v.innerHTML=`<div class="glass"><h2>Which stop?</h2><p class="mut">${S.cands.filter(s=>s.letter==='A').length>1?'More than one Bus Stop A serves Route 91 nearby.':'We could not find exactly one Stop A, so please choose.'} Confirmed start: <b>${esc(S.startLabel)}</b></p></div>
+ <div class="list">${S.cands.length?S.cands.map((s,i)=>`<button class="item" data-pick="${i}" aria-label="${esc(s.name)} Stop ${esc(s.letter)}, ${Math.round(s.dist)} metres"><span><b>${esc(s.name)}</b><br><span class="small mut">Stop ${esc(s.letter||'?')}${s.towards?' · towards '+esc(s.towards):''} · ${fmtD(s.dist)}</span></span><span>›</span></button>`).join(''):'<div class="glass">No Route 91 stops found nearby. Check the address or proxy in Settings.</div>'}</div>
+ <div class="glass"><h3>Not your address?</h3>${S.geoAlt.slice(1).map((g,i)=>`<button class="item" data-geo="${i+1}" style="display:block;width:100%;border-radius:18px;margin-bottom:6px;padding:10px 14px;text-align:left">${esc(g.label)}</button>`).join('')||'<p class="small mut">Edit it in Settings.</p>'}</div>`;
+}
+function render(){
+ const P=calc();const si=stateInfo(P);
+ $('#statchip').innerHTML=`<span class="chip ${si.c}"><i class="dot"></i>${si.l}</span>`;
+ const w=$('#wx');w.textContent=S.weather?`${Math.round(S.weather.temperature_2m)}°C · ${WX(S.weather.weather_code)}`:'';
+ ({overview:renderOverview,bus:renderBus,traffic:renderTraffic,arrivals:renderArrivals,explain:renderExplain,settings:renderSettings,pick:renderPick}[S.view]||(()=>{}))(P);
+ if(S.view==='map')mapSheetRefresh();
+ notifyCheck(P);
+}
+function notifyCheck(P){if(!cfg.notify||!P||cfg.leaveNow||P.timetableOnly||S.err)return;if(P.leaveIn<=0&&!S.notified[P.b.vehicleId]){S.notified[P.b.vehicleId]=1;toast('Time to leave for Route 91');try{navigator.vibrate&&navigator.vibrate([200,100,200])}catch{}try{if(Notification.permission==='granted')new Notification('Time to leave',{body:'Route 91 from '+S.stop.name+' at '+fmtT(P.exp0)})}catch{}}}
+/* ---------- navigation ---------- */
+function applyView(v){
+ $$('.view').forEach(e=>e.classList.toggle('on',e.id==='view-'+v));S.view=v;
+ $$('.tab').forEach(t=>t.setAttribute('aria-current',t.dataset.go===v?'page':'false'));
+ $('#app').style.visibility=v==='map'?'hidden':'visible';
+ render();mapOn=v==='map';if(v==='map'){initMap();setTimeout(()=>{mapResize();updateMap(true)},60)}else window.scrollTo(0,0);
+}
+function go(v,morph){
+ if(S.view===v&&v!=='map')return;
+ if(document.startViewTransition&&!reduced()){
+  const card=morph&&$('#busCard');if(card)card.style.viewTransitionName='morph';
+  const t=document.startViewTransition(()=>{if(card)card.style.viewTransitionName='';if(v==='map')$('#view-map').style.viewTransitionName='morph';applyView(v)});
+  t.finished.finally(()=>{$('#view-map').style.viewTransitionName=''});
+ }else applyView(v);
+}
+/* ---------- map: own canvas renderer (no external map library) ---------- */
+let mapOn=false,showWalk=true,camFollow=false,cur=null,anim=null,VT=null,ctx=null,W=0,H=0,dpr=1,raf=0,mInit=false;
+const V={lon:-0.118,lat:51.54,z:15.3},M={hits:[],stops:[]},TS=256,tiles=new Map();
+const wx=(lon,z)=>(lon+180)/360*TS*2**z;
+const wy=(lat,z)=>{const s=Math.sin(lat*rad);return(.5-Math.log((1+s)/(1-s))/(4*Math.PI))*TS*2**z};
+const unx=(x,z)=>x/(TS*2**z)*360-180;
+const uny=(y,z)=>{const n=Math.PI-2*Math.PI*y/(TS*2**z);return Math.atan(Math.sinh(n))/rad};
+const scr=(lon,lat)=>[W/2+wx(lon,V.z)-wx(V.lon,V.z),H/2+wy(lat,V.z)-wy(V.lat,V.z)];
+const want=()=>{if(!raf&&mapOn)raf=requestAnimationFrame(draw)};
+const isDark=()=>document.documentElement.dataset.theme==='dark';
+function tile(z,x,y){
+ const n=2**z;x=((x%n)+n)%n;if(y<0||y>=n)return null;
+ const d=isDark(),r=dpr>1.5?'@2x':'',k=(d?'d':'l')+r+z+'/'+x+'/'+y;let t=tiles.get(k);
+ if(!t){t=new Image();t.referrerPolicy='no-referrer';t.onload=()=>{t.ok=1;want()};t.onerror=()=>{t.bad=1};
+  t.src=`https://${'abcd'[(x+y)%4]}.basemaps.cartocdn.com/rastertiles/${d?'dark_all':'voyager'}/${z}/${x}/${y}${r}.png`;
+  tiles.set(k,t);if(tiles.size>500)tiles.delete(tiles.keys().next().value)}
+ return t;
+}
+function draw(t){
+ raf=0;if(!mapOn||!ctx||!W)return;let busy=false;
+ if(VT){const k=clamp((t-VT.t0)/VT.d,0,1),e=1-(1-k)**3;V.lon=VT.f.lon+(VT.t.lon-VT.f.lon)*e;V.lat=VT.f.lat+(VT.t.lat-VT.f.lat)*e;V.z=VT.f.z+(VT.t.z-VT.f.z)*e;if(k>=1)VT=null;else busy=true}
+ if(anim){const k=clamp((t-anim.t0)/1800,0,1),e=1-(1-k)**3;cur=[anim.f[0]+(anim.t[0]-anim.f[0])*e,anim.f[1]+(anim.t[1]-anim.f[1])*e];if(k>=1)anim=null;else busy=true}
+ if(camFollow&&cur&&!VT&&ptrs.size===0){V.lon+=(cur[0]-V.lon)*.1;V.lat+=(cur[1]-V.lat)*.1;busy=true}
+ const dark=isDark();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle=dark?'#1b1f27':'#e9e5dc';ctx.fillRect(0,0,W,H);
+ const tz=clamp(Math.round(V.z),2,19),sc=2**(V.z-tz),cx=wx(V.lon,tz),cy=wy(V.lat,tz);
+ const x0=Math.floor((cx-W/2/sc)/TS),x1=Math.floor((cx+W/2/sc)/TS),y0=Math.floor((cy-H/2/sc)/TS),y1=Math.floor((cy+H/2/sc)/TS);
+ for(let x=x0;x<=x1;x++)for(let y=y0;y<=y1;y++){const im=tile(tz,x,y);if(im&&im.ok)ctx.drawImage(im,Math.round(W/2+(x*TS-cx)*sc),Math.round(H/2+(y*TS-cy)*sc),Math.ceil(TS*sc)+1,Math.ceil(TS*sc)+1)}
+ const path=pts=>{ctx.beginPath();pts.forEach((p,i)=>{const s=scr(p[0],p[1]);i?ctx.lineTo(s[0],s[1]):ctx.moveTo(s[0],s[1])})};
+ ctx.lineJoin=ctx.lineCap='round';M.hits=[];
+ if(M.route){path(M.route);ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=9;ctx.stroke();ctx.strokeStyle='#dc241f';ctx.lineWidth=5;ctx.stroke()}
+ if(M.prog){path(M.prog);ctx.setLineDash([2,9]);ctx.strokeStyle='#fff';ctx.lineWidth=3;ctx.stroke();ctx.setLineDash([])}
+ if(M.walk){path(M.walk);ctx.setLineDash([2,9]);ctx.strokeStyle='#2f5fe0';ctx.lineWidth=5;ctx.stroke();ctx.setLineDash([])}
+ const dot=(p,r,fill,stroke,lw)=>{ctx.beginPath();ctx.arc(p[0],p[1],r,0,7);ctx.fillStyle=fill;ctx.fill();ctx.strokeStyle=stroke;ctx.lineWidth=lw;ctx.stroke()};
+ if(V.z>=14)for(const s of M.stops){const p=scr(s.lon,s.lat);if(p[0]<-20||p[0]>W+20||p[1]<-20||p[1]>H+20)continue;dot(p,6,'#f6f1e9','#dc241f',3);M.hits.push({x:p[0],y:p[1],r:14,t:'stop',s})}
+ if(cfg.timing)for(const p of S.timingPoints){const xy=scr(p.pos[0],p.pos[1]);if(xy[0]<-20||xy[0]>W+20||xy[1]<-20||xy[1]>H+20)continue;dot(xy,7,'#f2c77b','#0a111d',2);M.hits.push({x:xy[0],y:xy[1],r:15,t:'timing',p})}
+ if(cfg.traffic)for(const i of S.inc){const p=scr(i.pt[0],i.pt[1]);dot(p,10,'#f5b84a','#14181f',2);ctx.fillStyle='#14181f';ctx.font='bold 13px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('!',p[0],p[1]+1);M.hits.push({x:p[0],y:p[1],r:16,t:'inc',i})}
+ if(M.walk&&S.walk){const m=M.walk[Math.floor(M.walk.length/2)],p=scr(m[0],m[1]),tx=mins(walkSec())+' min walk';ctx.font='bold 13px sans-serif';const w=ctx.measureText(tx).width+20;ctx.fillStyle='rgba(20,24,34,.88)';ctx.beginPath();ctx.roundRect?ctx.roundRect(p[0]-w/2,p[1]-34,w,24,12):ctx.rect(p[0]-w/2,p[1]-34,w,24);ctx.fill();ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(tx,p[0],p[1]-22)}
+ if(S.start){const p=scr(S.start[0],S.start[1]);dot(p,15,'#3a63d8','#fff',3);ctx.font='15px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('🏠',p[0],p[1]+1);M.hits.push({x:p[0],y:p[1],r:22,t:'home'})}
+ if(M.sp){const p=scr(M.sp[0],M.sp[1]);dot(p,16,'#dc241f','#fff',3);ctx.fillStyle='#fff';ctx.font='bold 15px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(S.stop.letter||'A',p[0],p[1]+1);M.hits.push({x:p[0],y:p[1],r:22,t:'stop0'})}
+ if(cur&&S.bp){const p=scr(cur[0],cur[1]);if(!reduced()){const ph=(t%1800)/1800;ctx.beginPath();ctx.arc(p[0],p[1],10+ph*18,0,7);ctx.strokeStyle=`rgba(220,36,31,${.8*(1-ph)})`;ctx.lineWidth=3;ctx.stroke();busy=true}dot(p,10,'#dc241f','#fff',3);M.hits.push({x:p[0],y:p[1],r:24,t:'bus'})}
+ if(busy)want();
+}
+const ptrs=new Map();let down=null,pinch=null;
+function mapResize(){const c=$('#mc');if(!c)return;dpr=Math.min(3,devicePixelRatio||1);W=c.clientWidth;H=c.clientHeight;c.width=Math.round(W*dpr);c.height=Math.round(H*dpr);ctx=c.getContext('2d');want()}
+function panBy(dx,dy){VT=null;V.lon=unx(wx(V.lon,V.z)-dx,V.z);V.lat=uny(wy(V.lat,V.z)-dy,V.z);want()}
+function zoomBy(dz){VT=null;V.z=clamp(V.z+dz,2,19);want()}
+function tap(x,y){
+ for(const h of [...M.hits].reverse())if(Math.hypot(h.x-x,h.y-y)<=h.r+6){
+  if(h.t==='stop')showStopSheet(h.s.id,h.s.name,h.s.letter);
+  else if(h.t==='timing')sheet(`<h3>Principal timing point</h3><p>${esc(h.p.name)}</p><p class="small mut">Scheduled timing point according to bustimes.org; not an actual or forecast waiting time.</p>`);
+  else if(h.t==='inc')sheet(`<h3>${esc(h.i.cat)} · ${esc(h.i.sev)}</h3><p>${esc(h.i.text)}</p><p class="small mut">${esc(h.i.eff)}</p>`);
+  else if(h.t==='bus'&&S.chosen)sheet(`<h3>Bus ${esc(S.chosen.vehicleId)}</h3><p>${esc(S.chosen.currentLocation||'')}</p><p class="small mut">${S.bp?.gps?'Recent bustimes.org GPS position; may have moved.':'Position estimated from TfL’s next-stop prediction, not GPS.'}</p><button class="pri" data-go="bus">Bus details</button>`);
+  else if(h.t==='stop0')showStopSheet(S.stop.id,S.stop.name,S.stop.letter);
+  else if(h.t==='home')sheet(`<h3>Start</h3><p>${esc(S.startLabel)}</p>`);
+  return}
+ $('#sheet').classList.remove('on');
+}
+function initMap(){
+ mapOn=true;if(mInit){mapResize();return}
+ const c=$('#mc');if(!c||!c.getContext){$('#mapmsg').hidden=false;return}
+ mInit=true;mapResize();addEventListener('resize',mapResize);
+ c.addEventListener('pointerdown',e=>{c.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,[e.clientX,e.clientY]);if(ptrs.size===1)down={t:performance.now(),m:0};else if(ptrs.size===2){const[a,b]=[...ptrs.values()];pinch={d:Math.hypot(a[0]-b[0],a[1]-b[1]),z:V.z};down=null}});
+ c.addEventListener('pointermove',e=>{const o=ptrs.get(e.pointerId);if(!o)return;const n=[e.clientX,e.clientY];ptrs.set(e.pointerId,n);
+  if(ptrs.size===1){const dx=n[0]-o[0],dy=n[1]-o[1];if(down)down.m+=Math.abs(dx)+Math.abs(dy);if(down&&down.m>8&&camFollow){camFollow=false;$('#mFollow').setAttribute('aria-pressed','false')}panBy(dx,dy)}
+  else if(ptrs.size===2&&pinch){const[a,b]=[...ptrs.values()];V.z=clamp(pinch.z+Math.log2(Math.hypot(a[0]-b[0],a[1]-b[1])/pinch.d),2,19);VT=null;want()}});
+ const up=e=>{const was=down;ptrs.delete(e.pointerId);if(ptrs.size<2)pinch=null;if(was&&was.m<8&&performance.now()-was.t<600&&ptrs.size===0){const r=c.getBoundingClientRect();tap(e.clientX-r.left,e.clientY-r.top)}if(ptrs.size===0)down=null};
+ c.addEventListener('pointerup',up);c.addEventListener('pointercancel',e=>{ptrs.delete(e.pointerId);down=null;pinch=null});
+ c.addEventListener('wheel',e=>{e.preventDefault();zoomBy(-e.deltaY*.0025)},{passive:false});
+ c.addEventListener('dblclick',()=>zoomBy(1));
+ updateMap(true);
+}
+function fitView(){
+ if(!M.sp||!W)return;const pts=[M.sp];if(S.start)pts.push(S.start);if(S.bp)pts.push(S.bp.pos);
+ const lo=Math.min(...pts.map(p=>p[0])),hi=Math.max(...pts.map(p=>p[0])),a=Math.min(...pts.map(p=>p[1])),b=Math.max(...pts.map(p=>p[1]));
+ let z=17;while(z>3&&(Math.abs(wx(hi,z)-wx(lo,z))>W-110||Math.abs(wy(a,z)-wy(b,z))>H-320))z-=.25;
+ VT={f:{...V},t:{lon:(lo+hi)/2,lat:(a+b)/2,z},t0:performance.now(),d:reduced()?1:700};want();
+}
+function sliceLine(line,a,b){const n=p=>{let bi=0,bd=1e9;line.forEach((v,i)=>{const d=hav(v,p);if(d<bd){bd=d;bi=i}});return bi};const i=n(a),j=n(b);return i<=j?line.slice(i,j+1):line.slice(j,i+1).reverse()}
+function updateMap(fit){
+ if(!S.stop||S.stop.id==='demo')return;
+ const sp=[S.stop.lon,S.stop.lat];M.sp=sp;M.route=S.seq?S.seq.line:null;M.walk=showWalk&&S.walk?S.walk.geom:null;
+ M.prog=S.bp&&S.seq?sliceLine(S.seq.line,S.bp.pos,sp):null;
+ const pts=new Map();S.nearby.forEach(s=>pts.set(s.id,s));(S.seq?S.seq.stops:[]).forEach(s=>{if(!pts.has(s.id))pts.set(s.id,{id:s.id,name:s.name,letter:'',lon:s.lon,lat:s.lat})});
+ pts.delete(S.stop.id);M.stops=[...pts.values()];
+ if(S.bp){if(!cur||reduced())cur=S.bp.pos.slice();else anim={f:cur,t:S.bp.pos,t0:performance.now()}}else cur=null;
+ if(fit&&mapOn)fitView();want();
+}
+function sheet(h){const s=$('#sheet');s.innerHTML=h+'<button class="ghost" id="shClose" style="margin-top:8px">Close</button>';s.classList.add('on')}
+function mapSheetRefresh(){}
+async function showStopSheet(id,name,letter){
+ sheet(`<h3>${esc(name)}${letter?' · Stop '+esc(letter):''}</h3><p class="mut">Loading arrivals…</p>`);
+ try{const result=await arrivalsForStop(id);const a=result.arr.slice(0,4);
+  const s=S.nearby.find(x=>x.id===id);
+  sheet(`<h3>${esc(name)}${letter?' · Stop '+esc(letter):''}</h3>${a.length?a.map(x=>`<div class="kv"><div class="k">${esc(x.vehicleId||'Route 91')}</div><div class="v">${fmtT(Date.parse(x.expectedArrival))} · ${Math.round((Date.parse(x.expectedArrival)-Date.now())/60000)} min ${x.predictionKind==='scheduled'?'(scheduled)':''}</div></div>`).join(''):'<p>No Route 91 buses predicted here.</p>'}${s?`<button class="pri" data-usestop="${esc(id)}" style="margin-top:8px">Use this stop</button>`:''}`)}
+ catch{sheet(`<h3>${esc(name)}</h3><p>Arrivals unavailable right now.</p>`)}
+}
+/* ---------- events ---------- */
+document.addEventListener('click',async e=>{
+ const t=e.target.closest('button,[data-go],[data-pick],[data-geo]');if(!t)return;
+ if(t.dataset.go){go(t.dataset.go);return}
+ if(t.id==='busCard'){go('map',true);return}
+ if(t.dataset.pick!=null){await choose(S.cands[+t.dataset.pick]);return}
+ if(t.dataset.geo){const g=S.geoAlt[+t.dataset.geo];S.start=[g.lon,g.lat];S.startLabel=g.label;S.geoAlt=[g,...S.geoAlt.filter(x=>x!==g)];await resolveStop();render();return}
+ if(t.dataset.follow){cfg.followVid=cfg.followVid===t.dataset.follow?null:t.dataset.follow;persist();render();refresh();return}
+ if(t.dataset.usestop){const s=S.nearby.find(x=>x.id===t.dataset.usestop);if(s){await choose(s);$('#sheet').classList.remove('on');toast('Now tracking '+s.name)}return}
+ switch(t.id){
+  case 'btnRefresh':case 'bRefresh':toast('Refreshing…');S.weatherAt=0;S.roadsAt=0;await refresh();break;
+  case 'retryBoot':S.bootErr=null;S.err=null;boot();break;
+  case 'btnSettings':go('settings');break;
+  case 'demoOn':S.demo=true;S.err=null;if(!S.stop){S.stop={id:'demo',name:'Bus Stop A (DEMO)',letter:'A',lat:0,lon:0,lines:['91']};S.walk={dist:320,geom:[[0,0],[0,0]],src:'Demo value',live:false}}refresh();break;
+  case 'demoOff':S.demo=false;S.arr=[];S.fetchedAt=0;if(S.stop?.id==='demo'){S.stop=null;S.walk=null;boot()}else refresh();break;
+  case 'chgStop':case 'bStop':go('pick');break;
+  case 'followBtn':cfg.followVid=cfg.followVid===S.chosen?.vehicleId?null:S.chosen?.vehicleId;persist();render();break;
+  case 'mBack':go('overview');break;
+  case 'mDetails':go('bus');break;
+  case 'mRecenter':updateMap(true);break;
+  case 'mZin':zoomBy(1);break;
+  case 'mZout':zoomBy(-1);break;
+  case 'mFollow':camFollow=!camFollow;t.setAttribute('aria-pressed',camFollow);if(camFollow&&S.chosen){cfg.followVid=S.chosen.vehicleId;persist()}updateMap();break;
+  case 'mWalk':showWalk=!showWalk;t.setAttribute('aria-pressed',showWalk);updateMap();break;
+  case 'mTraffic':cfg.traffic=!cfg.traffic;t.setAttribute('aria-pressed',cfg.traffic);persist();updateMap();break;
+  case 'mTiming':cfg.timing=!cfg.timing;t.setAttribute('aria-pressed',String(cfg.timing));persist();if(cfg.timing&&S.veh?.id)loadBtJourneyInfo(S.veh,S.arrSource==='bt').then(()=>{render();updateMap()});updateMap();toast(cfg.timing?'Showing available published timing points':'Timing points hidden');break;
+  case 'shClose':$('#sheet').classList.remove('on');break;
+  case 'bLook':{const a=$('#sAddr').value.trim();if(!a)break;cfg.address=a;cfg.startCoords=null;cfg.stopId=null;persist();toast('Looking up…');try{await resolveStart();await resolveStop();toast('Start confirmed');render()}catch{toast('Address not found')}break}
+  case 'bClearAddr':cfg.address=DEF_ADDR;cfg.startCoords=null;cfg.stopId=HOME_STOP;persist();toast('Restored your home address');renderSettings();break;
+  case 'bDelete':try{localStorage.removeItem('b91')}catch{}cfg={...DEF};S.notified={};toast('Saved journey deleted');applyTheme();renderSettings();break;
+  case 'bProxy':cfg.proxy=$('#sProxy').value.trim();persist();toast('Saved. Refreshing…');if(!S.stop)boot();else refresh();break;
+  case 'bCopy':try{await navigator.clipboard.writeText(WORKER);toast('Worker code copied')}catch{toast('Select and copy the code below')}break;
+ }
+});
+document.addEventListener('input',e=>{const t=e.target;
+ if(t.id==='sWalk'){cfg.walkKmh=+t.value;$('#vWalk').textContent=fmtS(cfg.walkKmh);persist();if(S.walk)render()}
+ if(t.id==='sBuf'){cfg.buffer=+t.value;$('#vBuf').textContent=cfg.buffer+' min';persist()}
+});
+document.addEventListener('change',async e=>{const t=e.target;const m={cLeave:'leaveNow',cTraffic:'traffic',cTiming:'timing',cMo:'motion',cWx:'weather',cSave:'saveAddress'};
+ if(m[t.id]){cfg[m[t.id]]=t.checked;if(t.id==='cSave'&&t.checked){cfg.address=cfg.address||S.startLabel&&DEF_ADDR;cfg.startCoords=S.start;cfg.stopId=S.stop?.id||null}persist();applyTheme();if(t.id==='cWx'){S.weatherAt=0;loadWeather().then(render)}if(t.id==='cTraffic')refresh();return}
+ if(t.id==='cNotify'){cfg.notify=t.checked;if(t.checked&&'Notification'in window){try{const p=await Notification.requestPermission();if(p!=='granted')toast('Notifications blocked. You will get an in-app alert while the app is open.')}catch{}}persist();return}
+ if(t.id==='cLoc'){cfg.useLoc=t.checked;persist();if(t.checked){try{await resolveStart();await resolveStop();render()}catch{toast('Location unavailable')}}return}
+ if(t.id==='sKnownWalk'){cfg.walkMinutes=Number(t.value);persist();render();return}
+ if(t.id==='sUnits'||t.id==='sTheme'){cfg[t.id==='sUnits'?'units':'theme']=t.value;persist();applyTheme();render()}
+});
+/* ---------- theme, clock, PWA ---------- */
+function applyTheme(){want();const d=cfg.theme==='auto'?(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'):cfg.theme;document.documentElement.dataset.theme=d;document.documentElement.dataset.motion=reduced()?'reduced':'';$('meta[name=theme-color]').content=d==='dark'?'#070a10':'#e8edf6'}
+function tick(){$('#clock').textContent=fmtTS(Date.now());if(S.stop&&S.view==='overview'){const P=calc();if(P||S.chosen===null)renderHero(P)}}
+function pwa(){
+ // Files need to be served over HTTPS (or localhost), not opened from file://.
+ if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('./sw.js').catch(()=>{});
+}
+
+async function boot(){
+ S.loading=true;render();
+ try{await resolveStart();await resolveStop()}
+ catch(e){S.loading=false;S.err=e.kind||'err';S.bootErr=(S.step||'start-up')+': '+(e.kind==='http'?'server replied HTTP '+e.message:e.kind==='net'||e instanceof TypeError?'request blocked or no connection (CORS, offline, or the file was opened locally)':e.message||String(e));logE('boot failed '+S.bootErr);toast(e.kind==='nf'?'Address not found. Check Settings.':'Could not reach lookup services.')}
+ S.loading=false;render();
+}
+applyTheme();pwa();
+matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',applyTheme);
+addEventListener('online',()=>refresh());addEventListener('offline',render);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});
+setInterval(tick,1000);setInterval(()=>refresh(),20000);tick();
+boot();
+})();
+</script>
+</body>
+</html>
