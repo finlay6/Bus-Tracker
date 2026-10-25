@@ -792,45 +792,91 @@ function renderSettings(){
  <p class="small mut">The Worker needs no paid API keys for bustimes.org GPS or TfL road incidents. TFL_KEY is optional. TOMTOM_KEY is needed only if you want separate driving-speed congestion data. Restrict CORS to your own website.</p><pre>${esc(WORKER)}</pre></div>
  <div class="glass"><h3>Error log (no addresses)</h3><pre>${esc(S.log.join('\n')||'No errors.')}</pre></div>`;
 }
-/* Bristol Route 6: City Centre (The Centre) ⇄ Kingswood (Cecil Road).
-   Service slug verified from bustimes.org's website. No map is used here. */
+/* Bristol Route 6, tracking only. bustimes live data is an imperfect GPS
+   snapshot: always separate fresh, delayed, empty and inaccessible feeds. */
 const ROUTE6_SLUG='6-the-centre-c4-cecil-road-or-teewell-hill';
-const B6={serviceId:null,items:[],loadedAt:0,loading:false,error:null,selected:null,details:null,journey:null,detailError:null,detailLoading:false};
-const b6Id=x=>x?.vehicle?.id??x?.vehicle_id??null;
-const b6When=x=>Date.parse(x?.datetime||x?.timestamp||'');
-const b6Fleet=x=>String(x?.vehicle?.fleet_code||x?.vehicle?.fleet_number||x?.vehicle?.reg||'Unknown vehicle');
-function b6Fresh(x){const ts=b6When(x),dt=Date.now()-ts;return Number.isFinite(ts)&&dt>=-30000&&dt<180000&&Array.isArray(x?.coordinates)&&x.coordinates.length===2&&x.coordinates.every(Number.isFinite)}
+const B6={serviceId:null,items:[],delayed:[],received:0,usable:0,invalid:0,source:'',loadedAt:0,loading:false,error:null,selected:null,selectedLive:null,details:null,journey:null,detailError:null,detailLoading:false};
+const b6Id=x=>x?.vehicle?.id??x?.vehicle_id??x?.vehicleId??null;
+function b6When(x){
+ const t=x?.datetime??x?.timestamp??x?.recorded_at??x?.recordedAt;
+ if(typeof t==='number')return t<1e11?t*1000:t;
+ if(typeof t==='string'&&/^\d{10,13}$/.test(t))return +t<1e11?+t*1000:+t;
+ return Date.parse(t||'');
+}
+const b6Fleet=x=>String(x?.vehicle?.fleet_code||x?.vehicle?.fleet_number||x?.vehicle?.reg||'Vehicle '+(b6Id(x)??'?'));
+function b6Coords(x){
+ const c=x?.coordinates;
+ const a=Array.isArray(c)?c:(x?.longitude!=null&&x?.latitude!=null?[x.longitude,x.latitude]:null);
+ const r=a?.map(Number);
+ return r?.length===2&&r.every(Number.isFinite)&&Math.abs(r[0])<=180&&Math.abs(r[1])<=90?r:null;
+}
+function b6Age(x){return Date.now()-b6When(x)}
+function b6Group(x){
+ const age=b6Age(x);
+ if(b6Id(x)==null||!b6Coords(x)||!Number.isFinite(age)||age< -120000)return 'invalid';
+ if(age<=300000)return 'fresh';             // GPS no older than 5 minutes
+ if(age<=1800000)return 'delayed';          // 5–30 minutes: show, but not live
+ return 'old';
+}
+function b6MatchesRoute(x){
+ const svc=x?.service||{};
+ const url=String(svc.url||svc.slug||'');
+ if(url)return url.replace(/\/$/,'').endsWith('/'+ROUTE6_SLUG)||url===ROUTE6_SLUG;
+ if(x?.service_id!=null&&B6.serviceId!=null)return String(x.service_id)===String(B6.serviceId);
+ // Geographic backup has already been limited to the Bristol–Kingswood area.
+ // Do not accept unknown routes: the route number must explicitly match.
+ return String(svc.line_name||x.route_name||'').trim()==='6';
+}
 async function loadBristol6(force=false){
  if(B6.loading||(!force&&Date.now()-B6.loadedAt<18000))return;
  B6.loading=true;B6.error=null;if(S.view==='bristol6')render();
  try{
   if(!B6.serviceId){
    const result=await api('bt','/api/services/',{slug:ROUTE6_SLUG});
-   const matches=Array.isArray(result)?result:(result.results||[]);
-   const service=matches.find(x=>x.slug===ROUTE6_SLUG&&String(x.line_name).trim()==='6');
-   if(!service?.id)throw new ApiErr('nf','Bristol Route 6 service was not found in bustimes.org');
+   const matches=Array.isArray(result)?result:(result?.results||[]);
+   const service=matches.find(x=>x.slug===ROUTE6_SLUG&&String(x.line_name||'').trim()==='6');
+   if(!service?.id)throw new ApiErr('nf','Route 6 service lookup returned no match. Check your bustimes Worker.');
    B6.serviceId=service.id;
   }
-  const live=await api('bt','/vehicles.json',{service:B6.serviceId});
-  if(!Array.isArray(live))throw new ApiErr('format','Live tracking returned invalid data');
-  // bustimes already filters this request by service ID. Keep only fresh positions;
-  // do not turn timetable allocations or historical journeys into active vehicles.
-  const unique=new Map();
-  for(const x of live.filter(b6Fresh)){
-   const id=b6Id(x);if(id==null)continue;
-   const old=unique.get(String(id));if(!old||b6When(x)>b6When(old))unique.set(String(id),x);
+  let live=await api('bt','/vehicles.json',{service:B6.serviceId});
+  if(!Array.isArray(live))throw new ApiErr('format','Vehicle tracking feed did not return a list');
+  B6.source='Route 6 service feed';
+  // bustimes itself offers bounding-box lookups. Retry when the service-keyed
+  // index is empty, without fetching every bus in Britain.
+  if(!live.length){
+   try{
+    const geo=await api('bt','/vehicles.json',{xmin:-2.70,ymin:51.42,xmax:-2.47,ymax:51.52});
+    if(Array.isArray(geo)){
+     live=geo.filter(b6MatchesRoute);
+     B6.source='Bristol GPS area backup';
+    }
+   }catch(e){logE('Bristol GPS geographic backup unavailable ('+(e.kind||'error')+')')}
   }
-  B6.items=[...unique.values()].sort((a,b)=>b6Fleet(a).localeCompare(b6Fleet(b),undefined,{numeric:true}));
+  B6.received=live.length;
+  const unique=new Map();
+  for(const x of live){
+   const id=b6Id(x);
+   if(id==null)continue;
+   const old=unique.get(String(id));
+   if(!old||b6When(x)>b6When(old))unique.set(String(id),x);
+  }
+  const records=[...unique.values()];
+  B6.items=records.filter(x=>b6Group(x)==='fresh').sort((a,b)=>b6Fleet(a).localeCompare(b6Fleet(b),undefined,{numeric:true}));
+  B6.delayed=records.filter(x=>b6Group(x)==='delayed').sort((a,b)=>b6When(b)-b6When(a));
+  B6.usable=B6.items.length+B6.delayed.length;
+  B6.invalid=records.length-B6.usable;
   B6.loadedAt=Date.now();
   if(B6.selected){
-   const newItem=B6.items.find(x=>String(b6Id(x))===String(B6.selected));
-   B6.selectedLive=newItem||null;
+   B6.selectedLive=[...B6.items,...B6.delayed].find(x=>String(b6Id(x))===String(B6.selected))||null;
   }
- }catch(e){B6.error=e.kind==='net'?'Cannot reach bustimes.org. Check your Worker URL in Settings.':e.message||'Route 6 tracking unavailable';}
- finally{B6.loading=false;if(S.view==='bristol6')render()}
+ }catch(e){
+  B6.error=e.kind==='net'?'bustimes.org request blocked or offline. On iPhone, set your Cloudflare Worker URL in Settings.':e.kind==='http'?'bustimes.org/Worker returned HTTP '+e.message+'. Check the Worker URL in Settings.':e.message||'Route 6 tracking unavailable';
+  B6.items=[];B6.delayed=[];B6.received=0;B6.usable=0;B6.invalid=0;B6.source='';
+  logE('Route 6: '+B6.error);
+ }finally{B6.loading=false;if(S.view==='bristol6')render()}
 }
 async function chooseBristol6(id){
- B6.selected=String(id);B6.selectedLive=B6.items.find(x=>String(b6Id(x))===B6.selected)||null;
+ B6.selected=String(id);B6.selectedLive=[...B6.items,...B6.delayed].find(x=>String(b6Id(x))===B6.selected)||null;
  B6.details=null;B6.journey=null;B6.detailError=null;B6.detailLoading=true;renderBristol6();
  const current=B6.selected;
  const live=B6.selectedLive;
@@ -848,10 +894,12 @@ async function chooseBristol6(id){
 function renderBristol6(){
  const v=$('#view-bristol6');if(!v)return;
  let html=`<div class="glass b6-intro"><div class="row"><span class="b6-badge">6</span><div><h2>Bristol · Route 6</h2><p class="small mut">The Centre ↔ Kingswood, Cecil Road</p></div></div>
- <p class="small mut" style="margin-top:12px">Only buses with a recent bustimes.org GPS report are listed. A missing bus may still be running without tracking.</p>
- <div class="row wrap" style="margin-top:12px"><span class="chip ${B6.items.length?'ok':''}"><i class="dot"></i>${B6.loading?'Checking…':B6.error?'Data unavailable':B6.items.length+' tracked'}</span>
+ <p class="small mut" style="margin-top:12px">GPS updates may lag. Current reports and delayed reports are separated; an untracked bus may still be running.</p>
+ <div class="row wrap" style="margin-top:12px"><span class="chip ${B6.items.length?'ok':''}"><i class="dot"></i>${B6.loading?'Checking…':B6.error?'Tracking unavailable':B6.items.length+' recent GPS'}</span>
  <span class="small mut">${B6.loadedAt?'Checked '+fmtTS(B6.loadedAt):'Not loaded yet'}</span><div class="sp"></div><button id="b6Refresh" style="min-height:40px">↻ Refresh</button></div></div>`;
- if(B6.error)html+=`<div class="banner warn">${esc(B6.error)} <span class="small">This list requires bustimes.org and may need the configured Worker in Safari.</span></div>`;
+ if(B6.error)html+=`<div class="banner warn"><b>Tracking feed unavailable.</b> ${esc(B6.error)} <button class="ghost" data-go="settings" style="min-height:38px">Open Settings</button></div>`;
+ if(B6.loadedAt)html+=`<p class="small mut" style="margin:0 6px 12px">${esc(B6.source)} · ${B6.received} reports returned · ${B6.items.length} recent · ${B6.delayed.length} delayed · ${B6.invalid} unusable/old</p>`;
+ if(!cfg.proxy)html+=`<div class="banner warn">If GPS is missing on iPhone, bustimes.org may block direct browser access. Configure the Cloudflare Worker URL in Settings.</div>`;
  if(B6.selected){
   const l=B6.selectedLive||{},x=B6.details||{},vt=x.vehicle_type||{},tm=B6.journey?.trip||{};
   const fld=(name,val,origin)=>kv(name,val==null||val===''?null:esc(Array.isArray(val)?val.join(', '):val),val!=null?'live':null,origin);
@@ -879,21 +927,23 @@ function renderBristol6(){
   ${fld('Destination',l.destination||l.destination_name||tm.headsign,'bustimes.org')}
   ${fld('GPS recorded at',l.datetime?fmtTS(Date.parse(l.datetime)):null,'bustimes.org GPS')}
   ${fld('Position age',age!=null?age+' seconds':null,'bustimes.org GPS snapshot')}
-  ${fld('Last GPS coordinates',Array.isArray(l.coordinates)?l.coordinates[1].toFixed(5)+', '+l.coordinates[0].toFixed(5):null,'bustimes.org; no map')}
+  ${fld('Last GPS coordinates',b6Coords(l)?b6Coords(l)[1].toFixed(5)+', '+b6Coords(l)[0].toFixed(5):null,'bustimes.org; no map')}
   ${fld('Journey ID',l.journey_id,'bustimes.org')}
   ${fld('Published timing points',desc.length?desc.map(t=>t.stop?.name||'Unnamed stop').join(' · '):null,'bustimes.org timetable')}
   ${fld('Notes',x.notes,'bustimes.org')}
   ${fld('Withdrawn',typeof x.withdrawn==='boolean'?(x.withdrawn?'Yes':'No'):null,'bustimes.org')}
-  ${!B6.selectedLive?'<p class="banner warn">This vehicle is no longer reporting a fresh GPS location.</p>':''}
+  ${!B6.selectedLive?'<p class="banner warn">This vehicle has no current GPS report.</p>':b6Group(l)!=='fresh'?'<p class="banner warn">GPS is delayed. This does not confirm that the bus is still operating.</p>':''}
   <p class="small mut" style="margin-top:12px">GPS fixes may be delayed. This is a vehicle listing, not a real-time arrival prediction.</p>
   </div>`;
- }else if(!B6.items.length){
-  html+=`<div class="glass"><h3>${B6.loading?'Loading buses…':B6.error?'Unable to load vehicles':'No buses currently reporting GPS'}</h3><p class="mut">Only recently tracked Route 6 vehicles are included. Use Refresh to try again.</p></div>`;
  }else{
-  html+=`<div class="b6-list">${B6.items.map(x=>{
-   const id=b6Id(x),fleet=b6Fleet(x),age=Math.max(0,Math.round((Date.now()-b6When(x))/1000));
-   return `<button class="b6-vehicle" data-b6-id="${esc(id)}" aria-label="Details for ${esc(fleet)}"><div class="b6-vehicle-icon">6</div><div class="b6-vehicle-info"><b>${esc(fleet)}</b><span>${esc(x.vehicle?.reg||'Registration not supplied')} · ${esc(x.destination||x.destination_name||'Route 6')}</span><small>GPS report ${age} s ago</small></div><span aria-hidden="true" class="b6-arrow">›</span></button>`;
-  }).join('')}</div>`;
+  const vehicleButtons=(arr,delayed)=>arr.map(x=>{
+   const id=b6Id(x),fleet=b6Fleet(x),age=Math.max(0,Math.round(b6Age(x)/60000));
+   const dest=String(x.destination||x.destination_name||'Route 6');
+   return `<button class="b6-vehicle" data-b6-id="${esc(id)}" aria-label="Details for ${esc(fleet)}"><div class="b6-vehicle-icon">6</div><div class="b6-vehicle-info"><b>${esc(fleet)}</b><span>${esc(x.vehicle?.reg||'Registration unavailable')} · ${esc(dest)}</span><small>${delayed?'Delayed GPS · last seen':'GPS recorded'} ${age} min ago</small></div><span aria-hidden="true" class="b6-arrow">›</span></button>`;
+  }).join('');
+  if(B6.items.length)html+=`<div class="b6-list">${vehicleButtons(B6.items,false)}</div>`;
+  if(B6.delayed.length)html+=`<div class="glass"><h3>Delayed GPS · not confirmed active</h3><p class="small mut">These buses reported 5–30 minutes ago. They might still be in service.</p>${vehicleButtons(B6.delayed,true)}</div>`;
+  if(!B6.items.length&&!B6.delayed.length)html+=`<div class="glass"><h3>${B6.loading?'Loading buses…':B6.error?'Tracking unavailable':'No recent GPS reports'}</h3><p class="mut">${B6.error?'Check the Worker in Settings.':B6.received?'The feed returned vehicle records, but they are too old or missing GPS details.':'The Route 6 feed returned no vehicles. The tracker also tried a Bristol-area backup.'}</p><p class="small mut">You can check the <a href="https://bustimes.org/services/6-the-centre-c4-cecil-road-or-teewell-hill" target="_blank" rel="noopener noreferrer">bustimes.org Route 6 page</a>.</p></div>`;
  }
  v.innerHTML=html;
 }
