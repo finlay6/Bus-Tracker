@@ -86,48 +86,6 @@ pre{white-space:pre-wrap;word-break:break-word;font-size:12px;background:rgba(0,
 html[data-motion=reduced] *,html[data-motion=reduced] *::before,html[data-motion=reduced] *::after{animation:none!important;transition:none!important}
 html[data-motion=reduced]::view-transition-group(*),html[data-motion=reduced]::view-transition-old(*),html[data-motion=reduced]::view-transition-new(*){animation:none!important}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
-/* Route 91 – Midnight refresh. Keep contrasts legible in bright daylight. */
-:root{--red:#ef5149;--ink:#f4f6f9;--mut:#9ba7b9;--bg1:#080b12;--bg2:#0c111b;--glass:#111925;--line:rgba(183,200,225,.13);--ok:#70e1ba;--warn:#f2c77b;--blue:#8fb7ff;--spring:cubic-bezier(.2,.85,.3,1)}
-html[data-theme=light]{--red:#c62d33;--ink:#18212b;--mut:#627080;--bg1:#eff3fa;--bg2:#f4f6fa;--glass:#fff;--line:rgba(20,35,54,.16);--ok:#147d54;--warn:#996321;--blue:#255dbf}
-body{background:radial-gradient(750px 420px at 110% -6%,rgba(190,56,66,.15),transparent 66%),radial-gradient(700px 460px at -25% 12%,rgba(32,79,140,.11),transparent 72%),linear-gradient(175deg,var(--bg1),var(--bg2)) fixed;padding:calc(var(--sat) + 10px) 16px calc(var(--sab) + 105px)}
-#app{max-width:560px}
-.glass{background:var(--glass);border:1px solid var(--line);border-radius:23px;box-shadow:0 12px 25px rgba(0,0,0,.10);padding:19px;margin-bottom:12px;overflow:hidden}
-.glass::after{display:none}
-header.top{padding:5px 2px 18px;gap:10px}
-.clock{font-size:24px;font-weight:750;letter-spacing:-.04em}
-.app-mark{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:15px;background:var(--red);color:#fff;font-size:26px;font-weight:900;letter-spacing:-.055em;flex-shrink:0;box-shadow:0 7px 20px rgba(205,55,65,.18)}
-.app-heading{display:flex;flex-direction:column;gap:2px;min-width:0}.app-heading b{font-size:16px;letter-spacing:-.02em}.app-heading span{font-size:11px;color:var(--mut);white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
-header.top .clock{font-size:14px;color:var(--ink)}header.top #wx{font-size:10px}
-header.top #statchip .chip{font-size:11px;padding:5px 8px}
-header.top button{min-width:40px;min-height:43px;padding:0 10px;border-radius:14px;font-size:21px}
-button,.btn{background:#182231;border-color:var(--line)}button.pri{background:var(--red);color:#fff}
-html[data-theme=light] button{background:#edf1f7}html[data-theme=light] button.pri{background:var(--red)}
-.badge{background:var(--red);border-radius:14px;box-shadow:none;font-size:24px;min-width:60px;height:50px}
-#hero{padding:24px 20px 23px;border-color:rgba(239,81,73,.3);background:linear-gradient(145deg,rgba(123,37,51,.28),rgba(20,29,42,.88) 50%,#111925)}
-html[data-theme=light] #hero{background:linear-gradient(140deg,#fff2f1,#fff 64%)}
-#hero .count{font-size:clamp(34px,10vw,52px);letter-spacing:-.052em;line-height:1.13;margin:21px 0 10px}
-#hero .mut{font-size:14px;line-height:1.6}
-.chip{background:#1b2735;border-color:var(--line)}html[data-theme=light] .chip{background:#edf1f6}
-.grid{gap:9px}.cell{background:#131d2a;border-color:var(--line);border-radius:17px;padding:15px}.cell b{font-size:21px;margin-top:3px}.cell span.l{font-size:11px;line-height:1.4;display:block}
-html[data-theme=light] .cell{background:#f5f7fb}
-.tag{border-radius:6px;letter-spacing:.035em;margin-left:3px}.t-live{background:rgba(112,225,186,.13)}.t-hist{background:rgba(242,199,123,.13)}
-nav.tabs{background:rgba(12,18,27,.96);border:1px solid rgba(176,197,225,.16);box-shadow:0 12px 35px rgba(0,0,0,.42);border-radius:25px}
-nav.tabs .tab{min-height:58px;border-radius:20px}nav.tabs .tab[aria-current=page]{background:#202b3a;color:#fff}
-nav.tabs .tab[aria-current=page] svg{stroke:#ff8079}
-.banner{border-radius:14px;line-height:1.5}.kv{padding:12px 0}.kv .k{font-size:13px}.kv .v{font-size:14px}
-.board{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-.board-card{background:#131f2d;border:1px solid var(--line);border-radius:22px;padding:15px;min-width:0}
-.board-card:first-child{background:linear-gradient(160deg,rgba(239,81,73,.17),#131f2d 68%);border-color:rgba(239,81,73,.31)}
-html[data-theme=light] .board-card{background:#fff}html[data-theme=light] .board-card:first-child{background:#fff2f2}
-.board-head{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--mut);font-weight:800}
-.board-time{font-size:clamp(26px,7.5vw,38px);line-height:1.2;letter-spacing:-.055em;font-weight:820;font-variant-numeric:tabular-nums;margin:10px 0 4px}
-.board-sub{font-size:12px;line-height:1.45;color:var(--mut)}.board-card .tag{margin:8px 0 0}
-.info-strip{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--mut);margin:2px 0 14px;padding:0 4px}
-#busCard{background:linear-gradient(160deg,#182436,#101925)}
-html[data-theme=light] #busCard{background:#fff}
-#view-settings .glass h2,#view-traffic .glass h2{margin-bottom:13px}
-@media(max-width:360px){header.top #wx,header.top .app-heading span{display:none}.app-heading b{font-size:13px}header.top .clock{font-size:12px}#hero .count{font-size:34px}}
-
 /* Sixth bottom tab and GPS-only Bristol fleet viewer */
 nav.tabs{gap:2px;padding:5px}nav.tabs .tab{min-width:0;min-height:59px;font-size:10px;gap:3px;padding:1px}
 nav.tabs .tab svg{width:19px;height:19px}
@@ -151,6 +109,38 @@ nav.tabs .tab svg{width:19px;height:19px}
 .b6-arrow{font-size:26px;color:var(--mut)}
 html[data-theme=light] .b6-intro{background:#e5f8f0}html[data-theme=light] .b6-vehicle{background:#f6fafb}
 @media(max-width:370px){nav.tabs .tab{font-size:9px}nav.tabs .tab svg{width:18px;height:18px}}
+
+/* A quieter, editorial transit interface. All colours follow the selected theme. */
+:root{--red:#f3947e;--ink:#f1f0eb;--mut:#a0a8a5;--bg1:#101715;--bg2:#101715;--glass:#18211e;--line:#2b3631;--ok:#8ac9ad;--warn:#e3bd7e;--bad:#f39487;--blue:#a8c7df;--surface:#202b25;--accent-soft:#362b24;--spring:cubic-bezier(.2,.8,.2,1)}
+html[data-theme=light]{--red:#9c4934;--ink:#20382d;--mut:#65736a;--bg1:#f5f4ee;--bg2:#f5f4ee;--glass:#fffefa;--line:#dfe3d9;--ok:#28694e;--warn:#8b6020;--bad:#aa4638;--blue:#315e7f;--surface:#ecefe7;--accent-soft:#f3e6dc}
+html{scroll-padding-bottom:110px}body{background:var(--bg2);padding:calc(var(--sat) + 24px) 24px calc(var(--sab) + 116px);line-height:1.55}
+#app{max-width:760px}a{color:var(--blue);text-underline-offset:3px}h1,h2,h3{letter-spacing:-.035em}h2{font-size:23px;line-height:1.3;font-weight:650}h3{font-size:12px;letter-spacing:.1em;font-weight:650;margin-bottom:14px}p{line-height:1.6}.small{font-size:12px}.mut{color:var(--mut)}
+.glass{background:var(--glass);border:1px solid var(--line);border-radius:20px;padding:26px;margin-bottom:16px;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}.glass::after{display:none}
+header.top{padding:0 0 25px;gap:12px;flex-wrap:nowrap}.app-mark{display:grid;place-items:center;flex-shrink:0;width:44px;height:48px;border-radius:13px;background:var(--red);color:var(--bg2);font-size:24px;font-weight:800;letter-spacing:-.06em}.app-heading{min-width:0;display:flex;flex-direction:column;gap:1px}.app-heading b{font-size:17px;letter-spacing:-.03em}.app-heading span{font-size:11px;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}header.top .clock{font-size:13px;font-weight:550;letter-spacing:0}header.top #wx{font-size:10px}header.top .chip{border:0;background:none;padding:0;font-size:10px;font-weight:500;gap:5px}header.top button{min-width:40px;min-height:40px;padding:0;border-radius:12px;background:transparent;font-size:21px}
+button,.btn{border-radius:12px;background:var(--surface);border:1px solid var(--line);font-size:14px;font-weight:550;min-height:44px;padding:0 16px;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;transition:background .2s,transform .2s}button:hover{background:var(--line)}button.pri{background:var(--red);color:var(--bg2);font-weight:650}button.ghost{background:transparent}button:active{transform:scale(.98)}
+.eyebrow{font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:var(--mut)}.view-title{margin:0 2px 22px}.view-title h1{font-size:32px;font-weight:550;letter-spacing:-.05em;line-height:1.2;margin-top:6px}.view-title p{font-size:13px;color:var(--mut);margin:6px 0 0}
+.info-strip{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--mut);padding:0 3px;margin:0 0 13px}.info-strip>span:first-child{color:var(--ok);font-size:8px}
+.badge{border-radius:12px;background:var(--red);color:var(--bg2);box-shadow:none;min-width:47px;height:47px;font-size:23px;flex-shrink:0}
+#hero{padding:29px 30px 24px;background:var(--glass);position:relative;border-color:var(--line);border-top:3px solid var(--red)}#hero .row:first-child{flex-wrap:nowrap;align-items:center;gap:14px}#hero .row:first-child>div{min-width:0}#hero .row:first-child .small{font-size:12px;margin-top:2px}#hero .count{font-size:clamp(36px,7vw,60px);line-height:1.13;letter-spacing:-.065em;font-weight:550;margin:32px 0 12px}#hero>.mut{font-size:13px;line-height:1.7}#hero .chip{font-size:11px;background:transparent;border:0;padding:0;gap:7px}#hero .row.wrap:not(:first-child){margin-top:20px!important;justify-content:space-between}#hero .bar{height:3px;margin-top:14px;background:var(--line)}.bar i{background:var(--ok)}
+.chip{background:var(--surface);border:1px solid var(--line);border-radius:8px;font-size:11px;font-weight:550;padding:5px 9px}.dot{width:6px;height:6px}.live .dot{animation:none}.board{display:grid;grid-template-columns:1fr 1fr;margin-bottom:22px;border:1px solid var(--line);border-radius:18px;background:var(--glass);overflow:hidden;gap:0}.board-card{padding:20px 24px;min-width:0}.board-card+ .board-card{border-left:1px solid var(--line)}.board-head{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--mut);font-weight:650}.board-time{font-size:38px;font-weight:500;line-height:1.2;letter-spacing:-.06em;font-variant-numeric:tabular-nums;margin:9px 0 5px}.board-sub{font-size:12px;line-height:1.65;color:var(--mut)}.board-card .tag{margin:12px 0 0}
+.tag{font-size:9px;letter-spacing:.035em;border-radius:4px;padding:2px 5px;font-weight:600;margin-left:0}.t-live,.t-calc,.t-hist,.t-miss,.t-demo{background:var(--surface);color:var(--mut)}.t-live{color:var(--ok)}.t-hist{color:var(--warn)}.t-demo{color:var(--bad)}.tag+.small{font-size:10px;line-height:1.5}.missing{font-style:normal;font-size:12px;font-weight:400}
+.grid{gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}.cell{border:0;border-radius:0;background:transparent;padding:16px;min-width:0;border-bottom:1px solid var(--line)}.cell:nth-child(odd){border-right:1px solid var(--line)}.cell:nth-last-child(-n+2){border-bottom:0}.cell b{font-size:21px;font-weight:550;margin:4px 0}.cell span.l{font-size:11px}.cell .small{font-size:10px}
+.kv{padding:15px 0;align-items:baseline;gap:18px}.kv .k{font-size:12px;flex-basis:38%;line-height:1.6}.kv .v{font-size:13px;font-weight:550;min-width:0;line-height:1.65}.kv .v>.small{font-weight:400}#view-arrivals .kv .v{font-size:26px;letter-spacing:-.035em}#view-arrivals .kv .v .small{font-size:12px;letter-spacing:0}#view-arrivals .kv .k b{font-size:15px;color:var(--ink)}
+#busCard{border-radius:18px!important;padding:22px!important;background:var(--glass)}#busCard .row>div:not(.sp){min-width:0}#busCard .badge{width:39px;min-width:39px;height:42px;font-size:20px}#busCard .small{font-size:11px}
+.fold{padding:0;overflow:clip}.fold>summary{display:flex;align-items:center;gap:16px;padding:20px 24px;cursor:pointer;list-style:none;min-height:74px}.fold>summary::-webkit-details-marker{display:none}.fold>summary::after{content:'+';margin-left:auto;flex-shrink:0;color:var(--mut);font-size:22px;font-weight:400}.fold[open]>summary::after{content:'−'}.fold>summary b{display:block;font-size:14px;font-weight:600;letter-spacing:-.015em}.fold>summary span{display:block;font-size:11px;color:var(--mut);margin-top:2px}.fold-body{padding:0 24px 23px}.fold-body>.glass{border:0;padding:0;margin:0;background:transparent}.fold-body>.grid{margin:0!important}.fold[open]>summary{border-bottom:1px solid var(--line);margin-bottom:18px}.fold .fold{border-radius:12px;margin-top:16px}.fold .fold>summary{padding:14px 16px}
+.banner{border-radius:12px;padding:14px 17px;font-size:12px;line-height:1.7;box-shadow:none}.banner.warn{background:color-mix(in srgb,var(--warn) 8%,var(--bg2));border-color:color-mix(in srgb,var(--warn) 25%,var(--line))}.banner.bad{background:color-mix(in srgb,var(--bad) 8%,var(--bg2));border-color:color-mix(in srgb,var(--bad) 25%,var(--line))}.banner.demo{background:var(--accent-soft);border-color:var(--red)}.banner.info{background:var(--glass)}
+nav.tabs{width:min(760px,calc(100% - 32px));bottom:calc(var(--sab) + 14px);border-radius:19px;background:var(--glass);border:1px solid var(--line);padding:7px;gap:3px;box-shadow:0 6px 30px #0002;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}html[data-theme=light] nav.tabs{background:rgba(255,254,250,.96)}nav.tabs .tab{font-size:10px;border-radius:12px;min-height:57px;gap:5px;color:var(--mut);font-weight:550}nav.tabs .tab svg{width:19px;height:19px}nav.tabs .tab[aria-current=page]{background:var(--surface);color:var(--ink)}nav.tabs .tab[aria-current=page] svg{stroke:var(--red)}.route6-tab-icon{width:20px;height:20px;border-radius:6px;background:var(--surface);color:var(--ok);border:1px solid var(--ok);font-size:13px}
+.b6-intro{background:var(--glass);border-color:var(--line);border-top:3px solid var(--ok)}.b6-badge{background:var(--ok);color:var(--bg2);width:47px;height:47px;flex-basis:47px;border-radius:12px;font-size:24px}.b6-intro h2{font-size:21px}.b6-intro .row.wrap{padding-top:15px;border-top:1px solid var(--line);margin-top:20px!important}.b6-list{gap:0;background:var(--glass);border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-bottom:20px}.b6-vehicle{background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:20px;gap:14px;min-height:100px}.b6-vehicle:last-child{border:0}html[data-theme=light] .b6-vehicle{background:transparent}.b6-vehicle:hover{background:var(--surface)}.b6-vehicle-icon{background:var(--surface);color:var(--ok);border:1px solid var(--line);width:36px;height:40px;border-radius:9px;font-size:18px}.b6-vehicle-info{gap:4px}.b6-vehicle-info b{font-size:18px;letter-spacing:-.025em;font-weight:600}.b6-vehicle-info span{font-size:11px}.b6-vehicle-info small{font-size:10px;color:var(--mut)}.b6-livery-swatch{width:46px;height:32px;border-radius:5px;border-color:var(--line);box-shadow:none}.b6-livery-swatch.large{width:46px;height:32px}.b6-livery-mini{min-width:52px;gap:5px}.b6-livery-chip{font-size:9px;max-width:82px}.b6-livery-caption{gap:8px;max-width:100%;vertical-align:middle}.b6-livery-caption .b6-livery-name{white-space:normal;overflow-wrap:anywhere;max-width:160px;text-align:right;font-size:12px}.b6-arrow{font-size:21px}.section-label{font-size:10px;font-weight:650;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);margin:24px 3px 12px}
+input[type=text],input[type=url],select{background:var(--bg2);border-radius:10px;font-size:14px;border-color:var(--line)}input[type=range]{accent-color:var(--ok)}.sw{gap:20px;padding:14px 0;min-height:62px;font-size:14px}.sw label{flex:1;min-width:0}.sw label .small{font-size:11px;display:inline-block;margin-top:4px}.sw select{flex:0 0 140px;max-width:44%;font-size:12px}.sw input[type=checkbox]{width:44px;height:26px;flex-basis:44px;margin:0;background:var(--line)}.sw input[type=checkbox]::after{width:20px;height:20px;box-shadow:0 1px 3px #0002}.sw input[type=checkbox]:checked{background:var(--ok)}.sw input[type=checkbox]:checked::after{transform:translateX(18px)}#view-settings h2{margin-bottom:18px}#view-settings ul{padding-left:18px;color:var(--mut);line-height:1.9}#view-settings pre{background:var(--bg2);color:var(--ink);border:1px solid var(--line)}
+#view-map .mctl{left:20px;right:20px;gap:6px;max-width:850px}.mctl button{background:var(--glass);font-size:12px;border-radius:10px;min-height:42px;padding:0 12px;box-shadow:0 2px 12px #0001}.mctl button[aria-pressed=true]{background:var(--surface);color:var(--ok);border-color:var(--ok)}#sheet{max-width:600px;margin-left:auto;margin-right:auto}footer.f{font-size:10px;line-height:1.8;margin-top:24px;opacity:.85}#toast{background:var(--ink);color:var(--bg2);border:0;border-radius:12px;font-size:12px}
+.view.on{animation:vin .25s ease}@keyframes vin{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}:focus-visible{outline:2px solid var(--blue);outline-offset:4px}
+@media(min-width:720px){body{padding-top:44px}header.top{padding-bottom:34px}.app-heading b{font-size:19px}.app-heading span{font-size:12px}.view-title{margin-bottom:26px}.view-title h1{font-size:39px}#hero{padding:34px 36px 28px}.b6-list .b6-vehicle{padding:22px 26px}.b6-livery-chip{max-width:135px}}
+@media(max-width:480px){body{padding-left:16px;padding-right:16px;padding-top:calc(var(--sat) + 18px)}header.top{gap:8px;padding-bottom:23px}.app-heading span{max-width:145px}.app-heading b{font-size:15px}.app-mark{width:37px;height:43px;font-size:21px;border-radius:10px}header.top .clock{font-size:11px}header.top button{min-width:32px;min-height:40px;font-size:19px}header.top #wx{max-width:76px}.glass{padding:22px 20px;border-radius:17px}.view-title h1{font-size:31px}#hero{padding:24px 22px 21px}#hero .count{margin-top:28px}#hero .badge{min-width:43px;height:45px}.board-card{padding:18px}.board-time{font-size:33px}.fold{padding:0}.fold>summary{padding:18px 20px}.fold-body{padding:0 18px 20px}.b6-vehicle{padding:17px 14px;gap:10px}.b6-livery-chip{max-width:64px}.b6-vehicle-right{gap:5px}.b6-vehicle-info span{white-space:normal;line-height:1.5}.kv{gap:13px}.kv .k{flex-basis:35%}.kv .v{font-size:12px}.b6-livery-caption .b6-livery-name{max-width:110px}.b6-intro h2{font-size:19px}.cell{padding:13px}nav.tabs{width:calc(100% - 24px);gap:0;padding:5px}nav.tabs .tab{font-size:9px}#view-settings .row{gap:8px}#view-settings .row button{padding:0 12px;font-size:12px;max-width:100%}}
+@media(max-width:360px){header.top .app-heading span{max-width:115px}header.top #wx{display:none}header.top{gap:6px}.app-heading b{font-size:14px}header.top #clock{font-size:10px}.b6-vehicle-icon{display:none}.board-card{padding:15px}.sw{gap:12px}.view-title h1{font-size:28px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+html[data-theme=light] .b6-intro{background:var(--glass)}
+.b6-intro h2{font-size:18px}.b6-intro .row.wrap .sp{display:none}#b6Refresh{margin-left:auto;min-width:36px;padding:0 8px;font-size:20px}.b6-intro .row.wrap>.small{font-size:10px}.b6-intro .row.wrap{gap:8px}
 </style>
 </head>
 <body>
@@ -162,7 +152,7 @@ html[data-theme=light] .b6-intro{background:#e5f8f0}html[data-theme=light] .b6-v
    <div class="sp"></div>
    <div style="text-align:right"><div class="clock" id="clock" aria-label="Current time">--:--</div><div class="small mut" id="wx"></div><span id="statchip"></span></div>
   <button id="btnRefresh" aria-label="Refresh live data">↻</button>
-  <button id="btnSettings" aria-label="Settings and privacy">⚙︎</button>
+  <button id="btnSettings" aria-label="Settings and privacy"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3" fill="var(--bg2)"/><circle cx="15" cy="17" r="3" fill="var(--bg2)"/></svg></button>
  </header>
  <main>
   <section class="view on" id="view-overview" aria-label="Journey overview"></section>
@@ -611,6 +601,11 @@ function stateInfo(P){
 }
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),4200)}
 const reduced=()=>cfg.motion||matchMedia('(prefers-reduced-motion: reduce)').matches;
+const foldState=new Map();
+function foldStart(id,title,sub=''){return `<details class="glass fold" data-fold="${id}" ${foldState.get(id)?'open':''}><summary><div><b>${title}</b>${sub?`<span>${sub}</span>`:''}</div></summary><div class="fold-body">`}
+const foldEnd='</div></details>';
+document.addEventListener('toggle',e=>{if(e.target.matches?.('details[data-fold]')&&e.target.isConnected)foldState.set(e.target.dataset.fold,e.target.open)},true);
+function viewTitle(kicker,title,sub=''){return `<div class="view-title"><div class="eyebrow">${kicker}</div><h1>${title}</h1>${sub?`<p>${sub}</p>`:''}</div>`}
 /* ---------- renderers ---------- */
 function renderHero(P){
  const el=$('#hero');if(!el)return;
@@ -624,7 +619,7 @@ function renderHero(P){
  ${P?`<div class="row wrap" style="margin-top:12px"><span class="chip ${P.level==='High'?'ok':P.level==='Medium'?'warn':'bad'}"><i class="dot"></i>${P.level} confidence</span><button class="ghost" data-go="explain" style="min-height:40px;font-size:14px">Why?</button></div><div class="bar" aria-hidden="true"><i style="width:${P.score}%"></i></div>`:''}`;
 }
 function renderOverview(P){
- const v=$('#view-overview'),si=stateInfo(P);let h='';
+ const v=$('#view-overview'),si=stateInfo(P);let h=viewTitle('London · Route 91','Your next journey');
  if(S.demo)h+=`<div class="banner demo"><b>FALLBACK DEMONSTRATION DATA.</b> Nothing below is a real bus. <button class="ghost" id="demoOff" style="min-height:40px">Exit demo</button></div>`;
  if(S.passed&&Date.now()-S.passed.at<300000)h+=`<div class="banner info">Bus ${esc(S.passed.vid)} has already passed ${esc(S.stop?.name||'your stop')}. Showing the next live Route 91 service instead.</div>`;
  if(P&&S.arr[0]&&S.arr[0]!==P.b)h+=`<div class="banner info">An earlier 91 arrives before your walk would finish. Showing the next catchable service.</div>`;
@@ -635,7 +630,7 @@ function renderOverview(P){
  if(S.flags.has('location'))h+=`<div class="banner warn">Location unavailable: using your typed address instead.</div>`;
  if(!navigator.onLine)h+='<div class="banner warn">You are offline. Live arrivals need a connection; the last data shown may be out of date.</div>';
  if(S.stop&&S.stop.letter!=='A')h+=`<div class="banner warn">You chose Stop ${esc(S.stop.letter||'(no letter)')}, not Stop A.</div>`;
- h+=`<div class="info-strip"><span>●</span><span>FROM ${esc(DEF_ADDR)}</span></div><div class="glass" id="hero"></div>`;
+ h+=`<div class="info-strip"><span>●</span><span>From ${esc(S.startLabel||cfg.address||DEF_ADDR)}</span></div><div class="glass" id="hero"></div>`;
  if(S.arr.length){
   const buses=catchableBuses(),a=buses[0],b=buses[1];
   const card=(x,label)=>`<div class="board-card"><div class="board-head">${label}</div>${x?`<div class="board-time">${fmtT(Date.parse(x.expectedArrival))}</div><div class="board-sub">${Math.max(0,Math.ceil((Date.parse(x.expectedArrival)-Date.now())/60000))} min away<br>${esc(x.destinationName||'Route 91')}${x.vehicleId?` · ${esc(x.vehicleId)}`:''}</div>${tag(x.predictionKind==='scheduled'?'sched':'live',x.source==='bt'?'bustimes.org':'TfL')}`:'<div class="board-time">—</div><div class="board-sub">No catchable service shown</div>'}</div>`;
@@ -645,7 +640,7 @@ function renderOverview(P){
 
  if(P){
   const b=P.b,bp=S.bp,df=P.sc?Math.round(P.sc.diffMin*10)/10:null;
-  h+=`<div class="grid" style="margin-bottom:14px">
+  h+=`${foldStart('journey-breakdown','Journey breakdown','Arrival, timetable, walking &amp; data freshness')}<div class="grid" style="margin-bottom:14px">
   <div class="cell"><span class="l">${P.timetableOnly?'Scheduled departure':'Expected arrival'}</span><b>${fmtT(P.exp0)}</b>${tag(S.demo?'demo':P.timetableOnly?'sched':'live',S.demo?'Demo':b.source==='bt'?'bustimes.org':'TfL Arrivals')}</div>
   <div class="cell"><span class="l">Timetable comparison</span><b>${P.timetableOnly?fmtT(P.exp0):P.sc?fmtT(P.sc.ms):'—'}</b>${P.timetableOnly?tag('sched','bustimes.org'):P.sc?tag('calc','TfL timetable, nearest match'):tag('miss')}</div>
   <div class="cell"><span class="l">Scheduled vs predicted</span><b>${df==null?'—':(df===0?'On time':Math.abs(df)+' min '+(df>0?'late':'early'))}</b>${df==null?tag('miss'):tag('calc')}</div>
@@ -654,14 +649,14 @@ function renderOverview(P){
   <div class="cell"><span class="l">Leave at</span><b>${fmtT(P.planAt)}</b>${tag('calc')}</div>
   <div class="cell"><span class="l">Last API update</span><b>${fmtTS(S.fetchedAt)}</b><span class="small mut">${Math.round(P.age)} s old</span></div>
   <div class="cell"><span class="l">Data freshness</span><b>${P.age<45?'Fresh':P.age<120?'Ageing':'Stale'}</b>${tag('calc')}</div></div>
-  <button class="glass" id="busCard" style="width:100%;text-align:left;border-radius:28px;padding:18px;display:block" aria-label="Open bus map">
+  ${foldEnd}<button class="glass" id="busCard" style="width:100%;text-align:left;border-radius:28px;padding:18px;display:block" aria-label="Open bus map">
    <div class="row"><span class="badge">91</span><div><b>${esc(b.vehicleId||'Vehicle not identified')}</b> <span class="small mut">to ${esc(b.destinationName||'')}</span><div class="small mut">${esc(b.currentLocation||NS)}</div></div><div class="sp"></div><span aria-hidden="true">›</span></div>
    <div class="small mut" style="margin-top:8px">Fleet: ${esc(S.veh?.fleet_code||S.veh?.fleet_number||NS)} · Model: ${esc(S.veh?.vehicle_type?.name||NS)}</div>
    <div class="small" style="margin-top:6px">${bp?.next?`Next stop: ${esc(bp.next.name)} · ${bp.stopsAway} stop${bp.stopsAway===1?'':'s'} before yours`:bp?.gps?'Bus GPS location available on the map':'Next stop: '+NS}</div>
   </button>`;
-  h+=`<div class="glass"><h3>Route 91 information</h3>${S.timingPoints.length?`<p class="small mut">${S.timingPoints.length} published principal timing points for this bus · bustimes.org</p>`:`<p class="small mut">Timing points appear when bustimes.org identifies the current vehicle journey.</p>`}<button class="ghost" data-go="arrivals" style="width:100%;margin-top:8px">Full arrival board</button></div>`;
+  h+=`${foldStart('route-information','Route information','Timing points &amp; the full arrival board')}<h3>Route 91 information</h3>${S.timingPoints.length?`<p class="small mut">${S.timingPoints.length} published principal timing points for this bus · bustimes.org</p>`:`<p class="small mut">Timing points appear when bustimes.org identifies the current vehicle journey.</p>`}<button class="ghost" data-go="arrivals" style="width:100%;margin-top:8px">Full arrival board</button>${foldEnd}`;
  }
- if(S.stop)h+=`<div class="glass"><h3>Confirmed journey</h3>${kv('Start',esc(S.startLabel),S.srcs.start?'live':null,S.srcs.start)}${kv('Stop',esc(S.stop.name)+' · Stop '+esc(S.stop.letter||'?'),'live',S.stopSource==='bt'?'bustimes.org stop data':'TfL StopPoint lookup')}${kv('Walking',walkDesc()+(S.walk?' · '+fmtD(S.walk.dist)+' mapped distance':''),+cfg.walkMinutes>0?'hist':S.walk?.live?'calc':'hist',+cfg.walkMinutes>0?'Your personal estimate; map used for distance':S.walk?.src)}${S.stopBt?kv('Stop facing (bearing)',S.stopBt.bearing?esc(S.stopBt.bearing):null,'live','bustimes.org')+(S.stopBt.line_names&&S.stopBt.line_names.length?kv('Routes serving this stop',esc(S.stopBt.line_names.join(', ')),'live','bustimes.org'):''):''}${S.jp?kv('TfL journey planner walk',S.jp.min+' min','live','TfL Journey'):''}<button class="ghost" id="chgStop" style="width:100%;margin-top:8px">Select another matching stop</button></div>`;
+ if(S.stop)h+=`${foldStart('confirmed-journey','Your route to the stop','Starting point, walking route &amp; stop details')}${kv('Start',esc(S.startLabel),S.srcs.start?'live':null,S.srcs.start)}${kv('Stop',esc(S.stop.name)+' · Stop '+esc(S.stop.letter||'?'),'live',S.stopSource==='bt'?'bustimes.org stop data':'TfL StopPoint lookup')}${kv('Walking',walkDesc()+(S.walk?' · '+fmtD(S.walk.dist)+' mapped distance':''),+cfg.walkMinutes>0?'hist':S.walk?.live?'calc':'hist',+cfg.walkMinutes>0?'Your personal estimate; map used for distance':S.walk?.src)}${S.stopBt?kv('Stop facing (bearing)',S.stopBt.bearing?esc(S.stopBt.bearing):null,'live','bustimes.org')+(S.stopBt.line_names&&S.stopBt.line_names.length?kv('Routes serving this stop',esc(S.stopBt.line_names.join(', ')),'live','bustimes.org'):''):''}${S.jp?kv('TfL journey planner walk',S.jp.min+' min','live','TfL Journey'):''}<button class="ghost" id="chgStop" style="width:100%;margin-top:8px">Select another matching stop</button>${foldEnd}`;
  else h+=`<div class="glass"><p>${S.loading?'Looking up your location and the nearest Bus Stop A…':'No stop selected yet.'}</p></div>`;
  v.innerHTML=h;renderHero(P);
 }
@@ -669,7 +664,7 @@ function renderBus(P){
  const v=$('#view-bus');if(!P){v.innerHTML='<div class="glass"><h2>Bus details</h2><p>No bus selected.</p></div>';return}
  const b=P.b,bp=S.bp,x=S.veh||{};const vt=x.vehicle_type||{};const feat=[vt.style,vt.double_decker===true?'Double-decker':vt.double_decker===false?'Single-decker':null,vt.electric?'Electric':vt.fuel,vt.coach?'Coach':null,x.special_features&&String(x.special_features)].filter(Boolean).join(', ');
  const lv=x.livery?.name||null;
- v.innerHTML=`<div class="glass"><div class="row"><span class="badge">91</span><h2>${esc(b.vehicleId||'Vehicle not identified')}</h2></div>
+ v.innerHTML=`${viewTitle('London · Route 91','On board')}<div class="glass"><div class="row"><span class="badge">91</span><h2>${esc(b.vehicleId||'Vehicle not identified')}</h2></div>
  ${S.vehErr?`<div class="banner warn" style="margin-top:12px">Vehicle details unavailable${S.vehErr==='net'?' (bustimes.org could not be reached from the browser; use a proxy)':''}.</div>`:''}
  ${kv('Fleet number',x.fleet_code||x.fleet_number,'live','bustimes.org')}
  ${kv('Bus model',x.vehicle_type?.name,'live','bustimes.org')}
@@ -679,10 +674,13 @@ function renderBus(P){
  ${kv('Vehicle registration',b.vehicleId?esc(b.vehicleId):null,'live',b.source==='bt'?'bustimes.org':'TfL Arrivals vehicleId')}
  ${kv('Livery',lv?esc(lv)+((x.livery.left||x.livery.left_css)?` <span style="display:inline-block;width:46px;height:14px;border-radius:7px;vertical-align:middle;border:1px solid var(--line);background:${esc((x.livery.left||x.livery.left_css))}"></span>`:''):null,'live','bustimes.org (volunteer-contributed)')}
  ${kv('Operator',x.operator?.name?esc(x.operator.name):null,'live','bustimes.org')}
+ ${foldStart('london-spec','Vehicle specification','Garage, features &amp; accessibility')}
  ${kv('Garage',x.garage?.name?esc(x.garage.name):null,'live','bustimes.org')}
  ${kv('Vehicle type details',feat?esc(feat):null,'live','bustimes.org')}
  ${kv('Accessibility (low floor, wheelchair space)',null)}
  ${kv('Open-top',/open/i.test(vt.style||'')?'Open-top':null,'live','bustimes.org')}
+ ${foldEnd}
+ <h3 style="margin-top:24px">Current journey</h3>
  ${kv('Current delay',P.sc?(Math.abs(P.sc.diffMin)<1?'On time':Math.round(Math.abs(P.sc.diffMin))+' min '+(P.sc.diffMin>0?'late':'early')):null,'calc','prediction vs TfL timetable')}
  ${kv('Current location',b.currentLocation?esc(b.currentLocation):null,'live',b.source==='bt'?'bustimes.org':'TfL Arrivals')}
  ${kv('Map position',bp?bp.gps?'GPS snapshot · '+fmtTS(bp.observedAt):'Between stops (estimated)':null,bp?.gps?'live':'calc',bp?.gps?'bustimes.org /vehicles.json; may be delayed':'from next-stop prediction')}
@@ -693,7 +691,7 @@ function renderBus(P){
  <div class="row wrap" style="margin-top:8px">${b.vehicleId?`<button class="pri" id="followBtn">${cfg.followVid===b.vehicleId?'Following this bus ✓':'Follow this bus'}</button>`:''}<button data-go="map">Show on map</button></div></div>`;
 }
 function renderTraffic(P){
- const v=$('#view-traffic');let h='<div class="glass"><h2>Traffic conditions</h2>';
+ const v=$('#view-traffic');let h=viewTitle('London · Route 91','Along the route')+'<div class="glass"><h2>Traffic conditions</h2>';
  const ls=S.lineStatus;
  h+=ls?ls.map(s=>`<div class="kv"><div class="k">Route 91 service</div><div class="v">${esc(s.statusSeverityDescription)}${s.reason?`<br><span class="small mut">${esc(s.reason)}</span>`:''}<br>${tag('live','TfL Line Status')}</div></div>`).join(''):kv('Route 91 service',null);
  h+=S.traffic?kv('Extra driving delay from traffic provider',S.traffic.delay>0?'+'+mins(S.traffic.delay)+' min':'No reported extra delay','live',S.traffic.src):`<p class="small mut">TfL roadworks, closures and route status are shown below without a traffic-provider key. Speed-based congestion estimates are not included.</p>`;
@@ -703,7 +701,7 @@ function renderTraffic(P){
 }
 function renderArrivals(P){
  const v=$('#view-arrivals');
- v.innerHTML=`<div class="glass"><h2>${esc(S.stop?.name||'Stop')} · Stop ${esc(S.stop?.letter||'?')}</h2><p class="small mut">Route 91 only · ${tag(S.demo?'demo':S.arrMode==='scheduled'?'sched':'live',S.demo?'Demo':S.arrSource==='bt'?'bustimes.org':'TfL Arrivals')}</p>${S.arr.length?S.arr.map(a=>{const t=Date.parse(a.expectedArrival);return `<div class="kv"><div class="k"><b>${esc(a.vehicleId||'Route 91')}</b>${a.predictionKind==='scheduled'?tag('sched'):''}<br><span class="small">${esc(a.destinationName||'')}</span></div><div class="v">${fmtT(t)}<br><span class="small mut">${Math.max(0,Math.round((t-Date.now())/60000))} min · ${esc(a.currentLocation||'')}</span>${a.vehicleId?`<br><button class="ghost" data-follow="${esc(a.vehicleId)}" style="min-height:44px;margin-top:6px">${cfg.followVid===a.vehicleId?'Following ✓':'Follow'}</button>`:''}</div></div>`}).join(''):'<p>No buses found.</p>'}</div>`;
+ v.innerHTML=`${viewTitle('London · Route 91','The arrival board')}<div class="glass"><h2>${esc(S.stop?.name||'Stop')} · Stop ${esc(S.stop?.letter||'?')}</h2><p class="small mut">Route 91 only · ${tag(S.demo?'demo':S.arrMode==='scheduled'?'sched':'live',S.demo?'Demo':S.arrSource==='bt'?'bustimes.org':'TfL Arrivals')}</p>${S.arr.length?S.arr.map(a=>{const t=Date.parse(a.expectedArrival);return `<div class="kv"><div class="k"><b>${esc(a.vehicleId||'Route 91')}</b>${a.predictionKind==='scheduled'?tag('sched'):''}<br><span class="small">${esc(a.destinationName||'')}</span></div><div class="v">${fmtT(t)}<br><span class="small mut">${Math.max(0,Math.round((t-Date.now())/60000))} min · ${esc(a.currentLocation||'')}</span>${a.vehicleId?`<br><button class="ghost" data-follow="${esc(a.vehicleId)}" style="min-height:44px;margin-top:6px">${cfg.followVid===a.vehicleId?'Following ✓':'Follow'}</button>`:''}</div></div>`}).join(''):'<p>No buses found.</p>'}</div>`;
 }
 function renderExplain(P){
  const v=$('#view-explain'),si=stateInfo(P);
@@ -769,7 +767,7 @@ export default {
 
 function renderSettings(){
  const v=$('#view-settings');
- v.innerHTML=`<div class="glass"><h2>Settings</h2>
+ v.innerHTML=`${viewTitle('Make it yours','Journey settings')}<div class="glass"><h2>Your preferences</h2>
  <div class="sw"><label for="sKnownWalk">Walk to Stop A<br><span class="small mut">1 minute is your estimate. Select mapped route to use automatic walking time.</span></label><select id="sKnownWalk" style="width:146px"><option value="1" ${+cfg.walkMinutes===1?'selected':''}>1 min (mine)</option><option value="2" ${+cfg.walkMinutes===2?'selected':''}>2 min</option><option value="3" ${+cfg.walkMinutes===3?'selected':''}>3 min</option><option value="0" ${+cfg.walkMinutes===0?'selected':''}>Mapped route</option></select></div>
  <label class="small mut" for="sWalk">Walking speed: <b id="vWalk">${fmtS(cfg.walkKmh)}</b></label><input id="sWalk" type="range" min="2.5" max="7" step=".1" value="${cfg.walkKmh}">
  <label class="small mut" for="sBuf">Safety buffer: <b id="vBuf">${cfg.buffer} min</b></label><input id="sBuf" type="range" min="0" max="10" step="1" value="${cfg.buffer}">
@@ -788,18 +786,18 @@ function renderSettings(){
  <div class="row wrap" style="margin-top:10px"><button id="bLook">Look up</button></div>
  <div class="sw"><label for="cSave">Save address &amp; stop on this device</label><input id="cSave" type="checkbox" ${cfg.saveAddress?'checked':''}></div>
  <div class="row wrap" style="margin-top:10px"><button id="bClearAddr">Clear saved address</button><button id="bDelete" class="ghost">Delete my saved journey</button></div></div>
- <div class="glass"><h2>Privacy</h2><ul class="small"><li>Your address is stored locally only if you turn saving on.</li>
+ ${foldStart('privacy','Privacy &amp; data sources','What stays on your device and where requests go')}<ul class="small"><li>Your address is stored locally only if you turn saving on.</li>
  <li>The address text is sent to OpenStreetMap Nominatim to find coordinates when it needs to be resolved. Then only coordinates go to TfL (stop lookup, journey planner), bustimes.org (if TfL stop lookup fails), and a walking router. The full address is not sent to bustimes.org.</li>
  <li>No API key is in this page. Add keys only to a server-side proxy (below).</li>
  <li>Microphone and camera are never used. Precise location is used only if you switch it on above.</li>
  <li>Error log below never contains coordinates or the address.</li></ul>
  <h3 style="margin-top:12px">Data sources</h3>
- <ul class="small"><li>Primary arrivals, route sequence, timetable, service status, road disruptions, journey planner: TfL Unified API</li><li>Fallback nearby stops and departure times: bustimes.org (can include scheduled times only)</li><li>Vehicle fleet number, model, livery: bustimes.org using reg=</li><li>Geocoding: OpenStreetMap Nominatim</li><li>Walking route: FOSSGIS routing on OpenStreetMap data</li><li>Traffic: TfL road disruptions without a key; optional TomTom traffic speed using your Worker key</li><li>Principal timing points: bustimes.org vehiclejourneys/details, when linked to a trip</li><li>Map tiles: OpenStreetMap standard raster tiles (key-free; dark recolouring is applied locally; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">attribution</a>)</li></ul></div>
- <div class="glass"><h2>Install on iPhone</h2><p class="small mut">Host these files on an HTTPS website, open in iPhone Safari, tap Share → Add to Home Screen, and select Open as Web App. The tracker then opens like an app instead of in an HTML viewer.</p></div>
- <div class="glass"><h2>Proxy &amp; API keys</h2><p class="small mut">A single HTML file cannot keep a secret. Without a proxy, TfL is called directly without a key. bustimes.org may block direct browser requests because of CORS. For reliable automatic fallback, deploy the Worker below and paste its URL. Never place a key in this page.</p>
+ <ul class="small"><li>Primary arrivals, route sequence, timetable, service status, road disruptions, journey planner: TfL Unified API</li><li>Fallback nearby stops and departure times: bustimes.org (can include scheduled times only)</li><li>Vehicle fleet number, model, livery: bustimes.org using reg=</li><li>Geocoding: OpenStreetMap Nominatim</li><li>Walking route: FOSSGIS routing on OpenStreetMap data</li><li>Traffic: TfL road disruptions without a key; optional TomTom traffic speed using your Worker key</li><li>Principal timing points: bustimes.org vehiclejourneys/details, when linked to a trip</li><li>Map tiles: OpenStreetMap standard raster tiles (key-free; dark recolouring is applied locally; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">attribution</a>)</li></ul>${foldEnd}
+ ${foldStart('installation','Install on iPhone','Add the tracker to your Home Screen')}<p class="small mut">Host these files on an HTTPS website, open in iPhone Safari, tap Share → Add to Home Screen, and select Open as Web App. The tracker then opens like an app instead of in an HTML viewer.</p>${foldEnd}
+ ${foldStart('proxy','Connection &amp; API settings','Proxy URL and optional Worker setup')}<p class="small mut">A single HTML file cannot keep a secret. Without a proxy, TfL is called directly without a key. bustimes.org may block direct browser requests because of CORS. For reliable automatic fallback, deploy the Worker below and paste its URL. Never place a key in this page.</p>
  <input type="url" id="sProxy" placeholder="https://your-proxy.workers.dev" value="${esc(cfg.proxy)}" aria-label="Proxy URL"><div class="row" style="margin-top:10px"><button id="bProxy">Save proxy URL</button><button id="bCopy" class="ghost">Copy Worker code</button></div>
- <p class="small mut">The Worker needs no paid API keys for bustimes.org GPS or TfL road incidents. TFL_KEY is optional. TOMTOM_KEY is needed only if you want separate driving-speed congestion data. Restrict CORS to your own website.</p><pre>${esc(WORKER)}</pre></div>
- <div class="glass"><h3>Error log (no addresses)</h3><pre>${esc(S.log.join('\n')||'No errors.')}</pre></div>`;
+ <p class="small mut">The Worker needs no paid API keys for bustimes.org GPS or TfL road incidents. TFL_KEY is optional. TOMTOM_KEY is needed only if you want separate driving-speed congestion data. Restrict CORS to your own website.</p><pre>${esc(WORKER)}</pre>${foldEnd}
+ ${foldStart('errors','Diagnostics','Error log · no addresses')}<pre>${esc(S.log.join('\n')||'No errors.')}</pre>${foldEnd}`;
 }
 /* Bristol Route 6, tracking only. bustimes live data is an imperfect GPS
    snapshot: always separate fresh, delayed, empty and inaccessible feeds. */
@@ -998,13 +996,13 @@ async function chooseBristol6(id){
 }
 function renderBristol6(){
  const v=$('#view-bristol6');if(!v)return;
- let html=`<div class="glass b6-intro"><div class="row"><span class="b6-badge">6</span><div><h2>Bristol · Route 6</h2><p class="small mut">The Centre ↔ Kingswood, Cecil Road</p></div></div>
- <p class="small mut" style="margin-top:12px">GPS updates may lag. Current reports and delayed reports are separated; an untracked bus may still be running.</p>
+ let html=`${viewTitle('Bristol · Route 6','Out on the road')}<div class="glass b6-intro"><div class="row"><span class="b6-badge">6</span><div><h2>The Centre ↔ Kingswood</h2><p class="small mut">Cecil Road · Bristol</p></div></div>
+ <p class="small mut" style="margin-top:12px">GPS snapshots · updates may be delayed.</p>
  <div class="row wrap" style="margin-top:12px"><span class="chip ${B6.items.length?'ok':''}"><i class="dot"></i>${B6.loading?'Checking…':B6.error?'Tracking unavailable':B6.items.length+' recent GPS'}</span>
- <span class="small mut">${B6.loadedAt?'Checked '+fmtTS(B6.loadedAt):'Not loaded yet'}</span><div class="sp"></div><button id="b6Refresh" style="min-height:40px">↻ Refresh</button></div></div>`;
+ <span class="small mut">${B6.loadedAt?'Checked '+fmtTS(B6.loadedAt):'Not loaded yet'}</span><div class="sp"></div><button id="b6Refresh" aria-label="Refresh Route 6 tracking" style="min-height:40px">↻</button></div></div>`;
  if(B6.error)html+=`<div class="banner warn"><b>Tracking feed unavailable.</b> ${esc(B6.error)} <button class="ghost" data-go="settings" style="min-height:38px">Open Settings</button></div>`;
- if(B6.loadedAt)html+=`<p class="small mut" style="margin:0 6px 12px">${esc(B6.source)} · ${B6.received} reports returned · ${B6.items.length} recent · ${B6.delayed.length} delayed · ${B6.invalid} other/old</p>`;
- if(!cfg.proxy)html+=`<div class="banner warn">If GPS is missing on iPhone, bustimes.org may block direct browser access. Configure the Cloudflare Worker URL in Settings.</div>`;
+ const feedInfo=B6.loadedAt?`${foldStart('b6-feed','Tracking feed details','Source, report counts &amp; GPS freshness')}<p class="small mut">${esc(B6.source)} · ${B6.received} reports returned · ${B6.items.length} recent · ${B6.delayed.length} delayed · ${B6.invalid} other/old</p><p class="small mut">GPS updates may lag. Current reports and delayed reports are separated; an untracked bus may still be running.</p>${foldEnd}`:'';
+ const proxyNotice=!cfg.proxy?`<div class="banner warn">GPS missing? Direct access may be blocked. <button class="ghost" data-go="settings" style="min-height:36px;font-size:12px">Set up a proxy</button></div>`:'';
  if(B6.selected){
   const l=B6.selectedLive||{},x=B6.details||{},vt=x.vehicle_type||{},tm=B6.journey?.trip||{};
   const fld=(name,val,origin)=>kv(name,val==null||val===''?null:esc(Array.isArray(val)?val.join(', '):val),val!=null?'live':null,origin);
@@ -1017,26 +1015,33 @@ function renderBristol6(){
   ${fld('Registration',x.reg||b6Reg(l),'bustimes.org vehicle record')}
   ${fld('Fleet code',x.fleet_code||b6Fleet(l),'bustimes.org')}
   ${fld('Fleet number',x.fleet_number,'bustimes.org')}
+  ${foldStart('b6-specification','Vehicle specification','Model, body, fuel &amp; configuration')}
   ${fld('Previous registration',x.previous_reg,'bustimes.org')}
   ${fld('Vehicle model',vt.name||l.vehicle?.vehicle_type,'bustimes.org')}
   ${fld('Body / style',vt.style,'bustimes.org')}
   ${fld('Fuel',vt.fuel,'bustimes.org')}
   ${fld('Electric',typeof vt.electric==='boolean'?(vt.electric?'Yes':'No'):null,'bustimes.org')}
   ${fld('Double-decker',typeof vt.double_decker==='boolean'?(vt.double_decker?'Yes':'No'):null,'bustimes.org')}
+  ${foldEnd}
   ${fld('Operator',x.operator?.name||l.vehicle?.operator?.name,'bustimes.org vehicle record')}
   ${fld('Garage',x.garage?.name,'bustimes.org')}
   ${kv('Livery',b6LiveryData(x)||b6LiveryData(l)?`<span class="b6-livery-caption">${b6LiveryHTML(b6LiveryData(x)?x:l,true)}<span class="b6-livery-name">${esc(b6LiveryLabel(x)||'Unlabelled livery')}</span></span>`:null,'live','bustimes.org')}
+  ${foldStart('b6-additional','Additional vehicle details','Branding, features, notes &amp; withdrawal status')}
   ${fld('Branding',x.branding,'bustimes.org')}
   ${fld('Features',x.special_features,'bustimes.org')}
+  ${fld('Notes',x.notes,'bustimes.org')}
+  ${fld('Withdrawn',typeof x.withdrawn==='boolean'?(x.withdrawn?'Yes':'No'):null,'bustimes.org')}
+  ${foldEnd}
+  <h3 style="margin-top:24px">Current journey</h3>
   ${fld('Current route',l.service?.line_name||l.route_name,'bustimes.org live tracking')}
   ${fld('Destination',l.destination||l.destination_name||tm.headsign,'bustimes.org')}
   ${fld('GPS recorded at',Number.isFinite(b6When(l))?fmtTS(b6When(l)):null,'bustimes.org GPS')}
   ${fld('Position age',age!=null?age+' seconds':null,'bustimes.org GPS snapshot')}
+  ${foldStart('b6-gps','GPS &amp; timetable detail','Coordinates, journey ID &amp; published timing points')}
   ${fld('Last GPS coordinates',b6Coords(l)?b6Coords(l)[1].toFixed(5)+', '+b6Coords(l)[0].toFixed(5):null,'bustimes.org; no map')}
   ${fld('Journey ID',l.journey_id,'bustimes.org')}
   ${fld('Published timing points',desc.length?desc.map(t=>t.stop?.name||'Unnamed stop').join(' · '):null,'bustimes.org timetable')}
-  ${fld('Notes',x.notes,'bustimes.org')}
-  ${fld('Withdrawn',typeof x.withdrawn==='boolean'?(x.withdrawn?'Yes':'No'):null,'bustimes.org')}
+  ${foldEnd}
   ${!B6.selectedLive?'<p class="banner warn">This vehicle has no current GPS report.</p>':b6Group(l)!=='fresh'?'<p class="banner warn">GPS is delayed. This does not confirm that the bus is still operating.</p>':''}
   <p class="small mut" style="margin-top:12px">GPS fixes may be delayed. This is a vehicle listing, not a real-time arrival prediction.</p>
   </div>`;
@@ -1049,11 +1054,11 @@ function renderBristol6(){
    const livName=b6LiveryLabel(cache)||(b6LiveryData(x)?'Livery pattern':'Livery unavailable');
    return `<button class="b6-vehicle" data-b6-id="${esc(id)}" aria-label="Details for ${esc(fleet)}"><div class="b6-vehicle-icon">6</div><div class="b6-vehicle-info"><b>${esc(fleet)}</b><span>${esc(b6Reg(x)||'Registration unavailable')} · ${esc(dest)}</span><small>${delayed?'Delayed GPS · last seen':'GPS recorded'} ${age} min ago</small></div><div class="b6-vehicle-right"><div class="b6-livery-mini">${b6LiveryHTML(swatchSource,false)}<span class="b6-livery-chip">${esc(livName)}</span></div><span aria-hidden="true" class="b6-arrow">›</span></div></button>`;
   }).join('');
-  if(B6.items.length)html+=`<div class="b6-list">${vehicleButtons(B6.items,false)}</div>`;
+  if(B6.items.length)html+=`<p class="section-label">Recent GPS · ${B6.items.length} vehicle${B6.items.length===1?'':'s'}</p><div class="b6-list">${vehicleButtons(B6.items,false)}</div>`;
   if(B6.delayed.length)html+=`<div class="glass"><h3>Delayed GPS · not confirmed active</h3><p class="small mut">These buses reported 5–30 minutes ago. They might still be in service.</p>${vehicleButtons(B6.delayed,true)}</div>`;
   if(!B6.items.length&&!B6.delayed.length)html+=`<div class="glass"><h3>${B6.loading?'Loading buses…':B6.error?'Tracking unavailable':'No recent GPS reports'}</h3><p class="mut">${B6.error?'Check the Worker in Settings.':B6.received?'The feed returned vehicle records, but they are too old or missing GPS details.':'The Route 6 feed returned no vehicles. The tracker also tried a Bristol-area backup.'}</p><p class="small mut">You can check the <a href="https://bustimes.org/services/6-the-centre-c4-cecil-road-or-teewell-hill" target="_blank" rel="noopener noreferrer">bustimes.org Route 6 page</a>.</p></div>`;
  }
- v.innerHTML=html;
+ v.innerHTML=html+proxyNotice+feedInfo;
 }
 
 function renderPick(){
@@ -1076,7 +1081,7 @@ function applyView(v){
  $$('.view').forEach(e=>e.classList.toggle('on',e.id==='view-'+v));S.view=v;
  $$('.tab').forEach(t=>t.setAttribute('aria-current',t.dataset.go===v?'page':'false'));
  $('#app').style.visibility=v==='map'?'hidden':'visible';
- const br=v==='bristol6';$('.app-mark').textContent=br?'6':'91';$('.app-mark').style.background=br?'#0e9a75':'';$('.app-heading b').textContent=br?'Route 6':'Route 91';$('.app-heading span').textContent=br?'Bristol · Kingswood':'Caledonian Road · Stop A';$('footer.f').innerHTML=br?'Vehicle positions · bustimes.org<br>GPS fixes may be delayed.':'TfL primary · bustimes.org backup<br>Always check the stop display before travelling.';
+ const br=v==='bristol6';$('.app-mark').textContent=br?'6':'91';$('.app-mark').style.background=br?'var(--ok)':'';$('.app-heading b').textContent=br?'Route 6':'Route 91';$('.app-heading span').textContent=br?'Bristol · Kingswood':'Caledonian Road · Stop A';$('footer.f').innerHTML=br?'Vehicle positions · bustimes.org<br>GPS fixes may be delayed.':'TfL primary · bustimes.org backup<br>Always check the stop display before travelling.';
  if(br)loadBristol6();
  render();mapOn=v==='map';if(v==='map'){initMap();setTimeout(()=>{mapResize();updateMap(true)},60)}else window.scrollTo(0,0);
 }
@@ -1246,7 +1251,7 @@ document.addEventListener('change',async e=>{const t=e.target;const m={cLeave:'l
  if(t.id==='sUnits'||t.id==='sTheme'){cfg[t.id==='sUnits'?'units':'theme']=t.value;persist();applyTheme();render()}
 });
 /* ---------- theme, clock, PWA ---------- */
-function applyTheme(){want();const d=cfg.theme==='auto'?(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'):cfg.theme;document.documentElement.dataset.theme=d;document.documentElement.dataset.motion=reduced()?'reduced':'';$('meta[name=theme-color]').content=d==='dark'?'#070a10':'#e8edf6'}
+function applyTheme(){want();const d=cfg.theme==='auto'?(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'):cfg.theme;document.documentElement.dataset.theme=d;document.documentElement.dataset.motion=reduced()?'reduced':'';$('meta[name=theme-color]').content=d==='dark'?'#101715':'#f5f4ee'}
 function tick(){$('#clock').textContent=fmtTS(Date.now());if(S.stop&&S.view==='overview'){const P=calc();if(P||S.chosen===null)renderHero(P)}}
 function pwa(){
  // Files need to be served over HTTPS (or localhost), not opened from file://.
