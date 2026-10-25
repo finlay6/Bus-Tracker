@@ -57,6 +57,7 @@ input[type=text],input[type=url],select{font:inherit;font-size:14px;color:var(--
 .model-route-switch{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--surface);border-radius:9px;padding:4px;margin:0 0 24px}.model-route-switch button{display:flex;align-items:baseline;justify-content:center;gap:8px;background:transparent;padding:11px 9px;min-height:45px;border-radius:6px}.model-route-switch button[aria-pressed=true]{background:var(--glass);box-shadow:0 1px 3px #0001}.model-route-switch b{font-size:14px;font-weight:650}.model-route-switch span{font-size:11px;color:var(--mut)}.models-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 5px}.models-heading h2{font-size:19px}.models-heading button{border-radius:50%;background:transparent;font-size:23px;padding:0;width:40px;min-width:40px;min-height:40px}.models-status{color:var(--mut);font-size:11px;line-height:1.6;margin:4px 0 17px}.model-list{margin:12px 0 20px}.model-item{padding:19px 0;border-bottom:1px solid var(--line)}.model-item:first-child{padding-top:7px}.model-item h3{font-size:17px;font-weight:600;line-height:1.5;margin:0 0 5px}.model-evidence{font-size:11px;color:var(--mut);margin:0;line-height:1.6}.model-liveries{list-style:none;padding:0;margin:16px 0 0;display:flex;flex-direction:column;gap:12px}.model-liveries li{display:flex;align-items:center;gap:11px;font-size:12px;color:var(--ink)}.model-liveries .b6-livery-swatch{width:34px;height:24px}.models-coverage{border-top:1px solid var(--line);padding:16px 0;color:var(--mut);font-size:11px;line-height:1.7}.models-coverage summary{font-size:12px;cursor:pointer;min-height:30px}.models-empty{font-size:14px;color:var(--mut);padding:15px 0 25px}.tab{max-width:100px}nav.tabs{padding-left:max(4px,calc((100% - 660px)/2));padding-right:max(4px,calc((100% - 660px)/2))}
 @media(max-width:360px){.model-route-switch button{gap:6px}.model-route-switch b{font-size:13px}.model-route-switch span{font-size:10px}.model-item h3{font-size:16px}}
 
+.predicted-livery{display:block;font-size:10px;color:var(--mut);margin-top:2px}
 </style>
 </head>
 <body>
@@ -1058,9 +1059,9 @@ function modelRefKey(ref){return ref?.reg?'reg:'+vehicleKey(ref.reg):ref?.id!=nu
 function modelAddRef(state,ref,evidence){
  const key=modelRefKey(ref);if(!key)return;
  let entry=state.refs.get(key);
- if(!entry){entry={ref:{...ref},seen:false,upcoming:false,expected:false,vehicle:null};state.refs.set(key,entry)}
+ if(!entry){entry={ref:{...ref},seen:false,upcoming:false,expected:false,predicted:false,vehicle:null};state.refs.set(key,entry)}
  else entry.ref={...entry.ref,...Object.fromEntries(Object.entries(ref).filter(([,v])=>v!=null&&v!==''))};
- for(const field of ['seen','upcoming','expected'])if(evidence[field])entry[field]=true;
+ for(const field of ['seen','upcoming','expected','predicted'])if(evidence[field])entry[field]=true;
 }
 function modelCurrent(state,ticket){return MODELS.routes[state.line]===state&&state.date===modelToday()&&state.ticket===ticket}
 function modelRebuild(state){
@@ -1069,13 +1070,15 @@ function modelRebuild(state){
   const name=String(item.vehicle?.vehicle_type?.name||'').trim();
   if(!name){unknown++;continue}
   const key=modelTextKey(name);let group=groups.get(key);
-  if(!group){group={name,seen:false,upcoming:false,expected:false,liveries:new Map()};groups.set(key,group)}
-  for(const field of ['seen','upcoming','expected'])group[field]||=item[field];
+  if(!group){group={name,seen:false,upcoming:false,expected:false,predicted:false,predictedAt:null,liveries:new Map()};groups.set(key,group)}
+  for(const field of ['seen','upcoming','expected','predicted'])group[field]||=item[field];
+  if(item.predictedAt)group.predictedAt=group.predictedAt?Math.min(group.predictedAt,item.predictedAt):item.predictedAt;
   if(state.line==='6'){
    const livery=b6LiveryData(item.vehicle),label=String(livery?.name||'').trim();
    const background=b6LiveryPreviewCSS(item.vehicle);
    const lkey=label?'name:'+modelTextKey(label):background?'pattern:'+background:'unknown';
-   if(!group.liveries.has(lkey))group.liveries.set(lkey,{label:label||(background?'Unlabelled livery':'Livery not supplied'),vehicle:item.vehicle});
+   if(!group.liveries.has(lkey))group.liveries.set(lkey,{label:label||(background?'Unlabelled livery':'Livery not supplied'),vehicle:item.vehicle,seen:false,predicted:false});
+   const variant=group.liveries.get(lkey);variant.seen||=item.seen;variant.predicted||=item.predicted;
   }
  }
  state.groups=[...groups.values()].sort((a,b)=>a.name.localeCompare(b.name,'en',{numeric:true}));state.unknown=unknown;
@@ -1161,7 +1164,7 @@ async function loadModels(line=MODELS.selected,force=false){
  state.loading=true;state.source=cfg.proxy||'';state.historyError=null;state.expectedError=null;state.progress='Finding today’s journeys…';
  const ticket=++state.ticket;
  // Keep this day's recorded models while refreshing, but never retain old arrival predictions.
- for(const [key,item] of state.refs){if(!item.seen)state.refs.delete(key);else{item.expected=false;item.upcoming=false}}
+ for(const [key,item] of state.refs){if(!item.seen)state.refs.delete(key);else{item.expected=false;item.upcoming=false;item.predicted=false;item.predictedAt=null}}
  modelRebuild(state);if(S.view==='models')renderModels();
  try{
   await modelService(state);
@@ -1177,10 +1180,113 @@ async function loadModels(line=MODELS.selected,force=false){
    if(S.view==='models'&&MODELS.selected===line)renderModels();
   }};
   await Promise.all([worker(),worker(),worker()]);
+  if(modelCurrent(state,ticket))await modelPredictedWorkings(state,ticket,force);
   if(modelCurrent(state,ticket)){modelRebuild(state);state.checkedAt=Date.now()}
  }catch(error){state.historyError=error?.kind||'unavailable';state.historyComplete=false;state.checkedAt=Date.now()}
  finally{state.loading=false;if(S.view==='models'&&MODELS.selected===line)renderModels()}
 }
+// Bustimes publishes inferred next workings on vehicle pages, outside its journey API.
+// Read those prediction rows; do not turn a timetable block into a guaranteed allocation.
+MODELS.predictionCache=new Map();MODELS.blockCache=new Map();MODELS.tripCache=new Map();
+function predictionDocument(html,date){
+ const doc=new DOMParser().parseFromString(html,'text/html');
+ const selected=doc.querySelector('select[name="date"] option[selected]')||doc.querySelector('input[name="date"]');
+ if(selected?.getAttribute('value')!==date)throw new ApiErr('format','Vehicle history date was not confirmed');
+ return doc;
+}
+function parseModelPredictions(html,state,tripIds=null){
+ const doc=predictionDocument(html,state.date),times=[];
+ for(const row of doc.querySelectorAll('tr.prediction')){
+  const cells=[...row.querySelectorAll('td')];
+  if(cells.length<3||cells[0].textContent.trim()!==state.line)continue;
+  const clock=cells[2].textContent.trim();if(/[⁺¹]|\+\s*1/.test(clock))continue;
+  const time=/^(\d{1,2}:\d{2})(?::\d{2})?$/.exec(clock);if(!time)continue;
+  if(tripIds){
+   const href=cells[2].querySelector('a[href]')?.getAttribute('href')||'';
+   const id=/^\/trips\/(\d+)\/?(?:[?#]|$)/.exec(href)?.[1];
+   if(!id||!tripIds.has(String(id)))continue;
+  }
+  for(const when of wallTimeMs(time[1],londonCalendar(Date.parse(state.date+'T12:00:00Z')))||[]){
+   if(when>Date.now()&&londonKey(londonCalendar(when))===state.date)times.push(when);
+  }
+ }
+ return times;
+}
+async function predictionText(cache,key,path,date,force){
+ const old=cache.get(key);if(!force&&old&&old.until>Date.now())return old.html;
+ const html=await api('bt',path,{date},'text');
+ cache.set(key,{html,until:Date.now()+5*60000});return html;
+}
+async function modelFutureTrips(state,force){
+ const key=state.line+'/'+state.date,old=MODELS.tripCache.get(key);
+ if(!force&&old&&old.until>Date.now())return old.trips;
+ const trips=[],cursors=new Set();let cursor;
+ for(let page=0;page<50;page++){
+  const data=await api('bt','/api/trips/',{service:state.serviceId,date:state.date,...(cursor?{cursor}:{})});
+  if(!Array.isArray(data.results))throw new ApiErr('format','Timetable trips did not return a list');
+  trips.push(...data.results.filter(trip=>String(trip.service?.id)===String(state.serviceId)));
+  if(!data.next){MODELS.tripCache.set(key,{trips,until:Date.now()+15*60000});return trips}
+  const next=new URL(data.next,'https://bustimes.org');
+  if(next.origin!=='https://bustimes.org'||next.pathname!=='/api/trips/')throw new ApiErr('format');
+  cursor=next.searchParams.get('cursor');if(!cursor||cursors.has(cursor))throw new ApiErr('format');cursors.add(cursor);
+ }
+ throw new ApiErr('partial','Timetable scan was incomplete');
+}
+async function modelPredictedWorkings(state,ticket,force){
+ state.predictionsChecked=false;state.predictionErrors=0;state.predictionDiscoveryError=false;
+ const candidates=new Map();
+ for(const item of state.refs.values()){
+  const ref={...item.ref,id:item.ref.id??item.vehicle?.id,slug:item.ref.slug||item.vehicle?.slug};
+  if(ref.id||ref.slug)candidates.set(String(ref.id||ref.slug),ref);
+ }
+ let tripIds=null;
+ if(state.line==='6'){
+  try{
+   state.progress='Checking Route 6 timetable blocks…';if(S.view==='models'&&MODELS.selected===state.line)renderModels();
+   const trips=await modelFutureTrips(state,force);tripIds=new Set(trips.map(trip=>String(trip.id)));
+   const blocks=new Map();
+   for(const trip of trips){
+    if(!trip.block)continue;
+    const start=String(trip.start||'').match(/^(\d{1,2}):(\d{2})/);
+    const times=start&&(wallTimeMs(start[1]+':'+start[2],londonCalendar(Date.parse(state.date+'T12:00:00Z')))||[]);
+    if(times?.some(time=>time>Date.now())&&!blocks.has(trip.block))blocks.set(trip.block,trip);
+   }
+   const blockTrips=[...blocks.values()];let index=0;
+   const worker=async()=>{while(index<blockTrips.length){
+    if(!modelCurrent(state,ticket))return;
+    const trip=blockTrips[index++];
+    try{
+     const html=await predictionText(MODELS.blockCache,state.date+'/'+trip.id,'/trips/'+encodeURIComponent(trip.id)+'/block',state.date,force);
+     const doc=new DOMParser().parseFromString(html,'text/html');
+     for(const link of doc.querySelectorAll('table a[href^="/vehicles/"]')){
+      const href=link.getAttribute('href'),match=/^\/vehicles\/(\d+)\?date=(\d{4}-\d{2}-\d{2})(?:#|$)/.exec(href||'');
+      if(match&&match[2]===state.date)candidates.set(match[1],{id:match[1]});
+     }
+    }catch{state.predictionErrors++}
+   }};await Promise.all([worker(),worker()]);
+  }catch{state.predictionDiscoveryError=true}
+ }
+ const refs=[...candidates.values()];let index=0,done=0;
+ const worker=async()=>{while(index<refs.length){
+  if(!modelCurrent(state,ticket))return;
+  const ref=refs[index++];
+  try{
+   const vehicle=await modelVehicle(ref);if(!vehicle)throw new ApiErr('nf');
+   const identifier=vehicle.slug||vehicle.id;
+   const html=await predictionText(MODELS.predictionCache,state.date+'/'+identifier,'/vehicles/'+encodeURIComponent(identifier),state.date,force);
+   const times=parseModelPredictions(html,state,tripIds);
+   if(times.length){
+    const fullRef={id:vehicle.id,slug:vehicle.slug,reg:vehicle.reg};
+    modelAddRef(state,fullRef,{predicted:true});const entry=state.refs.get(modelRefKey(fullRef));
+    entry.vehicle=vehicle;entry.predictedAt=Math.min(...times);
+   }
+  }catch{state.predictionErrors++}
+  done++;state.progress=`Checking predicted workings · ${done} of ${refs.length} buses`;modelRebuild(state);
+  if(S.view==='models'&&MODELS.selected===state.line)renderModels();
+ }};await Promise.all([worker(),worker()]);
+ state.predictionsChecked=true;
+}
+
 function renderModels(){
  const state=modelState(MODELS.selected),route=MODEL_ROUTES[MODELS.selected],view=$('#view-models');if(!view)return;
  if(S.view==='models')$('#statchip').innerHTML=`<span class="chip">${state.loading?'Updating':'Today'}</span>`;
@@ -1191,13 +1297,14 @@ function renderModels(){
  if(state.historyError)html+=`<div class="banner warn">${state.groups.length?'Today’s history is incomplete. Showing the reports available.':'Journey history could not be loaded.'} ${!cfg.proxy?'If your browser blocks bustimes.org, add your proxy in Settings.':''}<button class="ghost" data-go="settings">Settings</button></div>`;
  if(state.groups.length){
   html+='<div class="model-list">'+state.groups.map(group=>{
-   const evidence=[group.seen?'Recorded today':null,group.expected?'Expected soon':null,group.upcoming?'Upcoming journey reported':null].filter(Boolean);
-   return `<article class="model-item"><h3>${esc(group.name)}</h3><p class="model-evidence">${evidence.join(' · ')}</p>${state.line==='6'?`<ul class="model-liveries" aria-label="Liveries recorded for ${esc(group.name)}">${[...group.liveries.values()].sort((a,b)=>a.label.localeCompare(b.label)).map(livery=>`<li>${b6LiveryHTML(livery.vehicle,false)}<span>${esc(livery.label)}</span></li>`).join('')}</ul>`:''}</article>`;
+   const evidence=[group.seen?'Recorded today':null,group.expected?'Expected soon':null,group.upcoming&&!group.predicted?'Upcoming journey reported':null,group.predicted?'Predicted later'+(group.predictedAt?' · from '+fmtT(group.predictedAt):''):null].filter(Boolean);
+   return `<article class="model-item"><h3>${esc(group.name)}</h3><p class="model-evidence">${evidence.join(' · ')}</p>${state.line==='6'?`<ul class="model-liveries" aria-label="Liveries for ${esc(group.name)}">${[...group.liveries.values()].sort((a,b)=>a.label.localeCompare(b.label)).map(livery=>`<li>${b6LiveryHTML(livery.vehicle,false)}<span>${esc(livery.label)}${!livery.seen&&livery.predicted?'<small class="predicted-livery">Predicted later</small>':''}</span></li>`).join('')}</ul>`:''}</article>`;
   }).join('')+'</div>';
  }else if(!state.loading&&!state.historyError)html+='<p class="models-empty">No identified models have been reported on this route today.</p>';
  if(state.unknown&&!state.loading)html+=`<p class="models-status">${state.unknown} vehicle record${state.unknown===1?' is':'s are'} missing model information.</p>`;
  if(state.expectedError&&!state.loading)html+=`<p class="models-status">${state.line==='91'?'Near-term arrival predictions':'The current tracking feed'} could not be checked.</p>`;
- html+=`<details class="models-coverage"><summary>About this list</summary><p>One entry per named bus model. ${state.line==='6'?'Each livery is listed once beneath its model. Livery names describe the vehicle record and may have changed since a journey.':''}</p><p>${state.historyComplete?'All pages of today’s available journey history have been checked.':'Journey history may be incomplete.'} Missing tracking or model records can leave buses out.</p><p>${state.line==='91'?'“Expected soon” means TfL currently predicts a bus on Route 91 within the next two hours. ':''}Public feeds do not provide a complete list of planned vehicle allocations for the rest of the day. A reported upcoming journey is not a guaranteed future assignment.</p><p>Today uses the Europe/London calendar date. Model names come from bustimes.org; different named variants remain separate.</p></details>`;
+ if(state.predictionsChecked&&!state.loading&&(state.predictionErrors||state.predictionDiscoveryError))html+='<p class="models-status">Some predicted workings could not be checked; upcoming coverage is partial.</p>';
+ html+=`<details class="models-coverage"><summary>About this list</summary><p>One entry per named bus model. ${state.line==='6'?'Each livery is listed once beneath its model. Livery names describe the vehicle record and may have changed since a journey.':''}</p><p>${state.historyComplete?'All pages of today’s available journey history have been checked.':'Journey history may be incomplete.'} Missing tracking or model records can leave buses out.</p><p>${state.line==='91'?'“Expected soon” means TfL currently predicts a bus on Route 91 within the next two hours. ':''}“Predicted later” comes from bustimes.org’s vehicle-page predictions, inferred from recent workings and timetable blocks. For Route 6, its timetable blocks are also checked for buses switching in from other routes. Predictions can change and are not operator-confirmed allocations; coverage can still be incomplete.</p><p>Today uses the Europe/London calendar date. Model names come from bustimes.org; different named variants remain separate.</p></details>`;
  view.innerHTML=html;
 }
 
