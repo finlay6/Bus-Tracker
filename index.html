@@ -45,6 +45,7 @@ input[type=text],input[type=url],select{font:inherit;font-size:14px;color:var(--
 @media(min-width:720px){.departure-focus{min-height:245px;padding:32px}.leave-value{font-size:96px}#view-overview>.view-title h1{font-size:24px}.next-bus-row{padding:16px 0}}
 @media(max-width:360px){.departure-focus{padding:25px 22px;min-height:211px}.leave-value{font-size:74px}.leave-message{font-size:40px}#view-overview>.view-title h1{font-size:20px}.next-bus-row>div{gap:9px}}
 
+.arrival-fleet{font-weight:600;color:var(--ink)}.arrival-model{display:inline-block;margin-top:3px}.arrival-location{display:inline-block;margin-top:4px;font-size:10px}
 </style>
 </head>
 <body>
@@ -276,6 +277,24 @@ async function ensureSeq(dir){
    S.seq={stopId:S.stop.id,dir:d,stops,line:line||stops.map(s=>[s.lon,s.lat])};return}catch(e){if(e.kind==='rate')throw e}
  }
 }
+// Vehicle records are keyed by registration; never use one bus's fleet details for another.
+const vehicleKey=reg=>String(reg||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+const vehicleRecords=new Map();
+async function vehicleRecord(reg){
+ const key=vehicleKey(reg);if(!key)return null;
+ const cached=vehicleRecords.get(key);
+ if(cached?.pending)return cached.pending;
+ if(cached&&cached.until>Date.now()){if(cached.error)throw cached.error;return cached.value}
+ const entry={};vehicleRecords.set(key,entry);
+ entry.pending=(async()=>{
+  try{
+   const j=await api('bt','/api/vehicles/',{reg:String(reg).trim()});
+   entry.value=(Array.isArray(j)?j:j.results||[]).find(v=>vehicleKey(v.reg)===key)||null;
+   entry.until=Date.now()+(entry.value?15*60000:60000);return entry.value;
+  }catch(error){entry.error=error;entry.until=Date.now()+60000;throw error}
+  finally{entry.pending=null}
+ })();return entry.pending;
+}
 async function loadVehicle(b){
  if(!b?.vehicleId)return;
  const vehicleId=String(b.vehicleId).trim();
@@ -283,7 +302,7 @@ async function loadVehicle(b){
   try{S.vArr=(await api('tfl','/Vehicle/'+encodeURIComponent(vehicleId)+'/Arrivals')).filter(x=>x.lineName==='91').sort((a,c)=>a.timeToStation-c.timeToStation)}catch{S.vArr=null}
  }else S.vArr=null;
  if(S.vehId!==vehicleId){S.vehId=vehicleId;S.veh=null;S.gps=null;S.vehErr=null;S.btGpsAt=0;S.timingFor=null;S.timingPoints=[];S.timingAt=0;
-  try{const j=await api('bt','/api/vehicles/',{reg:vehicleId});const nz=q=>String(q||'').toUpperCase().replace(/[^A-Z0-9]/g,'');const v=(j.results||[]).find(r=>nz(r.reg)===nz(vehicleId));S.veh=v||null;if(!v)S.vehErr='nf'}catch(e){S.vehErr=e.kind||'err'}
+  try{const v=await vehicleRecord(vehicleId);S.veh=v||null;if(!v)S.vehErr='nf'}catch(e){S.vehErr=e.kind||'err'}
  }
  if(S.veh?.id&&S.vehId===vehicleId){
   await Promise.allSettled([loadBtGPS(S.veh,vehicleId),...(cfg.timing?[loadBtJourneyInfo(S.veh,false)]:[])]);
@@ -612,9 +631,43 @@ function renderTraffic(P){
  h+=`<div class="glass"><h3>Roadworks and incidents ${S.seq?'along Route 91':'near your stop'}</h3>${S.roadsErr?'<p class="mut">TfL road disruption feed unavailable.</p>':!S.inc.length?'<p>No reported disruptions were found along the available route area. This is not a live traffic-speed reading.</p>'+tag('live','TfL Road Disruption'):S.inc.slice(0,12).map(i=>`<div class="kv"><div class="k">${esc(i.cat)}<br><span class="small mut">${esc(i.sev)}${i.ahead?' · ahead':''}</span></div><div class="v">${esc(i.loc||i.text).slice(0,160)}<br><span class="small mut" style="font-weight:500">${esc(i.eff)}</span>${tag('live','TfL')}</div></div>`).join('')}</div>`;
  v.innerHTML=h;
 }
+const arrivalVehicleQueue=[],arrivalVehicleQueued=new Set();let arrivalVehicleActive=0;
+function arrivalVehicleDetails(reg){
+ const key=vehicleKey(reg),entry=vehicleRecords.get(key);
+ const vehicle=key&&vehicleKey(S.vehId)===key&&S.veh?S.veh:entry?.value;
+ const waiting=!S.demo&&!!key&&!vehicle&&(!entry||!!entry.pending||entry.until<=Date.now());
+ return {fleet:vehicle?.fleet_code||vehicle?.fleet_number||(waiting?'Loading fleet number…':'Fleet number unavailable'),model:vehicle?.vehicle_type?.name||(waiting?'Loading bus model…':'Bus model unavailable')};
+}
+function updateArrivalVehicleRows(){
+ $$('#view-arrivals [data-arrival-vehicle]').forEach(row=>{
+  const detail=arrivalVehicleDetails(row.dataset.arrivalVehicle);
+  $('.arrival-fleet',row).textContent=detail.fleet;
+  $('.arrival-model',row).textContent=detail.model;
+ });
+}
+function primeArrivalVehicles(){
+ if(S.demo)return;
+ for(const a of S.arr){
+  const key=vehicleKey(a.vehicleId),entry=vehicleRecords.get(key);
+  if(!key||arrivalVehicleQueued.has(key)||entry?.pending||(entry&&entry.until>Date.now())||(vehicleKey(S.vehId)===key&&S.veh))continue;
+  arrivalVehicleQueued.add(key);arrivalVehicleQueue.push({key,reg:a.vehicleId});
+ }
+ const pump=()=>{
+  while(arrivalVehicleActive<2&&arrivalVehicleQueue.length){
+   const {key,reg}=arrivalVehicleQueue.shift();arrivalVehicleActive++;
+   vehicleRecord(reg).catch(()=>{}).finally(()=>{
+    arrivalVehicleActive--;arrivalVehicleQueued.delete(key);
+    if(S.view==='arrivals')updateArrivalVehicleRows();pump();
+   });
+  }
+ };pump();
+ // A detail lookup may already be running for the selected bus. Share that result too.
+ for(const a of S.arr){const pending=vehicleRecords.get(vehicleKey(a.vehicleId))?.pending;if(pending)pending.finally(()=>{if(S.view==='arrivals')updateArrivalVehicleRows()}).catch(()=>{})}
+}
 function renderArrivals(P){
  const v=$('#view-arrivals');
- v.innerHTML=`${viewTitle('London · Route 91','Live bus arrivals',esc(S.stop?.name||'Select a stop')+' · Stop '+esc(S.stop?.letter||'?'))}<div class="glass arrival-list"><h2>91 · ${esc(S.arr[0]?.destinationName||'Route 91')}</h2><p class="arrival-source">${tag(S.demo?'demo':S.arrMode==='scheduled'?'sched':'live',S.demo?'Demo':S.arrSource==='bt'?'bustimes.org':'TfL Arrivals')}</p>${S.arr.length?S.arr.map(a=>{const t=Date.parse(a.expectedArrival),m=Math.max(0,Math.round((t-Date.now())/60000));return `<div class="arrival-row"><div class="arrival-left"><b>${esc(a.destinationName||'Route 91')}</b><p>${esc(a.vehicleId||'Vehicle not identified')}${a.predictionKind==='scheduled'?tag('sched'):''}<br>${esc(a.currentLocation||'')}</p>${a.vehicleId?`<button class="ghost" data-follow="${esc(a.vehicleId)}">${cfg.followVid===a.vehicleId?'Following ✓':'Follow bus'}</button>`:''}</div><div class="arrival-right"><strong>${m===0?'Due':m+' <small>min</small>'}</strong><span>${fmtT(t)}</span></div></div>`}).join(''):'<p style="padding:18px">No buses found.</p>'}</div>`;
+ v.innerHTML=`${viewTitle('London · Route 91','Live bus arrivals',esc(S.stop?.name||'Select a stop')+' · Stop '+esc(S.stop?.letter||'?'))}<div class="glass arrival-list"><h2>91 · ${esc(S.arr[0]?.destinationName||'Route 91')}</h2><p class="arrival-source">${tag(S.demo?'demo':S.arrMode==='scheduled'?'sched':'live',S.demo?'Demo':S.arrSource==='bt'?'bustimes.org':'TfL Arrivals')}</p>${S.arr.length?S.arr.map(a=>{const t=Date.parse(a.expectedArrival),m=Math.max(0,Math.round((t-Date.now())/60000)),detail=arrivalVehicleDetails(a.vehicleId);return `<div class="arrival-row" data-arrival-vehicle="${esc(a.vehicleId||'')}"><div class="arrival-left"><b>${esc(a.destinationName||'Route 91')}</b><p><span class="arrival-fleet">${esc(detail.fleet)}</span>${a.predictionKind==='scheduled'?tag('sched'):''}<br><span class="arrival-model">${esc(detail.model)}</span>${a.currentLocation?`<br><span class="arrival-location">${esc(a.currentLocation)}</span>`:''}</p>${a.vehicleId?`<button class="ghost" data-follow="${esc(a.vehicleId)}">${cfg.followVid===a.vehicleId?'Following ✓':'Follow bus'}</button>`:''}</div><div class="arrival-right"><strong>${m===0?'Due':m+' <small>min</small>'}</strong><span>${fmtT(t)}</span></div></div>`}).join(''):'<p style="padding:18px">No buses found.</p>'}</div>`;
+ primeArrivalVehicles();
 }
 
 function renderExplain(P){
